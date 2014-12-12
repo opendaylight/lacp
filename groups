@@ -1,0 +1,6 @@
+# UUID                                  	Group Name
+#
+ef5eca0c2d52f105b249d4670cce11a33546ab75	Non-Interactive lacp users
+global:Anonymous-Users                  	Anonymous Users
+global:Registered-Users                 	Registered Users
+ldap:cn=gerrit-lacp-committers,ou=Groups,dc=opendaylight,dc=org	ldap/gerrit-lacp-committers
