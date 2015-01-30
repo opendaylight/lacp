@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.opendaylight.lacp</groupId>
+  <artifactId>lacp</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <prerequisites>
+    <maven>4.0</maven>
+  </prerequisites>
+  <modules>
+    <module>parent</module>
+    <module>lacp-main</module>
+    <module>features</module>
+<!--
+    <module>distribution/base</module>
+    <module>distribution/karaf</module>
+-->
+  </modules>
+  <scm>
+    <connection>scm:git:ssh://git.opendaylight.org:29418/lacp.git</connection>
+    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/lacp.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://wiki.opendaylight.org/view/Lacp:Main</url>
+  </scm>
+</project>

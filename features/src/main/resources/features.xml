@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features name="lacp-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
+
+  <feature name='odl-lacp-plugin' description="Opendaylight :: LACP :: Plugin" version='${project.version}'>
+    <bundle>mvn:org.opendaylight.lacp.main/lacp.main.impl/${project.version}</bundle>
+    <configfile finalname="${config.configfile.directory}/${config.lacp.main.configfile}">mvn:org.opendaylight.lacp.main/lacp.main.config/${project.version}/xml/config</configfile>
+  </feature>
+</features>
