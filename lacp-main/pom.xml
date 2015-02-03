@@ -17,9 +17,7 @@
   <packaging>pom</packaging>
 
   <modules>
-<!--
     <module>config</module>
     <module>implementation</module>
--->
   </modules>
 </project>
