@@ -1,0 +1,36 @@
+module lacp-node {
+    namespace "urn:opendaylight:lacp:node";
+    prefix lacpnode;
+
+    import yang-ext {prefix ext; revision-date "2013-07-09";}
+    import opendaylight-inventory {prefix inv; revision-date "2013-08-19";}
+    import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
+    import lacp-aggregator {prefix lacpagg; revision-date "2015-01-31";}    
+    revision "2015-01-31" {
+	    description "Lacp Node data";
+    }
+	
+    grouping lag-node {
+		leaf system-id {
+	    		type yang:mac-address;
+	    		description "Mac address component of system identifier";
+		}
+		leaf system-priority {
+	    		type uint16;
+	    		description "The priority assigned to the system,(Assigned by admin/system policy)";
+		}
+
+                list lacp-aggregators {
+                        key "agg-id";
+                        description "List of lacp aggregators in the system";
+                        uses lacpagg:lacpaggregator;
+                }
+    }
+    
+    augment "/inv:nodes/inv:node" {
+        ext:augment-identifier "lacp-node";
+	description "Augmenting the lacp-node to the inventory node and uniquely identified as lacp-node";
+        uses lag-node;
+    }
+}
+

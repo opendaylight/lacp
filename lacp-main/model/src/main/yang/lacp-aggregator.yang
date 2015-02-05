@@ -1,0 +1,72 @@
+
+module lacp-aggregator {
+    namespace "urn:opendaylight:lacp:aggregator";
+    prefix lacpagg;
+    import yang-ext {prefix ext; revision-date "2013-07-09";}
+    import opendaylight-inventory {prefix inv; revision-date "2013-08-19";}
+    import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
+    import lacp-port {prefix lacpport; revision-date "2015-01-31";}
+    revision "2015-01-31" {
+	    description "Lacp Aggregator";
+    }
+    typedef agg-ref {
+	type instance-identifier;
+    }     
+
+
+   grouping lacpaggregator {
+	leaf agg-id {
+	    type uint16;
+	    description "Uniquely identify an aggregator within the system ";
+	}
+
+	leaf actor-agg-mac-address {
+	    type yang:mac-address;
+	    description "The Mac address assigned to the aggregator(Assigned by admin/system policy)";
+	}
+
+       	leaf actor-oper-agg-key {
+	    type uint16;
+	    description "The oper key value associated with the aggregator(Assigned by the Actor/Partner)";
+	}
+	
+       list list-of-lag-ports {
+	    	uses lacpport:lag-port;
+	} 
+
+	leaf partner-agg-mac-address {
+	    type yang:mac-address;
+	    description "The Mac address assigned to the aggregator(Assigned by admin/system policy)";
+	}
+	
+        leaf partner-system-id {
+	    type yang:mac-address;
+	    description "The Mac address assigned to the remote system of which this aggregator is connected. If the aggregator has no ports, this variable is set to 0x00-00-00-00-00-00";
+	}
+
+	leaf partner-system-priority {
+	    type uint16;
+	    description "The system priority assigned to the remote system of which this aggregator is connected. If the aggregator has no ports, this variable is set to 0";
+	}
+
+	leaf partner-oper-agg-key {
+	    type uint16;
+	    description "The oper key value associated with the aggregator(Assigned by the Actor/Partner)";
+	}
+
+	leaf lag-groupid {
+	    type int64;
+	    description "Group ID";
+	}
+
+	leaf non-lag-groupid {
+	    type int64;
+	    description "Group ID";
+	}
+
+    }
+
+
+}
+
+
