@@ -1,0 +1,64 @@
+module lacp-main {
+    yang-version 1;
+    namespace "urn:opendaylight:lacp:lacp-main";
+    prefix lacp-main;
+    
+  import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
+  import config { prefix config; revision-date 2013-04-05; }
+
+  description
+    "This module contains the base YANG definitions for
+    lacp-main implementation.";
+
+  revision 2014-12-16 {
+    description "Lacp Main Implementation.";
+  } 
+    
+  identity lacp-main {
+    base config:module-type;
+    config:java-name-prefix Lacp-main;
+  } 
+    
+  augment "/config:modules/config:module/config:configuration" {
+    case lacp-main {
+      when "/config:modules/config:module/config:type = 'lacp-main'";
+
+     leaf lacp-flow-table-id {
+        type uint8;
+      }
+      leaf lacp-flow-priority {
+        type uint16;
+      }
+      leaf lacp-flow-hard-timeout {
+        type uint16;
+      }
+      leaf lacp-flow-idle-timeout {
+        type uint16;
+      }
+        container notification-service {
+        uses config:service-ref {
+          refine type {
+            mandatory true;
+            config:required-identity mdsal:binding-notification-service;
+          }
+        }
+      }
+      container data-broker {
+        uses config:service-ref {
+          refine type {
+            mandatory false;
+            config:required-identity mdsal:binding-async-data-broker;
+          }
+        }
+      }
+      container rpc-registry {
+        uses config:service-ref {
+          refine type {
+            mandatory true;
+            config:required-identity mdsal:binding-rpc-registry;
+          }
+        }
+      }
+   }
+}
+}

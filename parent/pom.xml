@@ -55,6 +55,16 @@
       <artifactId>yang-common</artifactId>
       <version>${yangtools.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>config-api</artifactId>
+      <version>${config.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>sal-binding-config</artifactId>
+      <version>${mdsal.version}</version>
+    </dependency>
   </dependencies>
   </dependencyManagement>
   
