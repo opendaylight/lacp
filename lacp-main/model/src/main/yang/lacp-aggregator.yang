@@ -5,7 +5,6 @@ module lacp-aggregator {
     import yang-ext {prefix ext; revision-date "2013-07-09";}
     import opendaylight-inventory {prefix inv; revision-date "2013-08-19";}
     import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
-    import lacp-port {prefix lacpport; revision-date "2015-01-31";}
     revision "2015-01-31" {
 	    description "Lacp Aggregator";
     }
@@ -30,9 +29,13 @@ module lacp-aggregator {
 	    description "The oper key value associated with the aggregator(Assigned by the Actor/Partner)";
 	}
 	
-       list list-of-lag-ports {
-	    	uses lacpport:lag-port;
-	} 
+        list list-of-lag-ports {
+		leaf lacp-port-ref {
+            		type inv:node-connector-ref;
+            		description "The set of ports that belongs to the link aggregation group ";
+		}
+        } 
+
 
 	leaf partner-agg-mac-address {
 	    type yang:mac-address;
@@ -59,13 +62,12 @@ module lacp-aggregator {
 	    description "Group ID";
 	}
 
-	leaf non-lag-groupid {
-	    type int64;
-	    description "Group ID";
+	leaf lag-node-ref {
+        	type inv:node-ref;
+            	description "The set of ports that belongs to the link aggregation group ";
 	}
 
     }
-
 
 }
 

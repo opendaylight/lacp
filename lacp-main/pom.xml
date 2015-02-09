@@ -19,5 +19,6 @@
   <modules>
     <module>config</module>
     <module>implementation</module>
+    <module>model</module>
   </modules>
 </project>

@@ -5,7 +5,7 @@ module lacp-port {
     import yang-ext {prefix ext; revision-date "2013-07-09";}
     import opendaylight-inventory {prefix inv; revision-date "2013-08-19";}
     import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
-//    import lacp-aggregator {prefix lacpagg; revision-date "2015-01-31";}
+    import lacp-aggregator {prefix lacpagg; revision-date "2015-01-31";}
     revision "2015-01-31" {
 	    description "Lacp Port";
     }
@@ -28,18 +28,11 @@ module lacp-port {
              description "The port number assigned to the port (Assigned by admin/system policy)";
         }
 
-
-
-	leaf nodeconnector-ref {
-	    type inv:node-connector-ref;
-	    description "The set of ports that belongs to the link aggregation group ";
-	} 
-
-/*            leaf lacp-agg-ref {
-             	type lacpagg:agg-ref;
-                description "Reference to the Aggregator";
-             	config false;
-            } */
+        leaf lacp-agg-ref {
+            type lacpagg:agg-ref;
+            description "Reference to the Aggregator";
+            config false;
+         } 
 
  
         leaf logical-nodeconnector-ref {
