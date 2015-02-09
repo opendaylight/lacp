@@ -25,6 +25,12 @@ module lacp-node {
                         description "List of lacp aggregators in the system";
                         uses lacpagg:lacpaggregator;
                 }
+
+        	leaf non-lag-groupid {
+            		type int64;
+            		description "Group ID";
+        	}
+
     }
     
     augment "/inv:nodes/inv:node" {
