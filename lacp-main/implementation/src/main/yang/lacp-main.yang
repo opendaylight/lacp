@@ -1,3 +1,8 @@
+/*								  	
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ */
+
+
 module lacp-main {
     yang-version 1;
     namespace "urn:opendaylight:lacp:lacp-main";
