@@ -29,6 +29,7 @@
     <karaf.version>3.0.1</karaf.version>
     <ovsdb.version>1.1.0-SNAPSHOT</ovsdb.version>
     <bundle.plugin.version>2.4.0</bundle.plugin.version>
+    <l2switch.version>0.2.0-SNAPSHOT</l2switch.version>
     <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
     <config.lacp.main.configfile>93-lacpmain.xml</config.lacp.main.configfile>
   </properties>
@@ -50,6 +51,16 @@
       <artifactId>model-topology</artifactId>
       <version>${mdsal.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller.model</groupId>
+      <artifactId>model-inventory</artifactId>
+      <version>${mdsal.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.opendaylight.yangtools.model</groupId>
+        <artifactId>ietf-yang-types</artifactId>
+        <version>${ietf-yang-types.version}</version>
+      </dependency>
     <dependency>
       <groupId>org.opendaylight.yangtools</groupId>
       <artifactId>yang-common</artifactId>
