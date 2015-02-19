@@ -2,7 +2,7 @@ package org.opendaylight.lacp.timer;
 
 public class BasePortTimerRegister {
 	private int portID;
-	private int systemID;
+	private long systemID;
 	
 	BasePortTimerRegister(int pid, int sysid){
 		portID = pid;
@@ -13,9 +13,13 @@ public class BasePortTimerRegister {
 		portID = pid;
 	}
 	
-	void setSystemID (int sysid){
+	void setSystemID (long sysid){
 		systemID = sysid;
 	}
+
+        long getSystemID(){
+                return systemID;
+        }
 	
 	int getPortID(){
 		return portID;
