@@ -18,7 +18,8 @@
 
   <modules>
     <module>config</module>
-    <module>implementation</module>
     <module>model</module>
+    <module>common</module>
+    <module>implementation</module>
   </modules>
 </project>

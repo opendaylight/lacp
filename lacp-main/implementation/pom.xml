@@ -20,7 +20,7 @@
       <artifactId>sal-binding-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.controller.model</groupId>
+      <groupId>org.opendaylight.openflowplugin.model</groupId>
       <artifactId>model-flow-service</artifactId>
     </dependency>
     <dependency>
@@ -31,12 +31,6 @@
       <groupId>org.opendaylight.yangtools</groupId>
       <artifactId>yang-common</artifactId>
     </dependency>
-<!--
-    <dependency>
-      <groupId>org.opendaylight.controller.thirdparty</groupId>
-      <artifactId>net.sf.jung2</artifactId>
-    </dependency>
--->
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>config-api</artifactId>
@@ -55,16 +49,11 @@
       <artifactId>loopremover-model</artifactId>
       <version>${l2switch.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.opendaylight.lacp.main</groupId>
       <artifactId>lacpmain-model</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-
-   
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
