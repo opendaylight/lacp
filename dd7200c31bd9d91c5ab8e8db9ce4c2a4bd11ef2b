@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_3527f0cb",
+        "filename": "lacp-main/common/src/main/java/org/opendaylight/lacp/queue/LacpPDUQueue.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-03-02T12:31:10Z",
+      "side": 1,
+      "message": "Instead of having a synchronized block and null check for each invocation of getLacpPDUQueueInstance(), the instance variable can be a static final object and initialized directly. this will avoid both synchronized and null checks.",
+      "revId": "dd7200c31bd9d91c5ab8e8db9ce4c2a4bd11ef2b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_350e103c",
+        "filename": "lacp-main/common/src/main/java/org/opendaylight/lacp/queue/LacpPDUQueue.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-03-02T12:31:10Z",
+      "side": 1,
+      "message": "In enqueue, when the if condition fails, instead of directly creating queue for the switch and adding it to queueMap, we can use the addLacpQueue(). Also, in the addLacpQueue() we can make the function private so that no one else is allowed to call it. The Queue for a switch is created only in enqueue when the QueueId is not available. So QueueMap.get() and null verification can be removed there as it will be invoked only when enqueue is not able to find the queueId for the switch.",
+      "revId": "dd7200c31bd9d91c5ab8e8db9ce4c2a4bd11ef2b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_550b9c29",
+        "filename": "lacp-main/common/src/main/java/org/opendaylight/lacp/queue/LacpPortStatus.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-03-02T12:31:10Z",
+      "side": 1,
+      "message": "Correct getPortStatus function name",
+      "revId": "dd7200c31bd9d91c5ab8e8db9ce4c2a4bd11ef2b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
