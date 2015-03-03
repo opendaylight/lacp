@@ -9,6 +9,8 @@
     <feature version="${openflow.plugin.version}">odl-openflowplugin-southbound</feature>
     <feature version="${ovsdb.version}">odl-ovsdb-plugin</feature>
     <bundle>mvn:org.opendaylight.lacp.main/lacp.main.impl/${project.version}</bundle>
+    <bundle>mvn:org.opendaylight.lacp.main/lacpmain-model/${project.version}</bundle>
+    <bundle>mvn:org.opendaylight.lacp.main/lacpmain-common-impl/${project.version}</bundle>
     <configfile finalname="${config.configfile.directory}/${config.lacp.main.configfile}">mvn:org.opendaylight.lacp.main/lacp.main.config/${project.version}/xml/config</configfile>
   </feature>
 </features>
