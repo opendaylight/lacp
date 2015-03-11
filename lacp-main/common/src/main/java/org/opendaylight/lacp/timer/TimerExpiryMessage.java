@@ -4,9 +4,11 @@ import org.opendaylight.lacp.timer.Utils.timerWheeltype;
 
 public class TimerExpiryMessage {
 	int portid;
+        long switchId;
 	timerWheeltype wType;
 	
-	TimerExpiryMessage(int pid,timerWheeltype wt){
+	public TimerExpiryMessage(long swid,int pid,timerWheeltype wt){
+                switchId = swid;
 		portid = pid;
 		wType = wt;
 	}
@@ -17,7 +19,15 @@ public class TimerExpiryMessage {
 	public int getPortID(){
 		return portid;
 	}
+
+        public void setSwitchID(long swid){
+                switchId = swid;
+        }
 	
+        public long getSwitchID(){
+                return switchId;
+        }
+
 	public timerWheeltype getTimerWheelType(){
 		return wType;
 	}
