@@ -29,7 +29,7 @@ import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.lacp.util.LacpPortType;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
-//import org.opendaylight.lacp.flow.LacpFlow;
+import org.opendaylight.lacp.flow.LacpFlow;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -48,17 +48,13 @@ public class LacpNodeExtn
     private List<InstanceIdentifier<NodeConnector>> nonLacpPortList;
     private Long FlowId;
     private InstanceIdentifier<Node> nodeId;
-  //  private static final LacpFlow lacpFlow = new LacpFlow();
+    private static final LacpFlow lacpFlow = new LacpFlow();
     private static DataBroker dataService;
     private static AtomicInteger sysIden = new AtomicInteger(0);
     private static final int MAX_IDEN = 0xff000000;
     private int swId; // int id for the node.
-    /*
-    private RSMThread rsmThread;
-    */
     private boolean  deleteStatus;
     
-    /* queue id or ref to be added for packet queue and timer queue */
     public LacpNodeExtn (InstanceIdentifier nodeId)
     {
         long groupId = 0;
@@ -72,7 +68,7 @@ public class LacpNodeExtn
         nonLacpPortList = new ArrayList<InstanceIdentifier<NodeConnector>>();
         lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
         deleteStatus = false;
-        //lacpFlow.programLacpFlow(nodeId, this);
+        lacpFlow.programLacpFlow(nodeId, this);
         lacpBuilder.setNonLagGroupid(groupId);
         lagList = new Hashtable<Integer,LacpAgg>();
         ArrayList<LacpAggregators> aggList = new ArrayList<LacpAggregators>();
@@ -87,8 +83,6 @@ public class LacpNodeExtn
     private String obtainSystemMac()
     {
         int id = this.swId;
-/*        String sysId = String.format("%02x:%02x:%02x:%02x:%02x:%02x", 0, 0, (id & 0xff000000),
-                             (id & 0xff0000), (id & 0xff00), (id & 0xff));*/
         String sysId = String.format("%02x:%02x:%02x:%02x:%02x:%02x", 0, 0, (id & 0xff0000),
                                       (id & 0xff00), (id & 0xff), 1);
 
@@ -107,7 +101,7 @@ public class LacpNodeExtn
         nonLacpPortList = new ArrayList<InstanceIdentifier<NodeConnector>>();
         lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
         deleteStatus = false;
-       // lacpFlow.programLacpFlow(nodeId, this);
+        lacpFlow.programLacpFlow(nodeId, this);
         lacpBuilder.setNonLagGroupid(groupId);
 
         for (LacpAggregators lacpAggregator: aggList)
@@ -233,7 +227,7 @@ public class LacpNodeExtn
         if (delFlag == true)
         {
             /* clean up in switch */
-           // lacpFlow.removeLacpFlow(this.nodeId, this);
+            lacpFlow.removeLacpFlow(this.nodeId, this);
             updateLacpNodeDS(nodeId);
         }
         lacpBuilder = null;
