@@ -28,7 +28,7 @@ public class TimerTest {
 		System.out.println("Starting adding the Ports in wheel at " + getTime() + " and time in ms is " + System.currentTimeMillis());
 		for (int i=0;i<400;i++){
 		
-			PortWaitWhileTimerRegister objPort = new PortWaitWhileTimerRegister(i,1);
+			PortWaitWhileTimerRegister objPort = new PortWaitWhileTimerRegister((short)i,1L);
 			
 			System.out.println("Inserting Port " + i +" at " + System.currentTimeMillis());
 					
