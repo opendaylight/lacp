@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_f18f0274",
+        "filename": "lacp-main/common/src/main/java/org/opendaylight/lacp/queue/LacpPDU.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-03-12T07:34:54Z",
+      "side": 1,
+      "message": "In Constructor, should we call super() and set message type?",
+      "revId": "2c878f97280bcd28f16a7573bc437e829c1c8512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_9181de4c",
+        "filename": "lacp-main/common/src/main/java/org/opendaylight/lacp/queue/LacpTimerQueue.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-03-12T07:34:54Z",
+      "side": 1,
+      "message": "Generic comment on extending LacpQueue",
+      "revId": "2c878f97280bcd28f16a7573bc437e829c1c8512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_d1876660",
+        "filename": "lacp-main/common/src/main/java/org/opendaylight/lacp/queue/LacpTxQueue.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-03-12T07:34:54Z",
+      "side": 1,
+      "message": "Need to know the rational behind LacpTxQueue extending LacpQueue.",
+      "revId": "2c878f97280bcd28f16a7573bc437e829c1c8512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_71f3f20a",
+        "filename": "lacp-main/common/src/main/java/org/opendaylight/lacp/queue/LacpTxQueue.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-03-12T07:34:54Z",
+      "side": 1,
+      "message": "ArrayList(int initialCapacity) can be used.",
+      "revId": "2c878f97280bcd28f16a7573bc437e829c1c8512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_118dce7b",
+        "filename": "lacp-main/common/src/main/java/org/opendaylight/lacp/queue/LacpTxQueue.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-03-12T07:34:54Z",
+      "side": 1,
+      "message": "Can we model the NTT and Periodic queue as a enum?",
+      "revId": "2c878f97280bcd28f16a7573bc437e829c1c8512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_b1e97a1c",
+        "filename": "lacp-main/common/src/main/java/org/opendaylight/lacp/queue/LacpTxQueue.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-03-12T07:34:54Z",
+      "side": 1,
+      "message": "Since we have only two queues, can we create it upfront without providing the option for user to create them...",
+      "revId": "2c878f97280bcd28f16a7573bc437e829c1c8512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_ee4abd54",
+        "filename": "lacp-main/common/src/main/java/org/opendaylight/lacp/timer/TimerExpiryMessage.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-03-12T07:34:54Z",
+      "side": 1,
+      "message": "Let us change the pid type to short.",
+      "revId": "2c878f97280bcd28f16a7573bc437e829c1c8512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_4e3e51ba",
+        "filename": "lacp-main/common/src/test/java/org/opendaylight/lacp/timer/PortPeriodicTimerRegisterTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-03-12T07:34:54Z",
+      "side": 1,
+      "message": "Please change to PORT_PERIODIC in getInstance method",
+      "revId": "2c878f97280bcd28f16a7573bc437e829c1c8512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_6e578d03",
+        "filename": "lacp-main/common/src/test/java/org/opendaylight/lacp/timer/PortWaitWhileTimerRegisterTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-03-12T07:34:54Z",
+      "side": 1,
+      "message": "Please change to WAIT_WHILE in getInstance method",
+      "revId": "2c878f97280bcd28f16a7573bc437e829c1c8512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
