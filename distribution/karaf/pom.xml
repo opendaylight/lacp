@@ -158,13 +158,6 @@
         <artifactId>karaf-maven-plugin</artifactId>
         <version>${karaf.version}</version>
         <extensions>true</extensions>
-        <configuration>
-          <bootFeatures>
-            <feature>standard</feature>
-            <feature>odl-l2switch-switch</feature>
-            <feature>odl-restconf</feature>
-          </bootFeatures>
-        </configuration>
         <executions>
           <execution>
             <id>process-resources</id>
