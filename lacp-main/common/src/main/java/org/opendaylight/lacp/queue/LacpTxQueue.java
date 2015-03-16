@@ -1,10 +1,17 @@
 package org.opendaylight.lacp.queue;
 
 import java.util.ArrayList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPdu;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPduBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.SubTypeOption;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.VersionValue;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.TlvTypeOption;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.*;
+
 
 public  class LacpTxQueue extends LacpQueue {
-    private static final ArrayList<LacpQueue<LacpPDU>>  LacpTxQueueArr = 
-        new ArrayList<LacpQueue<LacpPDU>>();					
+    private static final ArrayList<LacpQueue<LacpPacketPdu>>  LacpTxQueueArr = 
+        new ArrayList<LacpQueue<LacpPacketPdu>>();					
     private static final LacpTxQueue instance = new LacpTxQueue();
 
     public static final int LACP_TX_NTT_QUEUE = 0;
@@ -37,7 +44,7 @@ public  class LacpTxQueue extends LacpQueue {
      * The utility method enqueues the data to the Tx queue.
      * It creates the queue if it is not created.
      */  	
-    public boolean enqueue(int queueId, LacpPDU pdu){
+    public boolean enqueue(int queueId, LacpPacketPdu pdu){
         boolean result = false;
         synchronized(LacpTxQueueArr.get(queueId)){
             if(isLacpQueuePresent(queueId)){
@@ -51,9 +58,9 @@ public  class LacpTxQueue extends LacpQueue {
     /*
      * Dequeues the data from the Tx queue
      */  
-    public LacpPDU dequeue(int queueId){
-        LacpPDU obj = null;
-        LacpQueue<LacpPDU> lacpTxQueueId = LacpTxQueueArr.get(queueId);
+    public LacpPacketPdu dequeue(int queueId){
+        LacpPacketPdu obj = null;
+        LacpQueue<LacpPacketPdu> lacpTxQueueId = LacpTxQueueArr.get(queueId);
 
         if(lacpTxQueueId != null){
             synchronized(LacpTxQueueArr.get(queueId)){
@@ -68,7 +75,7 @@ public  class LacpTxQueue extends LacpQueue {
      */ 
     public boolean addLacpQueue(int queueId){
         boolean result = true;
-        LacpQueue<LacpPDU> lacpTxQueueId = new LacpQueue<LacpPDU>();
+        LacpQueue<LacpPacketPdu> lacpTxQueueId = new LacpQueue<LacpPacketPdu>();
 
         LacpTxQueueArr.add(queueId, lacpTxQueueId);
         return result;

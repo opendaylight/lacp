@@ -5,6 +5,14 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+
+import org.opendaylight.lacp.packethandler.PduDecoderProcessor;
+import org.opendaylight.lacp.packethandler.TxProcessor;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+
 /*
 import org.opendaylight.lacp.inventoryListener.LacpNodeListener;
 */
@@ -18,6 +26,10 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
     private LacpNodeListener lacpListener;
     */
     private Registration listenerRegistration = null;
+
+    private final ExecutorService pduDecoderExecutor = Executors.newCachedThreadPool();
+    private final ExecutorService TxThrExecutor = Executors.newFixedThreadPool(10);
+ 
 
     public LacpMainModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
@@ -34,6 +46,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+	int queueId = 0;
         log.info("createInstance invoked for the lacp  module.");
         NotificationProviderService notificationService = getNotificationServiceDependency ();
         DataBroker dataService = getDataBrokerDependency ();
@@ -48,6 +61,18 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         lacpListener.setLacpFlowTableId (getLacpFlowTableId());
         listenerRegistration  = notificationService.registerNotificationListener(lacpListener);
         */
+
+	/* Spawn the Default threads - PDU Decoder and Tx Threads */
+
+	pduDecoderExecutor.submit(new PduDecoderProcessor());
+
+	for (int i=0; i<4; i++) {
+		TxThrExecutor.submit(new TxProcessor(queueId));
+	}
+	queueId = 1;
+	for (int i=0; i<6; i++) {
+		TxThrExecutor.submit(new TxProcessor(queueId));
+	}
 
         final class CloseLacpResources implements AutoCloseable {
         @Override

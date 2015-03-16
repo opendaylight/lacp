@@ -54,6 +54,12 @@
       <artifactId>lacpmain-model</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.opendaylight.lacp.main</groupId>
+      <artifactId>lacpmain-common-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
