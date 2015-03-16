@@ -112,7 +112,7 @@ public class LacpFlow
             if (result.get(5, TimeUnit.SECONDS).isSuccessful() == true)
             {
                 log.debug("LACP Pdu to controller flow programmed to the node {}", lacpNode);
-                //lacpNode.setFlowId(nodeFlowId);
+                lacpNode.setFlowId(nodeFlowId);
             }
             else
             {
@@ -166,8 +166,7 @@ public class LacpFlow
     {
         TableKey tableKey = new TableKey(flowTableId);
         InstanceIdentifier <Table> tableId = nodeId.builder().augmentation(FlowCapableNode.class).child(Table.class, tableKey).build();
-        Long nodeFlowId = 1L;
-        //Long nodeFlowId = lacpNode.getFlowId();
+        Long nodeFlowId = lacpNode.getFlowId();
         FlowId flowId = new FlowId(String.valueOf(nodeFlowId));
         FlowKey flowKey = new FlowKey(flowId);
         InstanceIdentifier <Flow> lacpFId = tableId.child(Flow.class, flowKey);
