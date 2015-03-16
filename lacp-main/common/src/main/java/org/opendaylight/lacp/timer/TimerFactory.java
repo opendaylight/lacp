@@ -34,19 +34,19 @@ import io.netty.util.TimerTask;
 		        switch(wheelTimerType){
 		        	case CURRENT_WHILE_TIMER:
 		        	{
-		        		System.out.println("Constructor current-while");
+		        		//System.out.println("Constructor current-while");
 		        		currentWhileTimerWheel = new HashedWheelTimer();
 		        		break;
 		        	}
 		        	case WAIT_WHILE_TIMER:
 		        	{
-		        		System.out.println("Constructor wait-while");
+		        		//System.out.println("Constructor wait-while");
 		        		waitWhileTimerWheel = new HashedWheelTimer();
 		        		break;
 		        	}
 		        	case PERIODIC_TIMER:
 		        	{
-		        		System.out.println("Constructor periodic");
+		        		//System.out.println("Constructor periodic");
 		        		periodicTimerWheel = new HashedWheelTimer();
 		        		break;
 			        }
@@ -55,11 +55,11 @@ import io.netty.util.TimerTask;
 		        		break;
 		        	}
 		        }
-	        }
+	}
 	        
-	    public static LacpWheelTimer getInstance(Utils.timerWheeltype wheelTimerType) {
+	public static LacpWheelTimer getInstance(Utils.timerWheeltype wheelTimerType) {
 	    	
-	    	synchronized (timerWheelStore) {
+	    	synchronized (TimerFactory.class) {
 	   	
 	    		LacpWheelTimer instance = null;
 	    		instance = timerWheelStore.get(wheelTimerType);
@@ -68,7 +68,7 @@ import io.netty.util.TimerTask;
 		        	case CURRENT_WHILE_TIMER:
 		        	{
 		        		if(instance == null){
-		        			System.out.println("getInstance - First request received for current-while");
+		        			//System.out.println("getInstance - First request received for current-while");
 		        			instance = new LacpWheelTimer(wheelTimerType);
 		        			timerWheelStore.put(Utils.timerWheeltype.CURRENT_WHILE_TIMER, instance);
 		        		}
@@ -77,11 +77,11 @@ import io.netty.util.TimerTask;
 		        	case WAIT_WHILE_TIMER:
 		        	{
 		        		if(instance == null){
-		        			System.out.println("getInstance - First request received for wait-while");
+		        			//System.out.println("getInstance - First request received for wait-while");
 		        			instance = new LacpWheelTimer(wheelTimerType);
 		        			timerWheelStore.put(Utils.timerWheeltype.WAIT_WHILE_TIMER, instance);
 		        		}else {
-		        			System.out.println("getInstance - Second request received for wait-while");
+		        			//System.out.println("getInstance - Second request received for wait-while");
 		        		}
 		        		
 		        		break;
@@ -89,7 +89,7 @@ import io.netty.util.TimerTask;
 		        	case PERIODIC_TIMER:
 		        	{
 		        		if(instance == null){
-		        			System.out.println("getInstance - First request received for periodic-timer");
+		        			//System.out.println("getInstance - First request received for periodic-timer");
 		        			instance = new LacpWheelTimer(wheelTimerType);
 		        			timerWheelStore.put(Utils.timerWheeltype.PERIODIC_TIMER, instance);
 		        		}
@@ -107,56 +107,62 @@ import io.netty.util.TimerTask;
 	    } //end of getInstance
 	    
 	    public Timeout registerPortForCurrentWhileTimer(TimerTask task, long delay, TimeUnit unit){
-			//TODO-make below lock wheel specific to avoid parallel execution of register requests
-			synchronized(this) {
-		    	if(currentWhileTimerWheel != null){
-					return currentWhileTimerWheel.newTimeout(task, delay, unit);
-				}
-		    	return null;
+		//TODO-make below lock wheel specific to avoid parallel execution of register requests
+		if(currentWhileTimerWheel != null){
+			synchronized(currentWhileTimerWheel) {
+				return currentWhileTimerWheel.newTimeout(task, delay, unit);
 			}
 		}
+		return null;
+	    }
 	    
 	    public Timeout registerPortForWaitWhileTimer(TimerTask task, long delay, TimeUnit unit){
 	    	
-	    	synchronized(this){
-				if(waitWhileTimerWheel != null){
-					return waitWhileTimerWheel.newTimeout(task, delay, unit);
-				}
+		if(waitWhileTimerWheel != null){
+	    		synchronized(waitWhileTimerWheel){
+				return waitWhileTimerWheel.newTimeout(task, delay, unit);
+			}
 	    	}
-			return null;
-		}
+		return null;
+	    }
 	    
 	    public Timeout registerPortForPeriodicTimer(TimerTask task, long delay, TimeUnit unit){
-	    	synchronized(this){
-				if(periodicTimerWheel != null){
-					return periodicTimerWheel.newTimeout(task, delay, unit);
-				}
+		if(periodicTimerWheel != null){
+	    		synchronized(periodicTimerWheel){
+				return periodicTimerWheel.newTimeout(task, delay, unit);
 			}
-			return null;
+		}
+		return null;
 	    }
 
 	    public void CancelCurrentWhileTimer(Timeout obj){
-	    	synchronized(this){
-		    	if(!obj.isExpired()){
-		    		obj.cancel();
-		    	}
-	    	}
+		if(obj != null){
+	    		synchronized(obj){
+		    		if(!obj.isExpired()){
+		    			obj.cancel();
+		    		}
+	    		}
+		}
 	    }
 
 	    public void CancelPortForWaitWhileTimer(Timeout obj){
-	    	synchronized(this){
-		    	if(!obj.isExpired()){
-		    		obj.cancel();
-		    	}
-	    	}
+		if(obj != null){
+	    		synchronized(obj){
+		    		if(!obj.isExpired()){
+		    			obj.cancel();
+		    		}
+	    		}
+		}
 	    }
 
 	    public void CancelPortForPeriodicTimer(Timeout obj){
-	    	synchronized(this){
-		    	if(!obj.isExpired()){
-		    		obj.cancel();
-		    	}
-	    	}
+		if(obj != null){
+	    		synchronized(obj){
+		    		if(!obj.isExpired()){
+		    			obj.cancel();
+		    		}
+	    		}
+		}
 	    }    
 	}
 }
