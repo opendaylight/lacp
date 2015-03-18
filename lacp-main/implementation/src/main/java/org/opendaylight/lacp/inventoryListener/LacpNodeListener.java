@@ -110,15 +110,13 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 log.debug ("Node already notified to lacp. Ignoring it {}", nodeId);
                 return;
             }
-            /*
-  		LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId);
+            LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId);
             if (lacpNode == null)
             {
                 log.error("cannot add a lacp node for node {}", nodeId); 
                 return;
             }
             lacpSystem.addLacpNode(nodeId, lacpNode);
-	*/
         }
 
         private void handleNodeDeletion (InstanceIdentifier<Node> lNode)
@@ -186,13 +184,11 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             LacpNodeExtn lacpNode = lacpSystem.getLacpNode(nodeId);
             if (lacpNode != null)
             {
-/*
                 if (lacpNode.addNonLacpPort (ncId) == false)
                 {
                     log.debug("port already available with lacp node. Ignoring it {}", ncId);
                     return;
                 }
-*/
             }
             else
             {
@@ -205,13 +201,11 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             LacpNodeExtn lacpNode = lacpSystem.getLacpNode(nodeId);
             if (lacpNode != null)
             {
-/*
                 if (lacpNode.deletePort (ncId, hardReset) == false)
                 {
                     log.debug("port not present with the lacp node. Ignoring it {}", ncId) ;
                     return;
                 }
-*/
             }
             else
             {
