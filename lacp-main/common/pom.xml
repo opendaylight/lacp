@@ -86,7 +86,16 @@
       <artifactId>mockito-all</artifactId>
       <scope>test</scope>
     </dependency>
-  </dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>1.7.10</version>
+    </dependency>
+   </dependencies>
+
+   <properties>
+      <maven.test.skip>${skipTests}</maven.test.skip>
+   </properties>
 
   <build>
     <plugins>
