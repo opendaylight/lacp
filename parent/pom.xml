@@ -76,6 +76,11 @@
       <artifactId>sal-binding-config</artifactId>
       <version>${mdsal.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>sal</artifactId>
+      <version>0.9.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
   </dependencyManagement>
   
@@ -346,15 +351,22 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <destFile>${basedir}/target/coverage-reports/jacoco-ut.exec</destFile>
+              <dataFile>${basedir}/target/coverage-reports/jacoco-ut.exec</dataFile>
+                <excludes>
+                 <exclude>**\/yang\/</exclude>
+                 </excludes>
+            </configuration>
             <executions>
               <execution>
-                <id>pre-test</id>
+                <id>jacoco-initialize</id>
                 <goals>
                   <goal>prepare-agent</goal>
                 </goals>
               </execution>
               <execution>
-                <id>post-test</id>
+                <id>jacoco-site</id>
                 <goals>
                   <goal>report</goal>
                 </goals>

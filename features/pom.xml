@@ -56,13 +56,11 @@
     </dependency>
 
     <!-- bundles used by features directly -->
-<!--
     <dependency>
       <groupId>org.opendaylight.lacp.main</groupId>
-      <artifactId>lacp.main.model</artifactId>
+      <artifactId>lacpmain-model</artifactId>
       <version>${project.version}</version>
     </dependency>
--->
     <dependency>
       <groupId>org.opendaylight.lacp.main</groupId>
       <artifactId>lacp.main.impl</artifactId>
