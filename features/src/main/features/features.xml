@@ -8,7 +8,7 @@
   <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin/${openflow.plugin.version}/xml/features</repository>
 
   <feature name='odl-lacp-plugin' description="Opendaylight :: LACP :: Plugin" version='${project.version}'>
-    <feature version="${openflow.plugin.version}">odl-openflowplugin-southbound</feature>
+    <feature version="${openflow.plugin.version}">odl-openflowplugin-flow-services</feature>
     <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
     <bundle>mvn:org.opendaylight.lacp.main/lacpmain-model/${project.version}</bundle>
     <bundle>mvn:org.opendaylight.lacp.main/lacpmain-common-impl/${project.version}</bundle>
