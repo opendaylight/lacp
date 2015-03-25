@@ -6,15 +6,21 @@
   *     */
 package org.opendaylight.lacp.packethandler;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.junit.Before;
+import org.mockito.MockitoAnnotations;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.any;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.lang.StringBuffer;
 
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
@@ -27,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.pa
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPdu;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPduBuilder;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.SubTypeOption;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.VersionValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.TlvTypeOption;
@@ -34,10 +41,30 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.
 import org.opendaylight.lacp.Utils.*;
 
 import org.opendaylight.lacp.queue.*;
-
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 
 public class PduQueueHandlerTest {
 
+	@MockitoAnnotations.Mock private PacketProcessingService packetProcessingService;
+	@MockitoAnnotations.Mock private TxUtils txUtils;
+
+	@Before
+	public void initMocks() {
+    		MockitoAnnotations.initMocks(this);
+		txUtils = new TxUtils(packetProcessingService);
+   		//TxUtils.setPacketProcessingService(packetProcessingService);
+	}
 
 	@Test
 	public void test_decodeLacp() throws Exception {
@@ -51,6 +78,8 @@ public class PduQueueHandlerTest {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
 		0x00, (byte)0xff, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00,
 		0x03, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -99,9 +128,64 @@ public class PduQueueHandlerTest {
 		assertEquals(0, (int)builder.getCollectorReserved1().intValue());
 		assertEquals(0, (int)builder.getTerminatorTlvType().getIntValue());
 		assertEquals(0, (int)builder.getTerminatorInfoLen());
-		assertEquals(null, builder.getTerminatorReserved());
+		assertEquals("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", builder.getTerminatorReserved());
+		/* test_dispatchPacket(builder.build()); */
+		byte[] payload =  TxUtils.convertLacpPdutoByte(builder.build());
+		StringBuffer sb1 = new StringBuffer();
+            	for (int i=0;i<payload.length;i++) {
+                	sb1.append(Integer.toHexString((int) payload[i]));
+            	}
+            	System.out.println("Built packet String " + sb1.toString());
+		StringBuffer sb2 = new StringBuffer();
+            	for (int i=0;i<packet.length;i++) {
+                	sb2.append(Integer.toHexString((int) packet[i]));
+            	}
+		assertArrayEquals(packet, payload);
 
 	}
+
+	public static String byteArrayToHex(byte[] a) {
+   		StringBuilder sb = new StringBuilder(a.length * 2);
+   		for(byte b: a)
+      			sb.append(String.format("%02x", b & 0xff));
+   		return sb.toString();
+	}	
+
+/*	@Test
+	void test_dispatchPacket(LacpPacketPdu lacpPDU) {
+		byte[] payload ;
+		Node node1 = createNode("node1");
+		InstanceIdentifier<Node>nInstId = InstanceIdentifier.builder(Nodes.class).child(Node.class,node1.getKey()).build();
+		NodeId nodeId = InstanceIdentifier.keyOf(nInstId).getId();
+
+		NodeKey nodeKey = node1.getKey();
+		String port = "1";
+		NodeConnectorRef nodeConnectorRef = createNodeConnRef(nInstId,nodeKey,port);
+		payload =  TxUtils.convertLacpPdutoByte(lacpPDU);
+		System.out.println("lacpPDU.getIngressPort" + lacpPDU.getIngressPort());
+		//TxUtils.dispatchPacket(payload, lacpPDU.getIngressPort(), lacpPDU.getSrcAddress(), lacpPDU.getDestAddress());
+//		verify(packetProcessingService, times(1)).transmitPacket(any(TransmitPacketInput.class));
+		verify(txUtils, times(1)).dispatchPacket(payload, nodeConnectorRef, lacpPDU.getSrcAddress(), lacpPDU.getDestAddress());
+
+		
+	}  */
+
+
+	private static Node createNode(String string) {
+        	NodeBuilder nb = new NodeBuilder();
+        	nb.setId(new NodeId(string));
+        	nb.setKey(new NodeKey(nb.getId()));
+        	return nb.build();
+    	}
+
+
+	public static NodeConnectorRef createNodeConnRef(InstanceIdentifier<Node> nodeInstId, NodeKey nodeKey, String port) {
+        StringBuilder sBuild = new StringBuilder(nodeKey.getId().getValue()).append(":").append(port);
+        NodeConnectorKey nConKey = new NodeConnectorKey(new NodeConnectorId(sBuild.toString()));
+        InstanceIdentifier<NodeConnector> portPath = InstanceIdentifier.builder(nodeInstId)
+                .child(NodeConnector.class, nConKey).toInstance();
+        return new NodeConnectorRef(portPath);
+    }
 
 					
 }
