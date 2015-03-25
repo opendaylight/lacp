@@ -11,21 +11,28 @@ import org.opendaylight.lacp.packethandler.TxProcessor;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-
-/*
 import org.opendaylight.lacp.inventoryListener.LacpNodeListener;
-*/
+import org.opendaylight.lacp.inventoryListener.LacpDataListener;
+import org.opendaylight.lacp.inventory.LacpNodeExtn;
+import org.opendaylight.lacp.inventory.LacpSystem;
+import org.opendaylight.lacp.packethandler.LacpPacketHandler;
+import org.opendaylight.lacp.flow.LacpFlow;
+import org.opendaylight.lacp.queue.LacpRxQueue;
+import org.opendaylight.lacp.util.LacpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.lacp.main.rev141216.AbstractLacpMainModule {
 
     private final static Logger log = LoggerFactory.getLogger(LacpMainModule.class);
-    /*
     private LacpNodeListener lacpListener;
-    */
-    private Registration listenerRegistration = null;
+    private Registration nodeListener = null;
+    private LacpDataListener portDataListener;
+    private Registration extPortListener = null;
+    private LacpPacketHandler lacpPacketHandler;
+    private Registration packetListener = null;
+    private LacpFlow lacpFlow;
+    private LacpSystem lacpSystem;
 
     private final ExecutorService pduDecoderExecutor = Executors.newCachedThreadPool();
     private final ExecutorService TxThrExecutor = Executors.newFixedThreadPool(10);
@@ -48,19 +55,33 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
     public java.lang.AutoCloseable createInstance() {
 	int queueId = 0;
         log.info("createInstance invoked for the lacp  module.");
-        NotificationProviderService notificationService = getNotificationServiceDependency ();
-        DataBroker dataService = getDataBrokerDependency ();
-        RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency ();
-        SalFlowService salFlowService = rpcRegistryDependency.getRpcService (SalFlowService.class);
+        NotificationProviderService notificationService = getNotificationServiceDependency();
+        DataBroker dataService = getDataBrokerDependency();
+        RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
+        SalFlowService salFlowService = rpcRegistryDependency.getRpcService(SalFlowService.class);
 
-        /*
-        lacpListener = new LacpNodeListener(dataService, salFlowService);
-        lacpListener.setLacpFlowHardTime (getLacpFlowHardTimeout());
-        lacpListener.setLacpFlowIdleTime (getLacpFlowIdleTimeout());
-        lacpListener.setLacpFlowPriority (getLacpFlowPriority());
-        lacpListener.setLacpFlowTableId (getLacpFlowTableId());
-        listenerRegistration  = notificationService.registerNotificationListener(lacpListener);
-        */
+        lacpSystem = LacpSystem.getLacpSystem();
+        LacpNodeExtn.setDataBrokerService(dataService);
+        lacpListener = new LacpNodeListener(lacpSystem);
+        nodeListener = notificationService.registerNotificationListener(lacpListener);
+        lacpFlow = new LacpFlow();
+        lacpFlow.setSalFlowService(salFlowService);
+        lacpFlow.setLacpFlowHardTime(getLacpFlowHardTimeout());
+        lacpFlow.setLacpFlowIdleTime(getLacpFlowIdleTimeout());
+        lacpFlow.setLacpFlowPriority(getLacpFlowPriority());
+        lacpFlow.setLacpFlowTableId(getLacpFlowTableId());
+        LacpUtil.setDataBrokerService(dataService);
+        portDataListener = new LacpDataListener (dataService);
+        extPortListener = portDataListener.registerDataChangeListener();
+
+
+        log.debug("starting to read from data store");
+        lacpSystem.readDataStore(dataService);
+
+        lacpPacketHandler = new LacpPacketHandler();
+        LacpPacketHandler.setDataBrokerService(dataService);
+        lacpPacketHandler.updateQueueId(LacpRxQueue.getLacpRxQueueId());
+        packetListener = notificationService.registerNotificationListener(lacpPacketHandler);
 
 	/* Spawn the Default threads - PDU Decoder and Tx Threads */
 
@@ -77,16 +98,25 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         final class CloseLacpResources implements AutoCloseable {
         @Override
           public void close() throws Exception {
-            if (listenerRegistration != null)
+            if (nodeListener != null)
             {
-                listenerRegistration.close ();
-            } 
+                nodeListener.close();
+            }
+            if (packetListener != null)
+            {
+                packetListener.close();
+            }
+            if (extPortListener != null)
+            {
+                extPortListener.close();
+            }
+            /* clean up the nodes and nodeconnectors learnt by lacp */
+            lacpSystem.clearResources();
             return;
           }
         }
         AutoCloseable ret = new CloseLacpResources();
         log.info("Lacp(instance {}) initialized.", ret);
-        System.out.println ("lacp instance initialized."+ ret);
         return ret;
     }
 
