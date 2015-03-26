@@ -14,6 +14,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
+import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -28,9 +29,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.P
 
 public class LacpSystem 
 {
-    private static final ConcurrentHashMap<InstanceIdentifier, LacpNodeExtn> lacpNodeMap = new ConcurrentHashMap<InstanceIdentifier, LacpNodeExtn>();
+    private static final ConcurrentHashMap<Long, LacpNodeExtn> lacpNodeMap = new ConcurrentHashMap<Long, LacpNodeExtn>();
     private static final LacpSystem lacpSystem = new LacpSystem();
     private static final Logger log = LoggerFactory.getLogger(LacpSystem.class);
+    private static final Long INVALID_SWITCHID = new Long ("-1");
 
     private LacpSystem ()
     {
@@ -39,20 +41,42 @@ public class LacpSystem
     {
         return lacpSystem;
     }    
-    public void addLacpNode (InstanceIdentifier nodeId, LacpNodeExtn lacpNode)
+    public boolean addLacpNode (InstanceIdentifier nodeId, LacpNodeExtn lacpNode)
     {
-        lacpNodeMap.put(nodeId, lacpNode);
-        return;
+        Long swId = LacpUtil.getNodeSwitchId(nodeId);
+        if (swId.equals(INVALID_SWITCHID))
+        {
+            log.warn ("Invalid node id {}, could not add the node to the lacpSystem", nodeId);
+            return false;
+        }
+        lacpNodeMap.put(swId, lacpNode);
+        return true;
     }
     public LacpNodeExtn removeLacpNode (InstanceIdentifier nodeId)
     {
-        LacpNodeExtn lacpNode = lacpNodeMap.remove(nodeId);
+        Long swId = LacpUtil.getNodeSwitchId(nodeId);
+        if (swId.equals(INVALID_SWITCHID))
+        {
+            log.warn ("Invalid node id {}, could not remove the node to the lacpSystem", nodeId);
+            return null;
+        }
+        LacpNodeExtn lacpNode = lacpNodeMap.remove(swId);
         lacpNode.deleteLacpNode(false);
         return lacpNode;
     }
+    public LacpNodeExtn getLacpNode (Long switchId)
+    {
+        if (switchId.equals(INVALID_SWITCHID))
+        {
+            log.warn ("Invalid switch id {}, could not obtain the node to the lacpSystem", switchId);
+            return null;
+        }
+        return (lacpNodeMap.get(switchId));
+    }
     public LacpNodeExtn getLacpNode (InstanceIdentifier nodeId)
     {
-        return (lacpNodeMap.get(nodeId));
+        Long swId = LacpUtil.getNodeSwitchId(nodeId);
+        return (getLacpNode (swId));
     }
     public void clearLacpNodes ()
     {
@@ -100,7 +124,11 @@ public class LacpSystem
                 log.error("cannot add a lacp node for node {}", nodeId);  
                 return; 
             } 
-            addLacpNode(nodeId, lacpNode);
+            if (addLacpNode(nodeId, lacpNode) == false)
+            {
+                log.warn ("Unable to add the node {} to the lacp system", nodeId);
+                continue;
+            }
 
             List<NodeConnector> nodeConnectors = node.getNodeConnector();
             if (nodeConnectors == null)
