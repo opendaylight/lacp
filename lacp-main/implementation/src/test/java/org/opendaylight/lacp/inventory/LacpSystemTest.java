@@ -90,16 +90,18 @@ public class LacpSystemTest
     @Test
     public void verifyAdd() throws Exception
     {
-        lacpSystem.addLacpNode(instId, lacpNode);
-        LacpNodeExtn getLacpNode = lacpSystem.getLacpNode(instId);
+        InstanceIdentifier<Node> nodeId = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("1"))).build();
+        lacpSystem.addLacpNode(nodeId, lacpNode);
+        LacpNodeExtn getLacpNode = lacpSystem.getLacpNode(nodeId);
         assertNotNull(getLacpNode);
     }
     @Test
     public void verifyRemove() throws Exception
     {
-        lacpSystem.addLacpNode(instId, lacpNode);
-        lacpSystem.removeLacpNode(instId);
-        LacpNodeExtn getLacpNode = lacpSystem.getLacpNode(instId);
+        InstanceIdentifier<Node> nodeId = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("1"))).build();
+        lacpSystem.addLacpNode(nodeId, lacpNode);
+        lacpSystem.removeLacpNode(nodeId);
+        LacpNodeExtn getLacpNode = lacpSystem.getLacpNode(nodeId);
         assertNull(getLacpNode);
     }
     @Test
