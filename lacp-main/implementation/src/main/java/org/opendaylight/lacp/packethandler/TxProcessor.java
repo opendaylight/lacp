@@ -47,6 +47,9 @@ public class TxProcessor implements Runnable {
 
 	private int  queueId;
 	private final static Logger log = LoggerFactory.getLogger(TxProcessor.class);
+//	private int execType=0;
+
+	
 
 	public TxProcessor(int queueId) {
 		this.queueId = queueId;
@@ -73,8 +76,8 @@ public class TxProcessor implements Runnable {
 				lacpPDU = lacpTxQueue.dequeue(queueId);
 				if (lacpPDU != null)
 				{
-					payload = convertLacpPdutoByte(lacpPDU);
-					dispatchPacket(payload, lacpPDU.getIngressPort(), lacpPDU.getSrcAddress(), lacpPDU.getDestAddress());
+					payload = TxUtils.convertLacpPdutoByte(lacpPDU);
+					TxUtils.dispatchPacket(payload, lacpPDU.getIngressPort(), lacpPDU.getSrcAddress(), lacpPDU.getDestAddress());
 					//Send the Packet Out
 				}
 				else
@@ -95,115 +98,4 @@ public class TxProcessor implements Runnable {
 	}
 
 
-	public byte[] convertLacpPdutoByte( LacpPacketPdu lacpPDU ) {
-		byte[] bdata = new byte[128];
-
-		ByteBuffer bb = ByteBuffer.wrap(bdata);
-		bb.put((new String ((lacpPDU.getDestAddress()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getSrcAddress()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getLenType()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getSubtype()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getVersion()).toString())).getBytes());
-
-		ActorInfo actorInfo = lacpPDU.getActorInfo();
-		bb.put((new String ((actorInfo.getTlvType()).toString())).getBytes());
-		bb.put((new String ((actorInfo.getInfoLen()).toString())).getBytes());
-		bb.put((new String ((actorInfo.getSystemPriority()).toString())).getBytes());
-		bb.put((new String ((actorInfo.getSystemId()).toString())).getBytes());
-		bb.put((new String ((actorInfo.getKey()).toString())).getBytes());
-		bb.put((new String ((actorInfo.getPortPriority()).toString())).getBytes());
-		bb.put((new String ((actorInfo.getPort()).toString())).getBytes());
-		bb.put((new String ((actorInfo.getState()).toString())).getBytes());
-		bb.put((new String ((actorInfo.getReserved()).toString())).getBytes());
-		bb.put((new String ((actorInfo.getReserved1()).toString())).getBytes());
-
-		PartnerInfo partnerInfo = lacpPDU.getPartnerInfo();
-		bb.put((new String ((partnerInfo.getTlvType()).toString())).getBytes());
-		bb.put((new String ((partnerInfo.getInfoLen()).toString())).getBytes());
-		bb.put((new String ((partnerInfo.getSystemPriority()).toString())).getBytes());
-		bb.put((new String ((partnerInfo.getKey()).toString())).getBytes());
-		bb.put((new String ((partnerInfo.getPortPriority()).toString())).getBytes());
-		bb.put((new String ((partnerInfo.getPort()).toString())).getBytes());
-		bb.put((new String ((partnerInfo.getState()).toString())).getBytes());
-		bb.put((new String ((partnerInfo.getReserved()).toString())).getBytes());
-		bb.put((new String ((partnerInfo.getReserved1()).toString())).getBytes());
-
-
-		bb.put((new String ((lacpPDU.getCollectorTlvType()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getCollectorInfoLen()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getCollectorMaxDelay()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getCollectorReserved()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getCollectorReserved1()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getTerminatorTlvType()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getTerminatorInfoLen()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getTerminatorReserved()).toString())).getBytes());
-		bb.put((new String ((lacpPDU.getFCS()).toString())).getBytes());
-		
-
-		return(bdata);
-	}
-
-
-	public void dispatchPacket(byte[] payload, NodeConnectorRef ingress, MacAddress srcMac, MacAddress destMac) {
-
-		String nodeId = ingress.getValue().firstIdentifierOf(Node.class).firstKeyOf(Node.class, NodeKey.class).getId().getValue();
-//		NodeConnectorRef srcConnectorRef = inventoryReader.getControllerSwitchConnectors().get(nodeId);
-//		if(srcConnectorRef == null) {
-//			srcConnectorRef = inventoryReader.getControllerSwitchConnectors().get(nodeId);
-//		}
-
-		//NodeConnectorRef destNodeConnector = inventoryReader.getNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
-		NodeConnectorRef destNodeConnector = ingress;
-
-/*		if(srcConnectorRef != null) {
-			 if(destNodeConnector != null) {
-				 sendPacketOut(payload, srcConnectorRef, destNodeConnector);
-			 } else {
-				log.debug("TxProcessor: desNodeConnector is NULL");
-			}
-		} else {
-			log.debug("TxProcessor: SrcNode is not available");
-		} */
-
-		if(destNodeConnector != null) {
-		 	//sendPacketOut(payload, srcConnectorRef, destNodeConnector);
-		 	sendPacketOut(payload, destNodeConnector);
-		} else {
-			log.debug("TxProcessor: desNodeConnector is NULL");
-		}
-	}
-
-
-
-	private org.opendaylight.controller.sal.binding.api.RpcProviderRegistry rpcRegistryDependency;
-
-	protected final org.opendaylight.controller.sal.binding.api.RpcProviderRegistry getRpcRegistryDependency(){
-        	return rpcRegistryDependency;
-	}
-
-	//public void sendPacketOut(byte[] payload, NodeConnectorRef ingress, NodeConnectorRef egress) 
-	public void sendPacketOut(byte[] payload, NodeConnectorRef egress) {
-
-			RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
-
-			PacketProcessingService packetProcessingService = 
-				rpcRegistryDependency.<PacketProcessingService>getRpcService(PacketProcessingService.class);
-			if(egress == null) return;
-			InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
-			TransmitPacketInput input = new TransmitPacketInputBuilder() //
-				.setPayload(payload) //
-				.setNode(new NodeRef(egressNodePath)) //
-				.setEgress(egress) //
-			//	.setIngress(ingress) //
-				.build();
-
-			packetProcessingService.transmitPacket(input);
-	}
-
-
-	private InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
-		return nodeChild.firstIdentifierOf(Node.class);
-	}
-				
-		
 }

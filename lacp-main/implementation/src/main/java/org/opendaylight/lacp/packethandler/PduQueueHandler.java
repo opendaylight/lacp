@@ -98,6 +98,26 @@ public class PduQueueHandler {
 
 	}
 
+	public static String bytesToString(byte[] bytes) {
+
+    		if(bytes == null) {
+      			return "null";
+    		}
+
+    		String ret = "";
+    		StringBuffer buf = new StringBuffer();
+		for(int i = 0; i < bytes.length; i++) {
+      			short u8byte = (short) (bytes[i] & 0xff);
+      			String tmp = Integer.toHexString(u8byte);
+      			if(tmp.length() == 1) {
+        			buf.append("0");
+      			}
+      			buf.append(tmp);
+    	   	}
+		ret = buf.toString();
+		return ret;
+	}
+
         public  LacpPacketPduBuilder decodeLacp(PacketReceived packetReceived) {
                 System.out.println("Inside PduQueueHandler");
 
@@ -213,7 +233,7 @@ public class PduQueueHandler {
 			builder.setTerminatorInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
 			bitOffset = bitOffset + 8;
 
-			builder.setTerminatorReserved(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 400)));
+			builder.setTerminatorReserved(bytesToString(BitBufferHelper.getBits(data, bitOffset, 400)));
 			bitOffset = bitOffset + 400;
 
 			builder.setFCS(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 32)));

@@ -8,6 +8,9 @@ import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 
 import org.opendaylight.lacp.packethandler.PduDecoderProcessor;
 import org.opendaylight.lacp.packethandler.TxProcessor;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService;
+import org.opendaylight.lacp.grouptbl.*;
+
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -59,6 +62,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         DataBroker dataService = getDataBrokerDependency();
         RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
         SalFlowService salFlowService = rpcRegistryDependency.getRpcService(SalFlowService.class);
+	SalGroupService salGroupService = rpcRegistryDependency.getRpcService (SalGroupService.class);
 
         lacpSystem = LacpSystem.getLacpSystem();
         LacpNodeExtn.setDataBrokerService(dataService);
@@ -82,6 +86,8 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         LacpPacketHandler.setDataBrokerService(dataService);
         lacpPacketHandler.updateQueueId(LacpRxQueue.getLacpRxQueueId());
         packetListener = notificationService.registerNotificationListener(lacpPacketHandler);
+
+	LacpGroupTbl lacpGroupTbl = new LacpGroupTbl(salGroupService, dataService);
 
 	/* Spawn the Default threads - PDU Decoder and Tx Threads */
 
