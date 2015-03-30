@@ -27,6 +27,9 @@ public class LacpUtil
     private static final Logger LOG = LoggerFactory.getLogger(LacpUtil.class);
     private static final String NODE_URI_PREF = "openflow:";
 
+    private LacpUtil ()
+    {
+    }
     public static void setDataBrokerService (DataBroker dataBroker)
     {
         Preconditions.checkNotNull(dataBroker, "DataBroker should not be null.");

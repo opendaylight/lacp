@@ -5,7 +5,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.lacp.inventoryListener;
+package org.opendaylight.lacp.inventorylistener;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -31,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
@@ -42,7 +41,7 @@ import org.opendaylight.lacp.util.LacpPortType;
 
 public class LacpDataListener implements DataChangeListener
 {
-    private static final Logger log = LoggerFactory.getLogger(LacpDataListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LacpDataListener.class);
     private final DataBroker dataService;
     private static HashSet<InstanceIdentifier<NodeConnector>> extNodeConnSet;
     private static final String CURRTOPO = "flow:1";
@@ -51,7 +50,7 @@ public class LacpDataListener implements DataChangeListener
     {
         this.dataService = dataBroker;
         extNodeConnSet = new HashSet<InstanceIdentifier<NodeConnector>>();
-        updateInternalNodeConnectors();
+        updateExtNodeConnectors();
     }
     
     public ListenerRegistration<DataChangeListener> registerDataChangeListener()
@@ -64,7 +63,7 @@ public class LacpDataListener implements DataChangeListener
     }
     /* If the nodes are already available, obtain the available links in the learnt topology
      * and update the external nodeConnector set */
-    public void updateInternalNodeConnectors()
+    public void updateExtNodeConnectors()
     {
         ReadOnlyTransaction readTx = dataService.newReadOnlyTransaction();
         Topology topology = null;
@@ -91,13 +90,13 @@ public class LacpDataListener implements DataChangeListener
                     }
                     if (topology == null)
                     {
-                        log.debug("Topology is not yet created {}", topoId);
+                        LOG.debug("Topology is not yet created {}", topoId);
                         continue;
                     }
                     List<Link> links = topology.getLink();
                     if (links == null || links.isEmpty())
                     {
-                        log.debug("Topology is not yet updated with the links {}", topoId);
+                        LOG.debug("Topology is not yet updated with the links {}", topoId);
                         continue;
                     } 
                     for (Link link : links)
@@ -113,7 +112,7 @@ public class LacpDataListener implements DataChangeListener
         }
         catch(Exception e)
         {
-            log.error("Error reading the network topology");
+            LOG.error("Error reading the network topology", e.getMessage());
             readTx.close();
         }     
         readTx.close();
@@ -125,7 +124,7 @@ public class LacpDataListener implements DataChangeListener
         {
             return true;
         }
-        log.debug("Given port is not an external port {}", ncId);
+        LOG.debug("Given port is not an external port {}", ncId);
         return false;
     }
 
@@ -136,17 +135,17 @@ public class LacpDataListener implements DataChangeListener
         LacpNodeExtn lacpNode = lacpSystem.getLacpNode(nodeId);
         if (lacpNode == null)
         {
-            log.warn("Node cannot be retrived for the given node-connector {}", ncId);
+            LOG.warn("Node cannot be retrived for the given node-connector {}", ncId);
             return;
         }
         if (lacpNode.containsPort(ncId) != LacpPortType.LACP_PORT)
         {
-            log.debug("internal port {} is not an lacp port. Ignoring it", ncId);
+            LOG.debug("internal port {} is not an lacp port. Ignoring it", ncId);
             return;
         }
         /* post port down for lacp port */
         lacpNode.addNonLacpPort(ncId);
-        log.debug("internal port {} is removed as a lacp port and added as a non-lacp port.", ncId);
+        LOG.debug("internal port {} is removed as a lacp port and added as a non-lacp port.", ncId);
         return;
     }
     

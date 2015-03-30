@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.lacp.inventoryListener;
+package org.opendaylight.lacp.inventorylistener;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,13 +27,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.P
 
 enum EventType
 {
-    Updated,
-    Deleted;
+    UPDATED,
+    DELETED;
 }
 
 public class LacpNodeListener implements OpendaylightInventoryListener
 {
-    private static final Logger log = LoggerFactory.getLogger(LacpNodeListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LacpNodeListener.class);
     private final ExecutorService lacpService = Executors.newCachedThreadPool();
     private LacpSystem lacpSystem;
 
@@ -45,38 +45,46 @@ public class LacpNodeListener implements OpendaylightInventoryListener
     public void onNodeConnectorRemoved (NodeConnectorRemoved nodeConnectorRemoved)
     {
         if (nodeConnectorRemoved == null)
+        {
             return;
-        log.info("got a node connec removed in lacp {} ", nodeConnectorRemoved);
-        lacpService.submit(new LacpNodeConnectorUpdate(EventType.Deleted, nodeConnectorRemoved));
+        }
+        LOG.info("got a node connec removed in lacp {} ", nodeConnectorRemoved);
+        lacpService.submit(new LacpNodeConnectorUpdate(EventType.DELETED, nodeConnectorRemoved));
     }
 
     @Override
     public void onNodeConnectorUpdated (NodeConnectorUpdated nodeConnectorUpdated)
     {
         if (nodeConnectorUpdated == null)
+        {
             return;
-        log.info("got a node connec Updated {} in lacp ", nodeConnectorUpdated);
-        lacpService.submit(new LacpNodeConnectorUpdate(EventType.Updated, nodeConnectorUpdated));
+        }
+        LOG.info("got a node connec Updated {} in lacp ", nodeConnectorUpdated);
+        lacpService.submit(new LacpNodeConnectorUpdate(EventType.UPDATED, nodeConnectorUpdated));
     }
 
     @Override
     public void onNodeRemoved (NodeRemoved nodeRemoved)
     {
         if (nodeRemoved == null)
+        {
             return;
-        log.info("got a node removed {} in lacp ", nodeRemoved);
+        }
+        LOG.info("got a node removed {} in lacp ", nodeRemoved);
         InstanceIdentifier <Node> nodeId = (InstanceIdentifier<Node>) nodeRemoved.getNodeRef().getValue();
-        lacpService.submit(new LacpNodeUpdate(nodeId, EventType.Deleted));
+        lacpService.submit(new LacpNodeUpdate(nodeId, EventType.DELETED));
     }
 
     @Override
     public void onNodeUpdated (NodeUpdated nodeUpdated)
     {
         if (nodeUpdated == null)
+        {
             return;
-        log.info("got a node updated {} ", nodeUpdated);
+        }
+        LOG.info("got a node updated {} ", nodeUpdated);
         InstanceIdentifier <Node> nodeId = (InstanceIdentifier<Node>) nodeUpdated.getNodeRef().getValue();
-        lacpService.submit(new LacpNodeUpdate(nodeId, EventType.Updated));
+        lacpService.submit(new LacpNodeUpdate(nodeId, EventType.UPDATED));
     }
 
     private class LacpNodeUpdate implements Runnable
@@ -92,7 +100,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
         @Override
         public void run ()
         {  
-            if (event.equals(EventType.Updated) == true)
+            if (event.equals(EventType.UPDATED) == true)
             {
                 handleNodeUpdate(lNode);
             }
@@ -109,13 +117,13 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             {
             if (lacpSystem.getLacpNode(nodeId) != null)
             {
-                log.debug ("Node already notified to lacp. Ignoring it {}", nodeId);
+                LOG.debug ("Node already notified to lacp. Ignoring it {}", nodeId);
                 return;
             }
             LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId);
             if (lacpNode == null)
             {
-                log.error("cannot add a lacp node for node {}", nodeId); 
+                LOG.error("cannot add a lacp node for node {}", nodeId);
                 return;
             }
             lacpSystem.addLacpNode(nodeId, lacpNode);
@@ -129,13 +137,13 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             {
             if (lacpSystem.getLacpNode(nodeId) == null)
             {
-                log.debug("Node already removed from lacp. Ignoring it {}", nodeId);
+                LOG.debug("Node already removed from lacp. Ignoring it {}", nodeId);
                 return;
             }
             LacpNodeExtn lacpNode = lacpSystem.removeLacpNode(nodeId);
             if (lacpNode == null)
             {
-                log.error("lacpNode could not be removed for node {}", nodeId); 
+                LOG.error("lacpNode could not be removed for node {}", nodeId);
                 return;
             }
             }
@@ -166,17 +174,21 @@ public class LacpNodeListener implements OpendaylightInventoryListener
         { 
             InstanceIdentifier<NodeConnector> lNodeCon;
 
-            if (event.equals(EventType.Updated) == true)
+            if (event.equals(EventType.UPDATED) == true)
             {
                 lNodeCon = (InstanceIdentifier<NodeConnector>)ncUpdated.getNodeConnectorRef().getValue();
                 FlowCapableNodeConnectorUpdated flowConnector = ncUpdated.<FlowCapableNodeConnectorUpdated>getAugmentation(FlowCapableNodeConnectorUpdated.class);
                 PortState portState = flowConnector.getState();
                 if ((portState == null) || (portState.isLinkDown()))
+                {
                    // port is in linkdown state, remove the port from the node.
                     handlePortDelete(lNodeCon, true);
+                }
                 else
+                {
                     // port is in linkup state, add the port to the node.
                     handlePortUpdate(lNodeCon);
+                }
             }
             else
             {
@@ -198,14 +210,14 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 {
                     if (lacpNode.addNonLacpPort (ncId) == false)
                     {
-                        log.debug("port already available with lacp node. Ignoring it {}", ncId);
+                        LOG.debug("port already available with lacp node. Ignoring it {}", ncId);
                         return;
                     }
                 }
             }
             else
             {
-                log.error("got a a nodeConnector updation for non-existing node {} ", nodeId);
+                LOG.error("got a a nodeConnector updation for non-existing node {} ", nodeId);
             }
         }
         private void handlePortDelete (InstanceIdentifier<NodeConnector> ncId, boolean hardReset)
@@ -222,14 +234,14 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 {
                     if (lacpNode.deletePort (ncId, hardReset) == false)
                     {
-                        log.debug("port not present with the lacp node. Ignoring it {}", ncId) ;
+                        LOG.debug("port not present with the lacp node. Ignoring it {}", ncId) ;
                         return;
                     }
                 }
             }
             else
             {
-                log.error("got a a nodeConnector removal for non-existing node {} ", nodeId);
+                LOG.error("got a a nodeConnector removal for non-existing node {} ", nodeId);
             }
         }
     }
