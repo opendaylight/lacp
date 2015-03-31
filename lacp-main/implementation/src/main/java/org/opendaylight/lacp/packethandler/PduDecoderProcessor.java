@@ -17,22 +17,18 @@ import org.opendaylight.lacp.Utils.*;
 
 public class PduDecoderProcessor implements Runnable {
 
-	private final ExecutorService RSMThrExecutor = Executors.newCachedThreadPool();
+//	private final ExecutorService RSMThrExecutor = Executors.newCachedThreadPool();
 	private final static Logger log = LoggerFactory.getLogger(PduDecoderProcessor.class);
-	private static boolean IsLacpUnloaded=false;
+	private static boolean IsLacploaded=true;
 	@Override
 	public void run() {
-		boolean IsnewNode=false;
 		log.info("Spawned PDU Decoder Thread");
-		System.out.println ("Spawned PDU Decoder Thread");
 
 		PduQueueHandler qh = new PduQueueHandler();
 		// Check the Raw Packet Queue for any Incoming LACP PDU to be processed
-		while (!IsLacpUnloaded)
+		while (IsLacploaded)
 		{
-			IsnewNode = qh.checkQueue();
-			if (IsnewNode)
-				RSMThrExecutor.submit(new RSMThrProcessor());
+			qh.checkQueue();
 
 			//TODO : Have a check to set Unload Flag
 			//IsLacpUnloaded=true;
@@ -40,8 +36,8 @@ public class PduDecoderProcessor implements Runnable {
 	}
 
 
-	public static void setLacpUnloaded(boolean unload) {
-                IsLacpUnloaded = unload;
+	public static void setLacploaded(boolean load) {
+                IsLacploaded = load;
         }
 
 }
