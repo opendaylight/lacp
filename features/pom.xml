@@ -19,7 +19,6 @@
   <properties>
     <features.file>features.xml</features.file>
     <maven.test.skip>${skipTests}</maven.test.skip>
-    <mdsal.version>1.2.0-SNAPSHOT</mdsal.version>
     <openflow.plugin.version>0.1.0-SNAPSHOT</openflow.plugin.version>
     <dlux.version>0.2.0-SNAPSHOT</dlux.version>
   </properties>
@@ -34,14 +33,12 @@
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>features-mdsal</artifactId>
-      <version>${mdsal.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>features-restconf</artifactId>
-      <version>${mdsal.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
     </dependency>
