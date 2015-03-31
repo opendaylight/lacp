@@ -53,7 +53,7 @@ import org.opendaylight.lacp.util.LacpUtil;
 
 public class LacpFlow
 {
-    private static final Logger log = LoggerFactory.getLogger(LacpFlow.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LacpFlow.class);
     private static SalFlowService salFlow;
     private AtomicLong lacpFlowId = new AtomicLong();
     private AtomicLong lacpCookie = new AtomicLong(0x3000000000000000L);
@@ -111,18 +111,18 @@ public class LacpFlow
             {
             if (result.get(5, TimeUnit.SECONDS).isSuccessful() == true)
             {
-                log.debug("LACP Pdu to controller flow programmed to the node {}", lacpNode);
+                LOG.debug("LACP Pdu to controller flow programmed to the node {}", lacpNode);
                 lacpNode.setFlowId(nodeFlowId);
             }
             else
             {
-                log.error("LACP Pdu to controller flow progamming failed for node {}", lacpNode);
+                LOG.error("LACP Pdu to controller flow progamming failed for node {}", lacpNode);
             }
             }
         }
         catch (InterruptedException | ExecutionException | TimeoutException e)
         {
-            log.debug("received interrupt in lacp flow programming " + e.getMessage());
+            LOG.debug("received interrupt in lacp flow programming " + e.getMessage());
         }
     }
 
@@ -143,7 +143,7 @@ public class LacpFlow
         Action action = new ActionBuilder().setOrder(0).setKey(new ActionKey(0))
                 .setAction(new OutputActionCaseBuilder()
                                 .setOutputAction(new OutputActionBuilder()
-                                        .setMaxLength(new Integer(0xffff))
+                                        .setMaxLength(Integer.valueOf(0xffff))
                                         .setOutputNodeConnector(new Uri(OutputPortValues.CONTROLLER.toString()))
                                         .build()).build()).build();
         ApplyActions applyActions = new ApplyActionsBuilder().setAction(ImmutableList.of(action)).build();
@@ -182,16 +182,16 @@ public class LacpFlow
         {
             if (result.get(5, TimeUnit.SECONDS).isSuccessful() == true)
             {
-                log.debug("LACP Pdu to controller flow removed from node {}", lacpNode);
+                LOG.debug("LACP Pdu to controller flow removed from node {}", lacpNode);
             }
             else
             {
-                log.error("LACP Pdu to controller flow removal failed for node {}", lacpNode);
+                LOG.error("LACP Pdu to controller flow removal failed for node {}", lacpNode);
             }
         }
         catch (InterruptedException | ExecutionException | TimeoutException e)
         {
-            log.debug("received interrupt in lacp flow removal " + e.getMessage());
+            LOG.debug("received interrupt in lacp flow removal " + e.getMessage());
         }
     }
 }

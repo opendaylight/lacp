@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregators;
@@ -40,16 +39,16 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 
-public class LacpNodeExtn 
+public class LacpNodeExtn
 {
-    private static final Logger log = LoggerFactory.getLogger(LacpNodeExtn.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LacpNodeExtn.class);
     private LacpNodeBuilder lacpBuilder;
     private Hashtable<Integer, LacpAgg> lagList;
     private Hashtable<InstanceIdentifier<NodeConnector>, LacpPort> lacpPortList;
     private List<InstanceIdentifier<NodeConnector>> nonLacpPortList;
-    private Long FlowId;
+    private Long flowId;
     private InstanceIdentifier<Node> nodeInstId;
-    private static final LacpFlow lacpFlow = new LacpFlow();
+    private static final LacpFlow LACPFLOW = new LacpFlow();
     private static DataBroker dataService;
     private Long switchId;
     private boolean deleteStatus;
@@ -69,7 +68,7 @@ public class LacpNodeExtn
         lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
         deleteStatus = false;
         rsmStatus = false;
-        lacpFlow.programLacpFlow(nodeInstId, this);
+        LACPFLOW.programLacpFlow(nodeInstId, this);
         lacpBuilder.setNonLagGroupid(groupId);
         lagList = new Hashtable<Integer,LacpAgg>();
         ArrayList<LacpAggregators> aggList = new ArrayList<LacpAggregators>();
@@ -98,7 +97,7 @@ public class LacpNodeExtn
         lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
         deleteStatus = false;
         rsmStatus = false;
-        lacpFlow.programLacpFlow(nodeInstId, this);
+        LACPFLOW.programLacpFlow(nodeInstId, this);
         lacpBuilder.setNonLagGroupid(groupId);
 
         for (LacpAggregators lacpAggregator: aggList)
@@ -157,32 +156,40 @@ public class LacpNodeExtn
     }
     public void setFlowId (Long flowId)
     {
-        this.FlowId = flowId;
+        this.flowId = flowId;
     }
     public long getFlowId ()
     {
-        return this.FlowId;
+        return this.flowId;
     }
     public LacpPortType containsPort (InstanceIdentifier<NodeConnector> port)
     {
         if (this.nonLacpPortList.contains(port) == true)
+        {
             return LacpPortType.NON_LACPPORT;
+        }
         else if (this.lacpPortList.containsKey(port) == true)
+        {
             return LacpPortType.LACP_PORT;
+        }
         else
+        {
             return LacpPortType.NONE;
+        }
     }
     public boolean deletePort (InstanceIdentifier<NodeConnector> port, boolean hardReset)
     {
         LacpPortType pType = this.containsPort(port);
         if (pType.equals(LacpPortType.NONE))
         {
-            log.error("got a nodeConnector removal for non-existing nodeConnector {} ", port);
+            LOG.error("got a a nodeConnector removal for non-existing nodeConnector {} ", port);
         }
         else if (pType.equals(LacpPortType.LACP_PORT))
         {
             if (this.removeLacpPort (port, hardReset) != null)
+            {
                 return true;
+            }
         }
         else
         {
@@ -224,7 +231,7 @@ public class LacpNodeExtn
         if (delFlag == true)
         {
             /* clean up in switch */
-            lacpFlow.removeLacpFlow(this.nodeInstId, this);
+            LACPFLOW.removeLacpFlow(this.nodeInstId, this);
             updateLacpNodeDS(nodeInstId);
         }
         lacpBuilder = null;
@@ -252,12 +259,12 @@ public class LacpNodeExtn
         Futures.addCallback(result, new FutureCallback() {
         @Override
         public void onSuccess(Object o) {
-          log.debug("LacpNode updation write success for txt {}", write.getIdentifier());
+          LOG.debug("LacpNode updation write success for txt {}", write.getIdentifier());
         }
 
         @Override
         public void onFailure(Throwable throwable) {
-          log.error("LacpNode updation write failed for tx {}", write.getIdentifier(), throwable.getCause());
+          LOG.error("LacpNode updation write failed for tx {}", write.getIdentifier(), throwable.getCause());
         }
       });
     }
@@ -269,8 +276,9 @@ public class LacpNodeExtn
     public boolean addLacpAggregator (LacpAgg lacpAgg)
     {
         if (lagList.containsKey(lacpAgg.getAggId()))
+        {
             return false;
-        
+        }
         lagList.put(lacpAgg.getAggId(), lacpAgg);
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.add(lacpAgg.buildLacpAgg());
@@ -281,9 +289,10 @@ public class LacpNodeExtn
     public boolean removeLacpAggregator (LacpAgg lacpAgg)
     {
         if (!(lagList.containsKey(lacpAgg.getAggId())))
+        {
             return false;
-        
-        lacpAgg = lagList.remove(lacpAgg.getAggId());
+        }
+        LacpAgg agg = lagList.remove(lacpAgg.getAggId());
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.remove(lacpAgg.buildLacpAgg());
         lacpBuilder.setLacpAggregators(aggList);
@@ -308,13 +317,13 @@ public class LacpNodeExtn
             @Override
             public void onSuccess(Object o)
             {
-                log.debug("LacpNodeConnector updation write success for txt {}", write.getIdentifier());
+                LOG.debug("LacpNodeConnector updation write success for txt {}", write.getIdentifier());
             }
 
             @Override
             public void onFailure(Throwable throwable)
             {
-                log.error("LacpNodeConnector updation write failed for tx {}", write.getIdentifier(), throwable.getCause());
+                LOG.error("LacpNodeConnector updation write failed for tx {}", write.getIdentifier(), throwable.getCause());
             }
         });
     }

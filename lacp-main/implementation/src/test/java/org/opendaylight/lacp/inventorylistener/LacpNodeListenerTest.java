@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.lacp.inventoryListener;
+package org.opendaylight.lacp.inventorylistener;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
+import org.opendaylight.lacp.inventorylistener.LacpNodeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.flow.capable.port.State;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.flow.capable.port.StateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorUpdatedBuilder;
