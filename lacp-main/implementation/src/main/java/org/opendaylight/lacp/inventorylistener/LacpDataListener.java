@@ -43,14 +43,14 @@ public class LacpDataListener implements DataChangeListener
 {
     private static final Logger LOG = LoggerFactory.getLogger(LacpDataListener.class);
     private final DataBroker dataService;
-    private static HashSet<InstanceIdentifier<NodeConnector>> extNodeConnSet;
+    private static HashSet<InstanceIdentifier<NodeConnector>> intNodeConnSet;
     private static final String CURRTOPO = "flow:1";
 
     public LacpDataListener (DataBroker dataBroker)
     {
         this.dataService = dataBroker;
-        extNodeConnSet = new HashSet<InstanceIdentifier<NodeConnector>>();
-        updateExtNodeConnectors();
+        intNodeConnSet = new HashSet<InstanceIdentifier<NodeConnector>>();
+        updateInternalNodeConnectors();
     }
     
     public ListenerRegistration<DataChangeListener> registerDataChangeListener()
@@ -62,51 +62,40 @@ public class LacpDataListener implements DataChangeListener
                                                      this, AsyncDataBroker.DataChangeScope.BASE);
     }
     /* If the nodes are already available, obtain the available links in the learnt topology
-     * and update the external nodeConnector set */
-    public void updateExtNodeConnectors()
+     * and update the internal nodeConnector set */
+    public void updateInternalNodeConnectors()
     {
         ReadOnlyTransaction readTx = dataService.newReadOnlyTransaction();
         Topology topology = null;
         NetworkTopology networkTopology = null;
 
-/* check if this is required or reading from the fixed flow:1 topology is sufficient -- TODO kalai */
-        InstanceIdentifier<NetworkTopology> networkTopoId = InstanceIdentifier.builder(NetworkTopology.class).build();
+        InstanceIdentifier<Topology> topoId = InstanceIdentifier.builder(NetworkTopology.class)
+                                                  .child(Topology.class,
+                                                         new TopologyKey(new TopologyId(CURRTOPO)))
+                                                  .build();
         try
         {
-            Optional<NetworkTopology> optNetwork = readTx.read(LogicalDatastoreType.OPERATIONAL, networkTopoId).get();
-            if (optNetwork.isPresent())
+            Optional<Topology> optional = readTx.read(LogicalDatastoreType.OPERATIONAL, topoId).get();
+            if (optional.isPresent())
             {
-                networkTopology = optNetwork.get();
-                for (Topology netTopology : networkTopology.getTopology())
+                topology = optional.get();
+            }
+            if (topology == null)
+            {
+                LOG.debug("Topology is not yet created {}", topoId);
+                return;
+            }
+            List<Link> links = topology.getLink();
+            if (links == null || links.isEmpty())
+            {
+                LOG.debug("Topology is not yet updated with the links {}", topoId);
+                return;
+            } 
+            for (Link link : links)
+            {
+                if (!(link.getLinkId().getValue().contains("host")))
                 {
-                    InstanceIdentifier<Topology> topoId = InstanceIdentifier.builder(NetworkTopology.class)
-                                                              .child(Topology.class,
-                                                                     new TopologyKey(netTopology.getTopologyId()))
-                                                              .build();
-                    Optional<Topology> optional = readTx.read(LogicalDatastoreType.OPERATIONAL, topoId).get();
-                    if (optional.isPresent())
-                    {
-                        topology = optional.get();
-                    }
-                    if (topology == null)
-                    {
-                        LOG.debug("Topology is not yet created {}", topoId);
-                        continue;
-                    }
-                    List<Link> links = topology.getLink();
-                    if (links == null || links.isEmpty())
-                    {
-                        LOG.debug("Topology is not yet updated with the links {}", topoId);
-                        continue;
-                    } 
-                    for (Link link : links)
-                    {
-                        if (link.getLinkId().getValue().contains("host"))
-                        {
-                            addExtNodeConnectors(link);
-                        }
-                    }
-
+                    addIntNodeConnectors(link);
                 }
             }
         }
@@ -120,7 +109,7 @@ public class LacpDataListener implements DataChangeListener
 
     public static boolean checkExternalNodeConn (InstanceIdentifier ncId)
     {
-        if (extNodeConnSet.contains (ncId))
+        if (!(intNodeConnSet.contains (ncId)))
         {
             return true;
         }
@@ -128,7 +117,7 @@ public class LacpDataListener implements DataChangeListener
         return false;
     }
 
-    private void verifyAndDeleteExternalLacpPort (InstanceIdentifier ncId)
+    private void verifyAndDeleteInternalLacpPort (InstanceIdentifier ncId)
     {
         LacpSystem lacpSystem = LacpSystem.getLacpSystem();
         InstanceIdentifier nodeId = ncId.firstIdentifierOf(Node.class);
@@ -143,7 +132,7 @@ public class LacpDataListener implements DataChangeListener
             LOG.debug("internal port {} is not an lacp port. Ignoring it", ncId);
             return;
         }
-        /* post port down for lacp port */
+        /* post port down for lacp port - TODO kalai*/
         lacpNode.addNonLacpPort(ncId);
         LOG.debug("internal port {} is removed as a lacp port and added as a non-lacp port.", ncId);
         return;
@@ -167,9 +156,9 @@ public class LacpDataListener implements DataChangeListener
                 if (Link.class.isAssignableFrom(linkId.getTargetType()))
                 {
                     Link link = (Link) createdData.get(linkId);
-                    if (link.getLinkId().getValue().contains("host"))
+                    if (!(link.getLinkId().getValue().contains("host")))
                     {
-                        addExtNodeConnectors(link);
+                        addIntNodeConnectors(link);
                     }
                 }
             }
@@ -181,37 +170,50 @@ public class LacpDataListener implements DataChangeListener
                 if (Link.class.isAssignableFrom(instanceId.getTargetType()))
                 {
                     Link link = (Link) originalData.get(instanceId);
-                    if (link.getLinkId().getValue().contains("host"))
+                    if (!(link.getLinkId().getValue().contains("host")))
                     {
-                        removeExtNodeConnectors(link);
+                        removeIntNodeConnectors(link);
                     }
                 }
             }
         }
     }
-    private void addExtNodeConnectors(Link link)
+    private void addIntNodeConnectors(Link link)
     {
-        InstanceIdentifier dest = createNCId(link.getDestination().getDestNode().getValue(),
-                                             link.getDestination().getDestTp().getValue());
-        InstanceIdentifier src = createNCId(link.getSource().getSourceNode().getValue(), 
-                                            link.getSource().getSourceTp().getValue());
-        extNodeConnSet.add(dest);
-        extNodeConnSet.add(src);
+        InstanceIdentifier id;
+        if (link.getDestination().getDestTp().getValue().contains("host"))
+        {
+            id = createNCId(link.getSource().getSourceNode().getValue(), 
+                            link.getSource().getSourceTp().getValue());
+        }
+        else
+        {
+            id = createNCId(link.getDestination().getDestNode().getValue(),
+                            link.getDestination().getDestTp().getValue());
+        }
+        intNodeConnSet.add(id);
+        LOG.debug ("added port {} to lacp internal port list", id);
         return;
     }
-    private void removeExtNodeConnectors(Link link)
+    private void removeIntNodeConnectors(Link link)
     {
-        InstanceIdentifier dest = createNCId(link.getDestination().getDestNode().getValue(),
-                                             link.getDestination().getDestTp().getValue());
-        InstanceIdentifier src = createNCId(link.getSource().getSourceNode().getValue(), 
-                                            link.getSource().getSourceTp().getValue());
-        extNodeConnSet.remove(dest);
-        extNodeConnSet.remove(src);
+        InstanceIdentifier id;
+        if (link.getDestination().getDestTp().getValue().contains("host"))
+        {
+            id = createNCId(link.getSource().getSourceNode().getValue(), 
+                            link.getSource().getSourceTp().getValue());
+        }
+        else
+        {
+            id = createNCId(link.getDestination().getDestNode().getValue(),
+                            link.getDestination().getDestTp().getValue());
+        }
+        intNodeConnSet.remove(id);
+        LOG.debug ("removed port {} from lacp internal port list", id);
         /* The link is getting removed as external link,
          * if any of the edge nodeConnectors was added as a lacp port to the node
          * remove the port as a lacp port as lacp can be enabled only on external ports */
-        verifyAndDeleteExternalLacpPort(dest);
-        verifyAndDeleteExternalLacpPort(src);
+        verifyAndDeleteInternalLacpPort(id);
         return;
     }
 
