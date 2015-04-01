@@ -47,6 +47,7 @@ public class TxProcessor implements Runnable {
 
 	private int  queueId;
 	private final static Logger log = LoggerFactory.getLogger(TxProcessor.class);
+	private static boolean IsLacploaded=true;
 //	private int execType=0;
 
 	
@@ -55,20 +56,22 @@ public class TxProcessor implements Runnable {
 		this.queueId = queueId;
 	}
 
+	public static void setLacploaded(boolean load) {
+                IsLacploaded = load;
+        }
+
 
 	@Override
 	public void run() {
-		boolean IsLacpUnloaded=false;
 		boolean IsQueueRdy=true;
 		LacpPacketPdu lacpPDU = null;
 		LacpTxQueue  lacpTxQueue = null;
 		byte[] payload ;
-		System.out.println ("Spawned TxProcessor Thread");
 		log.info("Spawned TxProcessor Thread");
 
 		lacpTxQueue = LacpTxQueue.getLacpTxQueueInstance();
 
-		while (IsLacpUnloaded) {
+		while (IsLacploaded) {
 			
 			IsQueueRdy=true;
 			while (IsQueueRdy)
@@ -77,8 +80,8 @@ public class TxProcessor implements Runnable {
 				if (lacpPDU != null)
 				{
 					payload = TxUtils.convertLacpPdutoByte(lacpPDU);
-					TxUtils.dispatchPacket(payload, lacpPDU.getIngressPort(), lacpPDU.getSrcAddress(), lacpPDU.getDestAddress());
 					//Send the Packet Out
+					TxUtils.dispatchPacket(payload, lacpPDU.getIngressPort(), lacpPDU.getSrcAddress(), lacpPDU.getDestAddress());
 				}
 				else
 				{
@@ -92,8 +95,6 @@ public class TxProcessor implements Runnable {
 			}
 
 			
-			//Add Condition
-			//IsLacpUnloaded=true;
 		}
 	}
 
