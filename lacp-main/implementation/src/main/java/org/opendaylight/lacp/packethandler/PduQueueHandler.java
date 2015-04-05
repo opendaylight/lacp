@@ -13,6 +13,13 @@ import java.util.List;
 
 
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+//import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
+//import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
+//import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
+//import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
+//import org.opendaylight.lacp.Utils.BitBufferHelper;
+//import org.opendaylight.lacp.Utils.BufferException;
+//import org.opendaylight.lacp.Utils.HexEncode;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.slf4j.Logger;
@@ -29,7 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.
 import org.opendaylight.lacp.Utils.*;
 
 import org.opendaylight.lacp.queue.*;
-//RK import org.opendaylight.lacp.core.*;
+import org.opendaylight.lacp.core.*;
 import org.opendaylight.lacp.inventory.*;
 
 
@@ -39,17 +46,23 @@ public class PduQueueHandler {
 
 	public void checkQueue(){
 
-		boolean IsnewNode = false;
-	   	boolean HasPktArrvd = false;
-	   	PacketReceived packetReceived = null;
-	   	// Get the Node specific PDU Queue Instance
-	   	LacpPDUQueue lacpPduQ = LacpPDUQueue.getLacpPDUQueueInstance();
-	   	// Get the RAW Packet Queue Instance
- 	   	LacpQueue <PacketReceived> lacpRxQ = LacpRxQueue.getLacpRxQueueId();
+	   boolean IsnewNode = false;
+	   boolean HasPktArrvd = false;
+	   PacketReceived packetReceived = null;
+	   System.out.println("checkQueue ");
+	   /* while (!IsnewNode)
+	   { */
+		// Get the Node specific PDU Queue Instance
+		LacpPDUQueue lacpPduQ = LacpPDUQueue.getLacpPDUQueueInstance();
 
-	   	// Dequeue LACP Packet from RAW Packet Queue.
-	   	while (!HasPktArrvd)
-	   	{
+		//LacpTimerQueue lacpTmrQ = LacpTimerQueue.getLacpTimerQueueInstance();
+
+		// Get the RAW Packet Queue Instance
+ 		LacpQueue <PacketReceived> lacpRxQ = LacpRxQueue.getLacpRxQueueId();
+
+		// Dequeue LACP Packet from RAW Packet Queue.
+		while (!HasPktArrvd)
+		{
 			packetReceived = lacpRxQ.dequeue();
 			if (packetReceived != null)  {
 				HasPktArrvd = true;
@@ -59,29 +72,41 @@ public class PduQueueHandler {
 			}catch( InterruptedException e ) {
 				_logger.debug("PduQueueHandler: Interrupted Exception ", e.getMessage());
 			}
-	   	}
+		}
 
-	   	// Decode the received Packet.
-	   	LacpPacketPduBuilder builder = decodeLacp(packetReceived);
+		// Decode the received Packet.
+		LacpPacketPduBuilder builder = decodeLacp(packetReceived);
 
 
+		System.out.println("PduQueueHandler : returned from decodeLACP ");
 		LacpPacketPdu lacpPacketPdu = builder.build();
 		ActorInfo actorInfo = builder.getActorInfo();
-		long sid = Long.valueOf(macToString(actorInfo.getSystemId()));
-//RK		long sid = NodePort.getSwitchId(builder.getIngressPort());
+		System.out.println("PduQueueHandler: actorInfo" + actorInfo);
+		//long sid = Long.valueOf(macToString(actorInfo.getSystemId()));
+		long sid = NodePort.getSwitchId(builder.getIngressPort());
+		System.out.println("PduQueueHandler: sid" + sid);
 		// Check if this is the first LACP PDU received for the Node.
 		IsnewNode = !(lacpPduQ.isLacpQueuePresent(sid));
+		System.out.println("PduQueueHandler : IsnewNode - " + IsnewNode + " lacpPduQ" + lacpPduQ.isLacpQueuePresent(sid));
 
 		if (IsnewNode)
                 {
-                      //RK	RSMManager instance = RSMManager.getRSMManagerInstance();
+                	System.out.println("PduDecoderProcessor: before spwaning rsm create");
+                      	RSMManager instance = RSMManager.getRSMManagerInstance();
 			LacpSystem lacpSystem = LacpSystem.getLacpSystem();
 			LacpNodeExtn lacpNodeExtn = lacpSystem.getLacpNode(sid);
-                      //RK 	instance.createRSM(lacpNodeExtn);
+                       	instance.createRSM(lacpNodeExtn);
+			System.out.println("PduDecoderProcessor: After createRSM");
+
+			//create the timer queue
+			//lacpTmrQ.addLacpQueue(sid);
+
                 }
 		// Enqueue the decoded LACP Packet to LACP Packet PDU Queue
-		//RK LacpBpduInfo lacpBpduInfo = new LacpBpduInfo(lacpPacketPdu);
-		//RK lacpPduQ.enqueue(sid, lacpBpduInfo);
+		LacpBpduInfo lacpBpduInfo = new LacpBpduInfo(lacpPacketPdu);
+		System.out.println("PduDecoderProcessor: Before enqueue");
+		lacpPduQ.enqueue(sid, lacpBpduInfo);
+		System.out.println("PduDecoderProcessor: After enqueue");
 	   //}
 
 	   return;
@@ -93,6 +118,7 @@ public class PduQueueHandler {
 	public boolean deleteQueue(long switchId) {
 		boolean Isdeleted = false;
 
+                System.out.println("Inside deleteQueue");
 		LacpPDUQueue lacpPduQ = LacpPDUQueue.getLacpPDUQueueInstance();
 		Isdeleted = lacpPduQ.deleteLacpQueue(switchId);
 		return(Isdeleted);
@@ -135,6 +161,7 @@ public class PduQueueHandler {
 	}
 
         public  LacpPacketPduBuilder decodeLacp(PacketReceived packetReceived) {
+                System.out.println("Inside PduQueueHandler");
 
 
 		int bitOffset = 0;
@@ -149,9 +176,11 @@ public class PduQueueHandler {
 			builder.setDestAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
 			bitOffset = bitOffset + 48;
 
+			System.out.println("builder.getDestAddress - " + builder.getDestAddress());
 
 			builder.setSrcAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
 			bitOffset = bitOffset + 48;
+			System.out.println("builder.getSrcAddress - " + builder.getSrcAddress());
 
 			builder.setLenType(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
 			bitOffset = bitOffset + 16;
@@ -172,7 +201,7 @@ public class PduQueueHandler {
 			actorbuilder.setSystemPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
 			bitOffset = bitOffset + 16;
 
-			actorbuilder.setSystemId(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48)));
+			actorbuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
 			bitOffset = bitOffset + 48;
 
 			actorbuilder.setKey(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
@@ -204,9 +233,10 @@ public class PduQueueHandler {
 			partnerbuilder.setSystemPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
 			bitOffset = bitOffset + 16;
 
-			partnerbuilder.setSystemId(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48)));
+			partnerbuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
 			bitOffset = bitOffset + 48;
 
+			System.out.println("partnerbuilder.setSystemId : " + partnerbuilder.getSystemId());
 
 			partnerbuilder.setKey(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
 			bitOffset = bitOffset + 16;
@@ -260,6 +290,7 @@ public class PduQueueHandler {
 			_logger.debug("Exception while decoding LACP PDU  packet", e.getMessage());
 		}
 
+		System.out.println("Exiting decodelacp");
 		return(builder);
 	}
 

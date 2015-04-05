@@ -8,28 +8,32 @@ public class LacpPortStatus implements LacpPDUPortStatusContainer{
     private int portStatus;
     public static final int PORT_STATUS_UP = 1;
     public static final int PORT_STATUS_DOWN = 2; 
+    private int portFeatures = 0;
 
-      public LacpPortStatus(long swid, int i, int portStatus) {
+      public LacpPortStatus(long swid, int i, int portStatus,int portFeatures) {
         this.swID = swid;
         this.portID = i;
         this.portStatus = portStatus;
+	this.portFeatures = portFeatures;
       }
 
-      long getSwID(){
-              return swID;
+      public long getSwID(){
+          return swID;
       }
 
-      int getPortID(){
-              return portID;
+      public int getPortID(){
+          return portID;
       }
 
-      int getPortStatus(){
-              return portStatus;
+      public int getPortStatus(){
+          return portStatus;
       }  
-      
-	  public MessageType getMessageType(){
-		  return LacpPDUPortStatusContainer.MessageType.LACP_PORT_STATUS_MSG;
-	  }
+      public int getPortFeatures(){
+	 return portFeatures;
+      }
+      public MessageType getMessageType(){
+	  return LacpPDUPortStatusContainer.MessageType.LACP_PORT_STATUS_MSG;
+      }
 
 }
 

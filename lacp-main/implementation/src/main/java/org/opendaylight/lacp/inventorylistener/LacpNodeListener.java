@@ -25,6 +25,13 @@ import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortState;
 
+import org.opendaylight.lacp.Utils.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.lacp.queue.LacpPDUQueue;
+import org.opendaylight.lacp.queue.LacpPortStatus;
+import org.opendaylight.lacp.queue.LacpPDUPortStatusContainer;
+
+
 enum EventType
 {
     UPDATED,
@@ -196,6 +203,28 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 handlePortDelete(lNodeCon, false);
             }
         }
+
+
+	private boolean enqueuePortStatus (InstanceIdentifier<NodeConnector> ncId, int upDown){
+
+                boolean result = false;
+                if (ncId != null){
+                        short port_id = NodePort.getPortId(new NodeConnectorRef(ncId));
+                        long sw_id = NodePort.getSwitchId(new NodeConnectorRef(ncId));
+                        NodeConnector nc = (NodeConnector)InstanceIdentifier.keyOf(ncId);
+                        int portFeaturesResult = LacpPortProperties.mapSpeedDuplexFromPortFeature(nc);
+                        LacpPDUPortStatusContainer pduElem = null;
+                        pduElem = new LacpPortStatus(sw_id,port_id,upDown,portFeaturesResult);
+                        LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
+                        if((pduQueue!= null) && !(pduQueue.enqueue(sw_id,pduElem))){
+                                LOG.debug("Failed to enque port status object for port={}",port_id);
+                                result = false;
+                        }
+                        result = true;
+                }
+                return result;
+        }
+
         private void handlePortUpdate(InstanceIdentifier<NodeConnector> ncId)
         {
             InstanceIdentifier<Node> nodeId = ncId.firstIdentifierOf(Node.class);
@@ -212,6 +241,11 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                     {
                         LOG.debug("port already available with lacp node. Ignoring it {}", ncId);
                         return;
+                    }
+          	    if(!enqueuePortStatus(ncId,1)){
+                        LOG.debug("port {} with state UP is enqued succesfully for port state procesing", ncId);
+                    }else{
+                        LOG.error("port {}, enque failed", ncId);
                     }
                 }
             }
@@ -232,6 +266,12 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             {
                 synchronized (lacpNode)
                 {
+		    if(!enqueuePortStatus(ncId,2)){
+                        LOG.debug("port {} with state DOWN is enqued succesfully for port state procesing", ncId);
+                    }else{
+                        LOG.error("port {} enque failed", ncId);
+                    }
+
                     if (lacpNode.deletePort (ncId, hardReset) == false)
                     {
                         LOG.debug("port not present with the lacp node. Ignoring it {}", ncId) ;

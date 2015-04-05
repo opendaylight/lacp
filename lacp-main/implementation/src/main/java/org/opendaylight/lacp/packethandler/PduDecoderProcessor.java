@@ -22,13 +22,25 @@ public class PduDecoderProcessor implements Runnable {
 	private static boolean IsLacploaded=true;
 	@Override
 	public void run() {
+		boolean IsnewNode=false;
 		log.info("Spawned PDU Decoder Thread");
+		System.out.println ("Spawned PDU Decoder Thread");
 
 		PduQueueHandler qh = new PduQueueHandler();
 		// Check the Raw Packet Queue for any Incoming LACP PDU to be processed
 		while (IsLacploaded)
 		{
+			System.out.println("PduDecoderProcessor: Inside while");
 			qh.checkQueue();
+			System.out.println("PduDecoderProcessor: Before newnode check" + IsnewNode);
+			/*  if (IsnewNode)
+			{
+				System.out.println("PduDecoderProcessor: before spwaning rsm create");
+			RSMThrExecutor.submit(new RSMThrProcessor());
+				RSMManager instance = new RSMManager();
+				instance.createRSM();
+			} */
+			System.out.println("PduDecoderProcessor: after RSM thread create");
 
 			//TODO : Have a check to set Unload Flag
 			//IsLacpUnloaded=true;

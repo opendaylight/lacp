@@ -12,6 +12,7 @@ import org.opendaylight.lacp.timer.TimerExpiryMessage;
 import org.opendaylight.lacp.timer.Utils;
 
 public class LacpTimerQueueTest {
+	/*
         private LacpTimerQueue tmrInst, tmrInst1;
         private TimerExpiryMessage  obj5,obj6,obj7,obj8,obj9,obj10,obj11,obj12,obj13,obj14,obj15,obj16;
         
@@ -126,6 +127,7 @@ public class LacpTimerQueueTest {
                 System.out.println("Size of Queue"+tmrInst.size());
                 //fail("Not yet implemented");
         }
+	*/
 
 }
 

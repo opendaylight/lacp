@@ -70,9 +70,10 @@ module lacp-packet {
     }
 
     leaf system-id {
-       type string {
+       /* type string {
 		length "1..48";
-	}
+	} */
+	type yang:mac-address;
     }
 
     leaf key {

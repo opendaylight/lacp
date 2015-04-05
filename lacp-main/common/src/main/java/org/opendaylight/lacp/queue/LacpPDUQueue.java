@@ -3,7 +3,8 @@ package org.opendaylight.lacp.queue;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public  class LacpPDUQueue extends LacpQueue {
+//public  class LacpPDUQueue extends LacpQueue {
+public  class LacpPDUQueue {
 
     private static final Map<Long, LacpQueue<LacpPDUPortStatusContainer>> LacpPDUQueueMap =
         new ConcurrentHashMap<Long,LacpQueue<LacpPDUPortStatusContainer>>();
@@ -26,8 +27,10 @@ public  class LacpPDUQueue extends LacpQueue {
         boolean result = false;
 
         if(LacpPDUQueueMap.get(switchId) != null){
+		System.out.println("isLacpQueuePresent returning true");
             result = true;
         }
+	System.out.println(" Exiting isLacpQueuePresent");
         return result;
     }
 

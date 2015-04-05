@@ -9,6 +9,7 @@ import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.lacp.packethandler.PduDecoderProcessor;
 import org.opendaylight.lacp.packethandler.TxProcessor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.lacp.grouptbl.*;
 
 
@@ -19,6 +20,7 @@ import org.opendaylight.lacp.inventorylistener.LacpDataListener;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.packethandler.LacpPacketHandler;
+import org.opendaylight.lacp.packethandler.TxUtils;
 import org.opendaylight.lacp.flow.LacpFlow;
 import org.opendaylight.lacp.queue.LacpRxQueue;
 import org.opendaylight.lacp.util.LacpUtil;
@@ -27,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.lacp.main.rev141216.AbstractLacpMainModule {
 
-    private final static Logger LOG = LoggerFactory.getLogger(LacpMainModule.class);
+    private final static Logger log = LoggerFactory.getLogger(LacpMainModule.class);
     private LacpNodeListener lacpListener;
     private Registration nodeListener = null;
     private LacpDataListener portDataListener;
@@ -57,7 +59,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
     @Override
     public java.lang.AutoCloseable createInstance() {
 	int queueId = 0;
-        LOG.info("createInstance invoked for the lacp  module.");
+        log.info("createInstance invoked for the lacp  module.");
         NotificationProviderService notificationService = getNotificationServiceDependency();
         DataBroker dataService = getDataBrokerDependency();
         RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
@@ -79,7 +81,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         extPortListener = portDataListener.registerDataChangeListener();
 
 
-        LOG.debug("starting to read from data store");
+        log.debug("starting to read from data store");
         lacpSystem.readDataStore(dataService);
 
         lacpPacketHandler = new LacpPacketHandler();
@@ -89,16 +91,29 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 
 	LacpGroupTbl lacpGroupTbl = new LacpGroupTbl(salGroupService, dataService);
 
+	PacketProcessingService packetProcessingService =
+	    rpcRegistryDependency.getRpcService(PacketProcessingService.class);
+	
+	/*
+	 if(packetProcessingService != null){
+               System.out.println("LacpMainModule - packetProcessingService is NOT null");
+         }else{
+               System.out.println("LacpMainModule - packetProcessingService is null");
+         }
+
+	TxUtils.setPacketProcessingService(packetProcessingService);
+	*/
+
 	/* Spawn the Default threads - PDU Decoder and Tx Threads */
 
 	pduDecoderExecutor.submit(new PduDecoderProcessor());
 
 	for (int i=0; i<4; i++) {
-		TxThrExecutor.submit(new TxProcessor(queueId));
+		TxThrExecutor.submit(new TxProcessor(queueId,packetProcessingService));
 	}
 	queueId = 1;
 	for (int i=0; i<6; i++) {
-		TxThrExecutor.submit(new TxProcessor(queueId));
+		TxThrExecutor.submit(new TxProcessor(queueId,packetProcessingService));
 	}
 
         final class CloseLacpResources implements AutoCloseable {
@@ -122,7 +137,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
           }
         }
         AutoCloseable ret = new CloseLacpResources();
-        LOG.info("Lacp(instance {}) initialized.", ret);
+        log.info("Lacp(instance {}) initialized.", ret);
         return ret;
     }
 

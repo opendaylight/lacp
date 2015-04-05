@@ -62,7 +62,7 @@ public class PduQueueHandlerTest {
 	@Before
 	public void initMocks() {
     		MockitoAnnotations.initMocks(this);
-		txUtils = new TxUtils(packetProcessingService);
+		txUtils = new TxUtils(/*packetProcessingService*/);
    		//TxUtils.setPacketProcessingService(packetProcessingService);
 	}
 
@@ -103,7 +103,7 @@ public class PduQueueHandlerTest {
 		assertEquals(1, (int)actor.getTlvType().getIntValue());
 		assertEquals(20, (int)actor.getInfoLen());
 		assertEquals(65535, (int)actor.getSystemPriority());
-		assertEquals("00:00:00:00:00:11", actor.getSystemId());
+		assertEquals("00:00:00:00:00:11", actor.getSystemId().getValue());
 		assertEquals(33, (int)actor.getKey());
 		assertEquals(255, (int)actor.getPortPriority());
 		assertEquals(2, (int)actor.getPort());
@@ -114,7 +114,7 @@ public class PduQueueHandlerTest {
 		assertEquals(2, (int)partner.getTlvType().getIntValue());
 		assertEquals(20, (int)partner.getInfoLen());
 		assertEquals(65535, (int)partner.getSystemPriority());
-		assertEquals("00:00:00:00:00:00", partner.getSystemId());
+		assertEquals("00:00:00:00:00:00", partner.getSystemId().getValue());
 		assertEquals(1, (int)partner.getKey());
 		assertEquals(255, (int)partner.getPortPriority());
 		assertEquals(1, (int)partner.getPort());

@@ -48,11 +48,14 @@ import org.opendaylight.lacp.queue.*;
 public class TxUtils {
 
 	private final static Logger log = LoggerFactory.getLogger(TxProcessor.class);
+
+	/*
 	private static PacketProcessingService packetProcessingService;
 
-	public TxUtils(PacketProcessingService packetProcessingService) {
-    		this.packetProcessingService = packetProcessingService;
+	public static void setPacketProcessingService(PacketProcessingService packetProcessingService) {
+    		packetProcessingService = packetProcessingService;
   	}	
+	*/
 
 	public static String macToString(String srcstr) {
 
@@ -88,10 +91,19 @@ public class TxUtils {
 
 	public static byte[] hexStringToByteArray(String s) {
     		int len = s.length();
-    		byte[] data = new byte[len / 2];
-    		for (int i = 0; i < len; i += 2) {
-        	data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+		byte[] data = null;
+		System.out.println("hexStringToByteArray: length - :" + s.length());
+		if(len == 1){
+			data = new byte[1];
+        		data[0] = (byte) Character.digit(s.charAt(0), 16);
+		}
+		else
+		{
+    			data = new byte[len / 2];
+    			for (int i = 0; i < len; i += 2) {
+        		data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
                              + Character.digit(s.charAt(i+1), 16));
+    			}
     		}
     		return data;
 	}
@@ -121,10 +133,15 @@ public class TxUtils {
 
 	public static byte[] convertLacpPdutoByte( LacpPacketPdu lacpPDU ) {
 		byte[] bdata = new byte[128];
-		byte[] tbyte = new byte[400];
 
 		ByteBuffer bb = ByteBuffer.wrap(bdata);
-		bb.put(convertStringtoByte(macToString(new String ((lacpPDU.getDestAddress().getValue()).toString()))));
+//		bb.put(convertStringtoByte(macToString(new String ((lacpPDU.getDestAddress().getValue()).toString()))));
+//		bb.put(hexStringToByteArray(macToString(new String ((lacpPDU.getDestAddress().getValue()).toString()))));
+		// commented by rajesh on 02 apr
+		//bb.put(HexEncode.bytesFromHexString((new String ((lacpPDU.getDestAddress().getValue()).toString()))));
+		// commented by rajesh on 02 apr
+		
+		bb.put(HexEncode.bytesFromHexString((new String ((lacpPDU.getDestAddress().getValue())))));
 		String s = macToString(new String ((lacpPDU.getDestAddress().getValue()).toString    ()));
 		byte[] b = new BigInteger(s,16).toByteArray();
 		System.out.println("Actual Destaddress new" + b);
@@ -132,12 +149,28 @@ public class TxUtils {
                 for (int i=0;i<b.length;i++) {
                         sb3.append(Integer.toHexString((int) b[i]));
                 }
-                System.out.println("Actual Destaddress sb3" + sb3.toString());
+                System.out.println("Actual Destaddress : " + sb3.toString());
 
-		System.out.println("lacpPDU.getSrcAddress");
-		bb.put(convertStringtoByte(macToString(new String ((lacpPDU.getSrcAddress().getValue()).toString()))));
+		//bb.put(convertStringtoByte(macToString(new String ((lacpPDU.getSrcAddress().getValue()).toString()))));
+		//bb.put(hexStringToByteArray(macToString(new String ((lacpPDU.getSrcAddress().getValue()).toString()))));
+		//commented bye rajesh on apr 02
+		//bb.put(HexEncode.bytesFromHexString((new String ((lacpPDU.getSrcAddress().getValue()).toString()))));
+		//commented bye rajesh on apr 02
+		
+		bb.put(HexEncode.bytesFromHexString((new String ((lacpPDU.getSrcAddress().getValue())))));
+		//System.out.println("lacpPDU.getSrcAddress" + hexStringToByteArray(macToString(new String ((lacpPDU.getSrcAddress().getValue()).toString()))))  ;
+		System.out.println("lacpPDU.getSrcAddress" + HexEncode.bytesFromHexString((new String ((lacpPDU.getSrcAddress().getValue()).toString()))))  ;
+		StringBuffer sb1 = new StringBuffer();
+                for (int i=0;i<b.length;i++) {
+                        sb1.append(Integer.toHexString((int) b[i]));
+                }
+                System.out.println("Actual Srcaddress : " + sb1.toString());
+
 		System.out.println("lacpPDU.getLen ");
 		System.out.println("New lacpPDU.getLen " + hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())));
+		System.out.println("New lacpPDU.getLenType");
+		bytetoString(hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())));
+		//bb.put(hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())));
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())),2));
 		System.out.println("lacpPDU.getSubtype");
 		bb.put(convertStringtoByte((new String (new Integer((lacpPDU.getSubtype().getIntValue())).toString()))));
@@ -152,7 +185,8 @@ public class TxUtils {
 		System.out.println("actorInfo.getSystemPriority ");
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(actorInfo.getSystemPriority())),2));
 		System.out.println("actorInfo.getSystemId " + actorInfo.getSystemId());
-		bb.put(padExtraZeroes(hexStringToByteArray(macToString(actorInfo.getSystemId())),6));
+//		bb.put(padExtraZeroes(hexStringToByteArray(macToString(actorInfo.getSystemId())),6));
+		bb.put(HexEncode.bytesFromHexString((new String ((actorInfo.getSystemId().getValue()).toString()))));
 		System.out.println("actorInfo.getKey " + actorInfo.getKey());
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(actorInfo.getKey())),2));
 		System.out.println("actorInfo.getPortPriority "+ actorInfo.getPortPriority());
@@ -174,7 +208,8 @@ public class TxUtils {
 		System.out.println("partnerInfo.getSystemPriority ");
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(partnerInfo.getSystemPriority()).toString()),2));
 		System.out.println("partnerInfo.getSystemID " );
-		bb.put(padExtraZeroes(hexStringToByteArray(macToString(partnerInfo.getSystemId())),6));
+		//bb.put(padExtraZeroes(hexStringToByteArray(macToString(partnerInfo.getSystemId())),6));
+		bb.put(HexEncode.bytesFromHexString((new String ((partnerInfo.getSystemId().getValue()).toString()))));
 		System.out.println("partnerInfo.getKey ");
 		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getKey()).toString()))),2));
 		System.out.println("partnerInfo.getPortPriority ");
@@ -218,14 +253,15 @@ public class TxUtils {
 	}
 
 	public static void dispatchPacket(byte[] payload, NodeConnectorRef ingress, 
-					  MacAddress srcMac, MacAddress destMac) {
+					  MacAddress srcMac, MacAddress destMac, 
+					  PacketProcessingService pServ) {
 
 		String nodeId = ingress.getValue().firstIdentifierOf(Node.class).firstKeyOf(Node.class, NodeKey.class).getId().getValue();
 		NodeConnectorRef destNodeConnector = ingress;
 
 		if(destNodeConnector != null) {
 		 	//sendPacketOut(payload, srcConnectorRef, destNodeConnector);
-		 	sendPacketOut(payload, destNodeConnector);
+		 	sendPacketOut(payload, destNodeConnector,pServ);
 		} else {
 			log.debug("TxProcessor: desNodeConnector is NULL");
 		}
@@ -239,7 +275,8 @@ public class TxUtils {
         	return rpcRegistryDependency;
 	}
 
-	public static void sendPacketOut(byte[] payload, NodeConnectorRef egress) {
+	public static void sendPacketOut(byte[] payload, NodeConnectorRef egress,
+				PacketProcessingService pServ) {
 
 			if(egress == null) return;
 			InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
@@ -250,7 +287,12 @@ public class TxUtils {
 			//	.setIngress(ingress) //
 				.build();
 
-			packetProcessingService.transmitPacket(input);
+			if(pServ != null){
+				pServ.transmitPacket(input);
+				System.out.println("sucessfully sent the transmitPacket");
+			}else{
+				System.out.println("packetProcessingService is null");
+			}
 	}
 
 

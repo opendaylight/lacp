@@ -47,44 +47,50 @@ public class TxProcessor implements Runnable {
 
 	private int  queueId;
 	private final static Logger log = LoggerFactory.getLogger(TxProcessor.class);
-	private static boolean IsLacploaded=true;
+	PacketProcessingService pktProcessService;
 //	private int execType=0;
 
 	
 
-	public TxProcessor(int queueId) {
+	public TxProcessor(int queueId, PacketProcessingService serv) {
 		this.queueId = queueId;
+		this.pktProcessService = serv;
 	}
-
-	public static void setLacploaded(boolean load) {
-                IsLacploaded = load;
-        }
 
 
 	@Override
 	public void run() {
+		boolean IsLacpLoaded=true;
 		boolean IsQueueRdy=true;
 		LacpPacketPdu lacpPDU = null;
 		LacpTxQueue  lacpTxQueue = null;
 		byte[] payload ;
+		System.out.println ("Spawned TxProcessor Thread");
 		log.info("Spawned TxProcessor Thread");
 
 		lacpTxQueue = LacpTxQueue.getLacpTxQueueInstance();
+		System.out.println("QueueInstance is : " + lacpTxQueue + " and  " + queueId);
 
-		while (IsLacploaded) {
-			
+		while (IsLacpLoaded) {
 			IsQueueRdy=true;
+
 			while (IsQueueRdy)
 			{
+				try{
 				lacpPDU = lacpTxQueue.dequeue(queueId);
 				if (lacpPDU != null)
 				{
+					System.out.println("LACP PDU non-null, queueId : " + queueId + "lacpPDU " + lacpPDU);
+					log.info("LACP PDU non-null, queueId is = {}  and  lacpPDU is = {}",queueId, lacpPDU);
 					payload = TxUtils.convertLacpPdutoByte(lacpPDU);
+					System.out.println("Tx: After convert ");
+					TxUtils.dispatchPacket(payload, lacpPDU.getIngressPort(), lacpPDU.getSrcAddress(), lacpPDU.getDestAddress(),pktProcessService);
+					System.out.println("Tx: After dispatch ");
 					//Send the Packet Out
-					TxUtils.dispatchPacket(payload, lacpPDU.getIngressPort(), lacpPDU.getSrcAddress(), lacpPDU.getDestAddress());
 				}
 				else
 				{
+					//System.out.println("Lacp PDU is null - queueId : " + queueId);
 					IsQueueRdy=false;
 					try {
 						Thread.sleep(100);
@@ -92,9 +98,13 @@ public class TxProcessor implements Runnable {
 						log.debug("TxProcessor: InterruptedException", e.getMessage());
 					}
 				}
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 
-			
+			//Add Condition
+			//IsLacpUnloaded=true;
 		}
 	}
 

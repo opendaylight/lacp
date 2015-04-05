@@ -26,7 +26,7 @@ public class PortWaitWhileTimerRegister extends BasePortTimerRegister implements
 	@Override
 	public void run(Timeout timeoutHandle) throws Exception {
 		//identify the right timer queue using systemid as key and then enque the message
-		//System.out.println("Timeout occurred for port:" + portID + " at " + getTime());
+		System.out.println("PortWaitWhileTimerRegister - Timeout occurred for port:" + this.getPortID() + " at " + getTime());
 		long swid = this.getSystemID();
 
 		System.out.println("Waitwhile - Timeout occured for port:" + this.getPortID() + " at " + getTime() + " and time in ms is " + System.currentTimeMillis());

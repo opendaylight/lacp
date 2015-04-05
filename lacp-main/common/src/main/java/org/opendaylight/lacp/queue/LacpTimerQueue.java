@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.lacp.timer.TimerExpiryMessage;
 
-public  class LacpTimerQueue extends LacpQueue {
+public  class LacpTimerQueue {
 
     private static final Map<Long, LacpQueue<TimerExpiryMessage>> LacpTimerQueueMap =
         new ConcurrentHashMap<Long,LacpQueue<TimerExpiryMessage>>();

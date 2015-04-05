@@ -17,6 +17,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.math.BigInteger;
+
+
 public class LacpUtil
 {
     public static final int LACP_ETHTYPE = 34825;
@@ -57,4 +63,55 @@ public class LacpUtil
         }
         return swId;
     }
+
+     public static String macToString(String srcstr) {
+
+                if(srcstr == null) {
+                        return "null";
+                }
+
+                StringBuffer buf = new StringBuffer();
+                for(int i = 0; i < srcstr.length(); i=i+3) {
+                        buf.append(srcstr.charAt(i));
+                        buf.append(srcstr.charAt(i+1));
+                }
+                return buf.toString();
+        }
+
+        public static String bytetoString(byte[] tb)
+        {
+                StringBuffer tsb = new StringBuffer();
+                  for (int i=0;i<tb.length;i++) {
+                          tsb.append(Integer.toHexString((int) tb[i]));
+                 }
+                //System.out.println("Byte : " + tsb.toString());
+                return tsb.toString();
+             
+        }
+
+        public static byte[] convertStringtoByte(String srcstr)
+        {
+                byte[] destb = new BigInteger(srcstr,16).toByteArray();
+                bytetoString(destb);
+                return (destb);
+        }
+
+        public static byte[] hexStringToByteArray(String s) {
+                int len = s.length();
+                byte[] data = null;
+                System.out.println("hexStringToByteArray: length - :" + s.length());
+                if(len == 1){
+                        data = new byte[1];
+                        data[0] = (byte) Character.digit(s.charAt(0), 16);
+                }
+                else
+                {
+                        data = new byte[len / 2];
+                        for (int i = 0; i < len; i += 2) {
+                        data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                             + Character.digit(s.charAt(i+1), 16));
+                        }
+                }
+                return data;
+        }
 }

@@ -9,7 +9,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.TlvTy
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.*;
 
 
-public  class LacpTxQueue extends LacpQueue {
+public  class LacpTxQueue {
     private static final ArrayList<LacpQueue<LacpPacketPdu>>  LacpTxQueueArr = 
         new ArrayList<LacpQueue<LacpPacketPdu>>();					
     private static final LacpTxQueue instance = new LacpTxQueue();
@@ -18,7 +18,17 @@ public  class LacpTxQueue extends LacpQueue {
     public static final int LACP_TX_PERIODIC_QUEUE = 1;
 
     protected LacpTxQueue(){
+
+	//LACP_TX_NTT_QUEUE
+	LacpQueue<LacpPacketPdu> lacpQ = new LacpQueue<LacpPacketPdu>();
+	LacpTxQueueArr.add(lacpQ);
+
+	//LACP_TX_PERIODIC_QUEUE
+	lacpQ = new LacpQueue<LacpPacketPdu>();
+	LacpTxQueueArr.add(lacpQ);
+		
     }
+
 
     /*
      * The LacpTxQueue is a singleton class.
