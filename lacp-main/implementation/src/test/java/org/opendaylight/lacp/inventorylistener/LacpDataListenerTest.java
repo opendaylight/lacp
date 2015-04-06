@@ -69,7 +69,7 @@ public class LacpDataListenerTest {
     {
         InstanceIdentifier id = Mockito.mock(InstanceIdentifier.class);
         boolean res = listener.checkExternalNodeConn(id);
-        assertEquals(false, res);
+        assertEquals(true, res);
     }
     @Test
     public void testOnDataChanged() throws Exception
