@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
@@ -322,6 +322,7 @@ public class RSMThread implements Runnable
 	long swId = portState.getSwID();
 	short portId = (short)portState.getPortID();
 	int portFeatures = portState.getPortFeatures();
+    InstanceIdentifier<NodeConnector> ncId = portState.getNodeConnectorInstanceId();
 	
 	//PortId portObj = new PortId((short)portState.getPortID());
 	
@@ -334,6 +335,7 @@ public class RSMThread implements Runnable
 		}else{
 		    log.info("handleLacpPortState - found lacpBond for port={},  send link down int bond={}", portId,bond.getBondId());
 		    bond.bondUpdateLinkDownSlave(swId,portId);
+            lacpNode.removeLacpPort(ncId, false);
 		
 		    /*
 		    short aggId = 0;
@@ -378,8 +380,14 @@ public class RSMThread implements Runnable
 	    	    }
 		    */
 		}
-	}else{
-		log.info("handleLacpPortState - couldn't find lacpBond for port={}, no action to be taken", portId);
+	}
+    else
+    {
+        boolean result = lacpNode.removeNonLacpPort(ncId);
+        if (result == false)
+        {
+		    log.info("handleLacpPortState - couldn't find port={} in switch {}, no action to be taken", portId, swId);
+        }
 	}
 	log.info("handleLacpPortState - Exit");
     }

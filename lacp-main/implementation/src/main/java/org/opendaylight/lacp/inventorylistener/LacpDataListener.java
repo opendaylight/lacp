@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -38,6 +39,11 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.lacp.util.LacpPortType;
+import org.opendaylight.lacp.Utils.NodePort;
+import org.opendaylight.lacp.Utils.LacpPortProperties;
+import org.opendaylight.lacp.queue.LacpPDUQueue;
+import org.opendaylight.lacp.queue.LacpPortStatus;
+import org.opendaylight.lacp.queue.LacpPDUPortStatusContainer;
 
 public class LacpDataListener implements DataChangeListener
 {
@@ -132,7 +138,21 @@ public class LacpDataListener implements DataChangeListener
             LOG.debug("internal port {} is not an lacp port. Ignoring it", ncId);
             return;
         }
-        /* post port down for lacp port - TODO kalai*/
+
+        int portId = (int) NodePort.getPortId(new NodeConnectorRef(ncId)); 
+        long swId = NodePort.getSwitchId(new NodeConnectorRef(ncId)); 
+        NodeConnector nc = (NodeConnector) InstanceIdentifier.keyOf(ncId); 
+        int portFeaturesResult = LacpPortProperties.mapSpeedDuplexFromPortFeature(nc);
+ 
+        LacpPDUPortStatusContainer pduElem = null; 
+        int down = 2;
+        pduElem = new LacpPortStatus(swId, portId, down, portFeaturesResult, ncId); 
+        LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance(); 
+
+        if ((pduQueue!= null) && !(pduQueue.enqueue(swId, pduElem)))
+        {
+            LOG.debug("Failed to enque port status object for port={}, switch {}",portId, swId); 
+        } 
         lacpNode.addNonLacpPort(ncId);
         LOG.debug("internal port {} is removed as a lacp port and added as a non-lacp port.", ncId);
         return;
@@ -193,6 +213,10 @@ public class LacpDataListener implements DataChangeListener
         }
         intNodeConnSet.add(id);
         LOG.debug ("added port {} to lacp internal port list", id);
+        /* The link is getting added as an internal link,
+         * if any of the edge nodeConnectors was added as a lacp port to the node
+         * remove the port as a lacp port as lacp can be enabled only on external ports */
+        verifyAndDeleteInternalLacpPort(id);
         return;
     }
     private void removeIntNodeConnectors(Link link)
@@ -210,10 +234,6 @@ public class LacpDataListener implements DataChangeListener
         }
         intNodeConnSet.remove(id);
         LOG.debug ("removed port {} from lacp internal port list", id);
-        /* The link is getting removed as external link,
-         * if any of the edge nodeConnectors was added as a lacp port to the node
-         * remove the port as a lacp port as lacp can be enabled only on external ports */
-        verifyAndDeleteInternalLacpPort(id);
         return;
     }
 
