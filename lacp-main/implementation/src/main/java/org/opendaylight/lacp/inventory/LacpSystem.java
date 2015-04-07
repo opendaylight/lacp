@@ -64,6 +64,18 @@ public class LacpSystem
         lacpNode.deleteLacpNode(false);
         return lacpNode;
     }
+    public LacpNodeExtn removeLacpNode (Long swId)
+    {
+        if (swId.equals(INVALID_SWITCHID))
+        {
+            LOG.warn ("Invalid switch id {}, could not remove the node to the lacpSystem", swId);
+            return null;
+        }
+        LacpNodeExtn lacpNode = LACPNODE_MAP.remove(swId);
+        lacpNode.deleteLacpNode(false);
+        return lacpNode;
+    }
+
     public LacpNodeExtn getLacpNode (Long switchId)
     {
         if (switchId.equals(INVALID_SWITCHID))

@@ -59,6 +59,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.lacp.util.LacpUtil;
+import org.opendaylight.lacp.inventory.LacpSystem;
 import java.util.concurrent.locks.ReentrantLock;
 
 
@@ -383,6 +384,30 @@ public class RSMThread implements Runnable
 	}
 	log.info("handleLacpPortState - Exit");
     }
+    public void handleLacpNodeDeletion ()
+    {
+        // empty queues and delete it.
+        LacpPDUPortStatusContainer pduElem = null;
+        TimerExpiryMessage tmrElem = null;
+        long swId = lacpNode.getSwitchId();
+        while ((pduElem = pduQueue.dequeue(swId)) != null);
+        while ((tmrElem = timerQueue.dequeue(swId)) != null);
+        if (pduQueue.deleteLacpQueue(swId) == false)
+        {
+            log.warn("failed to delete the pdu queue for the node {}", lacpNode.getNodeId());
+        }
+        if (timerQueue.deleteLacpQueue(swId) == false)
+        {
+            log.warn("failed to delete the timer queue for the node {}", lacpNode.getNodeId());
+        }
+        // remove from rsmThread mgr.
+        rsmMgrRef.deleteRSM (lacpNode);
+        log.debug("handleLacpNodeDeletion: removing the RSM thread created for this node");
+        // remove from lacp system call deleteLacpNode.
+        LacpSystem lacpSystem = LacpSystem.getLacpSystem();
+        lacpSystem.removeLacpNode (swId);
+        log.info("deleting the node {} from lacp system", swId);
+    }
 
     @Override
     public void run()
@@ -409,7 +434,11 @@ public class RSMThread implements Runnable
 				LacpPDUPortStatusContainer.MessageType.LACP_PORT_STATUS_MSG){
 			handleLacpPortState((LacpPortStatus)pduElem);
 		}
-
+                else if (pduElem.getMessageType() == LacpPDUPortStatusContainer.MessageType.LACP_NODE_DEL_MSG)
+                {
+                    continueRun = false;
+                    tmrElemCnt = MAX_TMR_ELM_CNT;
+                }
             }
 
 	    System.out.println("Checking for any timer expiry objects....");
@@ -433,14 +462,7 @@ public class RSMThread implements Runnable
                 //continue with further queue processing.
             }
         }
-        if (pduQueue.deleteLacpQueue(lacpNode.getSwitchId()) == false)
-        {
-            log.warn("failed to delete the pdu queue for the node {}", lacpNode.getNodeId());
-        }
-        if (timerQueue.deleteLacpQueue(lacpNode.getSwitchId()) == false)
-        {
-            log.warn("failed to delete the timer queue for the node {}", lacpNode.getNodeId());
-        }
+        handleLacpNodeDeletion();
 
     }
 }
