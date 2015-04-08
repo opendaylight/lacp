@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev150131.LacpNod
 import org.opendaylight.lacp.inventory.LacpPort;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.lacp.util.LacpPortType;
-//import org.opendaylight.lacp.inventory.RSMManager;
+import org.opendaylight.lacp.core.RSMManager;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.lacp.flow.LacpFlow;
@@ -235,18 +235,16 @@ public class LacpNodeExtn
             updateLacpNodeDS(nodeInstId);
         }
         lacpBuilder = null;
-       /*
-        rsmThread.retainThread = false;
-        */
+        rsmStatus = false;
     }    
     public boolean createRSM ()
     {
-     /*   rsmStatus = RSMManager.createRSM(this);
+        RSMManager rsmManager = RSMManager.getRSMManagerInstance();
+        rsmStatus = rsmManager.createRSM(this);
         if (rsmStatus == false)
         {
-            log.warn ("Unable to start the RSM thread for the node {}", nodeInstId);
+            LOG.warn ("Unable to start the RSM thread for the node {}", nodeInstId);
         }
-        */
         return rsmStatus;
     }
     public void updateLacpNodeDS (InstanceIdentifier nodeId)
@@ -342,5 +340,13 @@ public class LacpNodeExtn
     public boolean getRSMCreationStatus ()
     {
         return rsmStatus;
+    }
+    public void setLacpNodeDeleteStatus (boolean delStatus)
+    {
+        deleteStatus = delStatus;
+    }
+    public boolean getLacpNodeDeleteStatus ()
+    {
+        return deleteStatus;
     }
 }
