@@ -880,7 +880,7 @@ public class LacpBond {
             return false;
         }
         activePortList.add (lacpPort);
-        lacpGroupTbl.lacpAddPort(true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
+        //lacpGroupTbl.lacpAddPort(true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
         updateLacpAggregatorsDS();
         if (activePortList.size() <= 1)
         {
