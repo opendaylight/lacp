@@ -14,6 +14,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.lacp.flow.LacpFlow;
+import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -45,6 +46,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.AddGroupInput;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
@@ -54,6 +58,10 @@ import static org.mockito.Mockito.doNothing;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
+import java.util.concurrent.Future;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.AddGroupOutput;
+import java.util.concurrent.TimeUnit;
 
 public class LacpSystemTest
 {
@@ -71,6 +79,8 @@ public class LacpSystemTest
     private DataBroker dataBroker;
     @MockitoAnnotations.Mock
     private SalFlowService salFlow;
+    @MockitoAnnotations.Mock
+    private SalGroupService salGroup;
 
     @Before
     public void initMocks()
@@ -79,6 +89,7 @@ public class LacpSystemTest
         lacpSystem = LacpSystem.getLacpSystem();
         lacpFlow = new LacpFlow();
         LacpNodeExtn.setDataBrokerService(dataBroker);
+        LacpUtil.setSalGroupService(salGroup);
         
         lacpFlow.setSalFlowService(salFlow);
         lacpFlow.setLacpFlowTableId((short)0);
@@ -161,7 +172,12 @@ public class LacpSystemTest
         WriteTransaction writeOnlyTransaction = Mockito.mock(WriteTransaction.class);
         when(writeOnlyTransaction.submit()).thenReturn(result);
         when(dataBroker.newWriteOnlyTransaction()).thenReturn(writeOnlyTransaction);
-        
+        Future<RpcResult<AddGroupOutput>> output = Mockito.mock(Future.class);
+        RpcResult<AddGroupOutput> rpc = Mockito.mock(RpcResult.class);
+        when(rpc.isSuccessful()).thenReturn(false);
+        when(output.get(any(Long.class), any(TimeUnit.class))).thenReturn(rpc);
+        when(salGroup.addGroup(any(AddGroupInput.class))).thenReturn(output);
+
         lacpSystem.readDataStore(dataBroker);
         verify(dataBroker, times(1)).newReadOnlyTransaction();
         verify(writeOnlyTransaction, times(3)).submit();
@@ -209,7 +225,7 @@ public class LacpSystemTest
     @Test
     public void verifyLacpAgg() throws Exception
     {
-        LacpAgg lag = Mockito.mock(LacpAgg.class);
+        LacpBond lag = Mockito.mock(LacpBond.class);
         boolean res = lacpNode.addLacpAggregator(lag);
         res = lacpNode.removeLacpAggregator(lag);
         res = lacpNode.removeLacpAggregator(lag);

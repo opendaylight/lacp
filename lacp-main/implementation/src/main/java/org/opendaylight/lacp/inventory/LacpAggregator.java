@@ -1,12 +1,12 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
+ * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
  */
 
-package org.opendaylight.lacp.core;
+package org.opendaylight.lacp.inventory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -142,9 +142,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService;
 
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 
-//import org.opendaylight.lacp.inventory.LacpPort;
-//import org.opendaylight.lacp.inventory.LacpAggregator;
+import org.opendaylight.lacp.inventory.LacpPort;
 
 //INTEGRATION WITH YANG GENERATED LACPAGGREGATOR - END
 
@@ -828,103 +830,4 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 	public void setBond(LacpBond bond) {
 		this.bond = bond;
 	}
-
-	//INTEGRATION WITH YANG GENERATED LACPAGGREGATOR - START
-
-        public void updateLacpAggregatorsDS (InstanceIdentifier nodeConnectorId, LacpPort lacpPort, long groupId)
-        {
-	    DataBroker dataService = LacpUtil.getDataBrokerService();
-	    LacpAggregatorsBuilder lacpBuilder = new LacpAggregatorsBuilder();
-
-            final WriteTransaction write = dataService.newWriteOnlyTransaction();
-            InstanceIdentifier<Node> nodeInstId = nodeConnectorId.firstIdentifierOf(Node.class);
-
-            NodeRef node = new NodeRef(nodeInstId);
-            lacpBuilder.setLagNodeRef(node);
-            lacpBuilder.setLagGroupid(new Long(groupId));
-            NodeConnectorRef nodeRef;
-            LacpAggregator lacpAggregator = lacpPort.getPortAggregator();
-            ListOfLagPortsBuilder listofportsBuilder = new ListOfLagPortsBuilder();
-            List<ListOfLagPorts> listOfLagPorts = new ArrayList<ListOfLagPorts>();
-            for(LacpPort lacpPortTmp : lacpAggregator.lagPortList){
-               //nodeRef = new NodeConnectorRef(lacpPortTmp.getNodeConnectorId());
-               nodeRef = lacpPortTmp.getLacpBpduInfo().getNCRef();
-               listofportsBuilder.setLacpPortRef(nodeRef);
-               listOfLagPorts.add(listofportsBuilder.build());
-            }
-
-            lacpBuilder.setListOfLagPorts(listOfLagPorts);
-            LacpAggregators lacpAgg = lacpBuilder.build();
-            NodeId nodeId = InstanceIdentifier.keyOf(nodeInstId).getId();
-            InstanceIdentifier<LacpAggregators> lacpAggId = InstanceIdentifier.builder(Nodes.class).
-                    child(Node.class, new NodeKey(nodeId)).augmentation(LacpNode.class).
-                    child(LacpAggregators.class, new LacpAggregatorsKey(new Integer(lacpAggregator.getActorOperAggKey()))).build();
-
-
-            write.merge(LogicalDatastoreType.OPERATIONAL, lacpAggId, lacpAgg, true);
-            final CheckedFuture result = write.submit();
-            Futures.addCallback(result, new FutureCallback() {
-
-                    @Override
-                    public void onSuccess(Object o) {
-                    log.info("LacpAggregators updation write success for txt {}", write.getIdentifier());
-                    }
-
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                     log.error("LacpAggregators updation write failed for tx {}", write.getIdentifier(), throwable.getCause());
-                    }
-                    });
-        }
-
-	/*
-        public void updateLacpAggregatorsDS (InstanceIdentifier nodeConnectorId, LacpPort lacpPort, long groupId)
-        {
-
-	    //TBD - Get the correct databroker reference
-	    DataBroker dataService = LacpUtil.getDataBrokerService();
-	    //DataBroker dataService = this.getDataService();
-	    LacpAggregatorsBuilder lacpBuilder = new LacpAggregatorsBuilder();
-
-            final WriteTransaction write = dataService.newWriteOnlyTransaction();
-            InstanceIdentifier<Node> nodeId = nodeConnectorId.firstIdentifierOf(Node.class);
-    
-            NodeRef node = new NodeRef(nodeId);
-            lacpBuilder.setLagNodeRef(node);
-            lacpBuilder.setLagGroupid(new Long(groupId));
-            NodeConnectorRef nodeRef;
-
-            LacpAggregator lacpAggregator = lacpPort.getPortAggregator();
-            ListOfLagPortsBuilder listofportsBuilder = new ListOfLagPortsBuilder();         
-            List<ListOfLagPorts> listOfLagPorts = new ArrayList<ListOfLagPorts>();
-
-            for(LacpPort lacpPortTmp : lacpAggregator.lagPortList){
-               //nodeRef = new NodeConnectorRef(lacpPortTmp.getNodeConnectorId());
-               nodeRef = lacpPortTmp.getLacpBpduInfo().getNCRef();
-               listofportsBuilder.setLacpPortRef(nodeRef);
-               listOfLagPorts.add(listofportsBuilder.build());
-            }
-
-            lacpBuilder.setListOfLagPorts(listOfLagPorts);            
-            LacpAggregators lacpAgg = lacpBuilder.build();
-            InstanceIdentifier<LacpAggregators> lacpAggId = nodeConnectorId.augmentation(LacpAggregators.class);
-
-
-            write.merge(LogicalDatastoreType.OPERATIONAL, lacpAggId, lacpAgg);
-            final CheckedFuture result = write.submit();
-            Futures.addCallback(result, new FutureCallback() {
-
-                    @Override
-                    public void onSuccess(Object o) {
-                    	log.info("LacpAggregators updation write success for txt {}", write.getIdentifier());
-                    }
-
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                    	log.error("LacpAggregators updation write failed for tx {}", write.getIdentifier(), throwable.getCause());
-                    }
-                    });
-        }
-	*/
-	//INTEGRATION WITH YANG GENERATED LACPAGGREGATOR - END
 }

@@ -13,12 +13,10 @@ import java.util.Arrays;
 
 import org.opendaylight.lacp.core.LacpBpduInfo;
 import org.opendaylight.lacp.core.LacpConst;
-import org.opendaylight.lacp.core.LacpPort;
+import org.opendaylight.lacp.inventory.LacpPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
-import org.opendaylight.lacp.core.LacpPort.PortParams;
+import org.opendaylight.lacp.inventory.LacpPort.PortParams;
 
 public class RxDefaultedState extends RxState {
 	

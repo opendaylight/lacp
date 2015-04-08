@@ -16,7 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregators;
@@ -24,10 +26,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.nod
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev150131.LacpNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev150131.LacpNodeConnectorBuilder;
 import org.opendaylight.lacp.inventory.LacpPort;
+import org.opendaylight.lacp.inventory.LacpBond;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.lacp.util.LacpPortType;
+import org.opendaylight.lacp.grouptbl.LacpGroupTbl;
 import org.opendaylight.lacp.core.RSMManager;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.lacp.flow.LacpFlow;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -43,7 +48,7 @@ public class LacpNodeExtn
 {
     private static final Logger LOG = LoggerFactory.getLogger(LacpNodeExtn.class);
     private LacpNodeBuilder lacpBuilder;
-    private Hashtable<Integer, LacpAgg> lagList;
+    private Hashtable<Integer, LacpBond> lagList;
     private Hashtable<InstanceIdentifier<NodeConnector>, LacpPort> lacpPortList;
     private List<InstanceIdentifier<NodeConnector>> nonLacpPortList;
     private Long flowId;
@@ -53,10 +58,14 @@ public class LacpNodeExtn
     private Long switchId;
     private boolean deleteStatus;
     private boolean rsmStatus;
+    private LacpGroupTbl groupTbl;
+    private GroupId bcastGroupId;
     
     public LacpNodeExtn (InstanceIdentifier nodeId)
     {
-        long groupId = 0;
+        Long groupId = LacpUtil.getNextGroupId();
+        System.out.println("group id"+groupId);
+        bcastGroupId = new GroupId (groupId);
         nodeInstId = nodeId;
         lacpBuilder = new LacpNodeBuilder();
         
@@ -70,9 +79,10 @@ public class LacpNodeExtn
         rsmStatus = false;
         LACPFLOW.programLacpFlow(nodeInstId, this);
         lacpBuilder.setNonLagGroupid(groupId);
-        lagList = new Hashtable<Integer,LacpAgg>();
+        lagList = new Hashtable<Integer,LacpBond>();
         ArrayList<LacpAggregators> aggList = new ArrayList<LacpAggregators>();
         lacpBuilder.setLacpAggregators(aggList);
+        groupTbl = new LacpGroupTbl (LacpUtil.getSalGroupService(), dataService);
         updateLacpNodeDS(nodeInstId);
     }
     private String obtainSystemMac()
@@ -82,32 +92,6 @@ public class LacpNodeExtn
                                       (id & 0xff00), (id & 0xff), 1);
 
         return sysId;
-    }
-
-    public LacpNodeExtn (InstanceIdentifier nodeId, MacAddress systemId, int sysPriority, Long groupId, ArrayList<LacpAggregators> aggList)
-    {
-        LacpAgg lacpAgg;
-
-        nodeInstId = nodeId;
-        lacpBuilder = new LacpNodeBuilder();
-        switchId = LacpUtil.getNodeSwitchId(nodeId);
-        lacpBuilder.setSystemId(systemId);
-        lacpBuilder.setSystemPriority(sysPriority);
-        nonLacpPortList = new ArrayList<InstanceIdentifier<NodeConnector>>();
-        lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
-        deleteStatus = false;
-        rsmStatus = false;
-        LACPFLOW.programLacpFlow(nodeInstId, this);
-        lacpBuilder.setNonLagGroupid(groupId);
-
-        for (LacpAggregators lacpAggregator: aggList)
-        {
-            lacpAgg = new LacpAgg(lacpAggregator);
-            lagList.put(lacpAgg.getAggId(), lacpAgg);
-        }
-       // ArrayList<LacpAggregators> lacpAggList = new ArrayList<LacpAggregators>(lagList.values());
-        lacpBuilder.setLacpAggregators(aggList);
-        updateLacpNodeDS(nodeInstId);
     }
     public static void setDataBrokerService (DataBroker dataBroker)
     {
@@ -122,6 +106,18 @@ public class LacpNodeExtn
         }
         updateNodeConnectorLacpInfo (port);
         this.nonLacpPortList.add(port);
+        /*
+        if (nonLacpPortList.size == 1)
+        {
+            groupTbl.lacpAddGroup (false, new NodeConnectorRef(port), bcastGroupId);
+        }
+        else
+        {
+            groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroupId);
+        }
+        System.out.println ("in addnonlacpPort for " + port);
+        groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroupId);
+        */
         return true;
     }
     public boolean addLacpPort (InstanceIdentifier<NodeConnector> portId, LacpPort lacpPort)
@@ -136,10 +132,17 @@ public class LacpNodeExtn
     }
     public boolean removeNonLacpPort (InstanceIdentifier<NodeConnector> port)
     {
-        if (lacpBuilder.getNonLagGroupid() != 0)
+        /*
+        if (nonLacpPortList.size == 1)
         {
-            // add hook to remove the port from the non-lag group buckets
+            groupTbl.lacpRemGroup (false, new NodeConnectorRef(port), bcastGroupId);
         }
+        else
+        {
+            groupTbl.lacpRemPort (bcastGroupId, new NodeConnectorRef(port), false);
+        }
+        groupTbl.lacpRemPort (bcastGroupId, new NodeConnectorRef(port), false);
+        */
         return (nonLacpPortList.remove(port));
     }
     public LacpPort removeLacpPort (InstanceIdentifier<NodeConnector> portId, boolean hardReset)
@@ -205,9 +208,14 @@ public class LacpNodeExtn
         this.deleteStatus = true;
 
         nonLacpPortList.clear();
+        //groupTbl.lacpRemGroup (false, null, bcastGroupId);
+        //TODO KALAI when remGroup nc is null it is not internally handled. handle it there.
+        
+        RSMManager rsmManager = RSMManager.getRSMManagerInstance();
+        rsmStatus = rsmManager.deleteRSM(this); 
         // add hook to remove the list of aggregators.
-        Collection<LacpAgg> aggList = lagList.values();
-        for (LacpAgg lacpAgg : aggList)
+        Collection<LacpBond> aggList = lagList.values();
+        for (LacpBond lacpAgg : aggList)
         {
             //lacpAgg.delete();
             //if (delFlag == true)
@@ -271,26 +279,28 @@ public class LacpNodeExtn
         lacpBuilder.setNonLagGroupid(groupId);
         updateLacpNodeDS(this.nodeInstId);
     }
-    public boolean addLacpAggregator (LacpAgg lacpAgg)
+    public boolean addLacpAggregator (LacpBond lacpAgg)
     {
-        if (lagList.containsKey(lacpAgg.getAggId()))
+        if (lagList.containsKey(lacpAgg.getBondInstanceId()))
         {
             return false;
         }
-        lagList.put(lacpAgg.getAggId(), lacpAgg);
+        
+        lagList.put(lacpAgg.getBondInstanceId(), lacpAgg);
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.add(lacpAgg.buildLacpAgg());
         lacpBuilder.setLacpAggregators(aggList);
         updateLacpNodeDS(this.nodeInstId);
         return true;
     }
-    public boolean removeLacpAggregator (LacpAgg lacpAgg)
+    public boolean removeLacpAggregator (LacpBond lacpAgg)
     {
-        if (!(lagList.containsKey(lacpAgg.getAggId())))
+        if (!(lagList.containsKey(lacpAgg.getBondInstanceId())))
         {
             return false;
         }
-        LacpAgg agg = lagList.remove(lacpAgg.getAggId());
+        
+        lacpAgg = lagList.remove(lacpAgg.getBondInstanceId());
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.remove(lacpAgg.buildLacpAgg());
         lacpBuilder.setLacpAggregators(aggList);

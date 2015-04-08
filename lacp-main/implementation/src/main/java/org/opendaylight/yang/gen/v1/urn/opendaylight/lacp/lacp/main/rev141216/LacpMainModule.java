@@ -77,6 +77,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         lacpFlow.setLacpFlowPriority(getLacpFlowPriority());
         lacpFlow.setLacpFlowTableId(getLacpFlowTableId());
         LacpUtil.setDataBrokerService(dataService);
+        LacpUtil.setSalGroupService(salGroupService);
         portDataListener = new LacpDataListener (dataService);
         extPortListener = portDataListener.registerDataChangeListener();
 
