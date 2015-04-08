@@ -24,12 +24,12 @@ import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortState;
-
 import org.opendaylight.lacp.Utils.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.lacp.queue.LacpPDUQueue;
 import org.opendaylight.lacp.queue.LacpPortStatus;
 import org.opendaylight.lacp.queue.LacpPDUPortStatusContainer;
+import org.opendaylight.lacp.queue.LacpNodeNotif;
 
 
 enum EventType
@@ -140,19 +140,24 @@ public class LacpNodeListener implements OpendaylightInventoryListener
         private void handleNodeDeletion (InstanceIdentifier<Node> lNode)
         {
             InstanceIdentifier <Node> nodeId = lNode;
+            LacpNodeExtn lacpNode = null;
             synchronized (LacpSystem.class)
             {
-            if (lacpSystem.getLacpNode(nodeId) == null)
-            {
-                LOG.debug("Node already removed from lacp. Ignoring it {}", nodeId);
-                return;
-            }
-            LacpNodeExtn lacpNode = lacpSystem.removeLacpNode(nodeId);
-            if (lacpNode == null)
-            {
-                LOG.error("lacpNode could not be removed for node {}", nodeId);
-                return;
-            }
+                lacpNode = lacpSystem.getLacpNode(nodeId);
+                if (lacpNode == null)
+                {
+                    LOG.debug("Node already removed from lacp. Ignoring it {}", nodeId);
+                    return;
+                }
+                Long swId = lacpNode.getSwitchId();
+                lacpNode.setLacpNodeDeleteStatus (true);
+                LacpNodeNotif nodeNotif = new LacpNodeNotif();
+                LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
+                if (pduQueue.enqueue(swId, nodeNotif) == false)
+                {
+                    LOG.warn ("Failed to enqueue node deletion message to the pduQ for node {}", nodeId);
+                }
+
             }
         }
     }

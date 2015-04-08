@@ -444,8 +444,11 @@ public class RSMThread implements Runnable
 		}
                 else if (pduElem.getMessageType() == LacpPDUPortStatusContainer.MessageType.LACP_NODE_DEL_MSG)
                 {
+                    /* as node is getting deleted, break out of this while loop. Skip the next timer queue loop
+                     * and break the outer while loop also */
                     continueRun = false;
-                    tmrElemCnt = MAX_TMR_ELM_CNT;
+                    tmrElemCnt = MAX_TMR_ELM_CNT + 1;
+                    break;
                 }
             }
 
