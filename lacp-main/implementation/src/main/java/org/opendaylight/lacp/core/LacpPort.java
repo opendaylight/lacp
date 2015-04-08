@@ -660,7 +660,7 @@ public class LacpPort implements Comparable<LacpPort> {
 
 		rxContext = new RxContext();
 		muxContext = new MuxContext();
-		periodicTxContext = new PeriodicTxContext (); 
+		periodicTxContext = new PeriodicTxContext(); 
 		
 		currentWhileTimer = new PortCurrentWhileTimerRegister(portId,swId);
 		waitWhileTimer = new PortWaitWhileTimerRegister(portId,swId);
@@ -730,7 +730,9 @@ public class LacpPort implements Comparable<LacpPort> {
                 }
 
 		LacpWheelTimer instance = TimerFactory.LacpWheelTimer.getInstance(Utils.timerWheeltype.PERIODIC_TIMER);
+	        System.out.println("Before setPeriodicWhileTimer for switchid= " + swId +  " and portId= " + portId);
 		periodicTimeout=instance.registerPortForPeriodicTimer(periodicTimer,delay, TimeUnit.SECONDS);
+	        System.out.println("After setPeriodicWhileTimer for switchid= " + swId +  " and portId= " + portId);
 	        log.info("Exiting setPeriodicWhileTimer for switchid={} port={}",swId,portId);
 		return periodicTimeout;
 	}
@@ -1435,16 +1437,20 @@ public class LacpPort implements Comparable<LacpPort> {
 		if (bpdu == null) return -1;
 		if (this.getLink() != LacpConst.BOND_LINK_UP){
 			log.info("slaveSendBpdu did not put the LacpPacketPdu onto queue as port={} link is down ",portId);
+			System.out.println("slaveSendBpdu did not put the LacpPacketPdu onto queue as port={} link is down " + portId);
 			return -1;
 		}
 		System.out.println("Bpdu is :" + bpdu);
 		LacpTxQueue lacpTxQueue = LacpTxQueue.getLacpTxQueueInstance();
 		lacpTxQueue.enqueue(qType,bpdu);
 
+		//Commented by Rajesh on 4/7/15
+		/*
 		LacpPacketPdu tempPdu = lacpTxQueue.dequeue(qType);
 		System.out.println("Bpdu is : and qType is " + tempPdu + " " + qType);
 		System.out.println("QueueInstance is : " + lacpTxQueue);
 		lacpTxQueue.enqueue(qType,bpdu);
+		*/
 
 
 		log.info("slaveSendBpdu sucessfully put the LacpPacketPdu onto queue for port={}",portId);
@@ -1463,7 +1469,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		
 		if((lacpBpdu != null) || ((tmExpMsg != null) && (tmExpMsg.getTimerWheelType() == Utils.timerWheeltype.PERIODIC_TIMER))){
 
-			this.portPeriodicStateMachine(tmExpMsg);
+			this.portPeriodicStateMachine(lacpBpdu,tmExpMsg);
 		}
 		
 		//if(lacpBpdu != null){
@@ -1580,7 +1586,7 @@ public class LacpPort implements Comparable<LacpPort> {
 
 
 
-	void portPeriodicStateMachine(TimerExpiryMessage timerExpired)
+	void portPeriodicStateMachine(LacpBpduInfo lacpdu,TimerExpiryMessage timerExpired)
 	{
 	
 		log.info("Entering portPeriodicStateMachine for port={}",portId);
@@ -1595,32 +1601,45 @@ public class LacpPort implements Comparable<LacpPort> {
 		{
 			periodicTxContext.setState(periodicTxNoPeriodicState);
 			log.info("portPeriodicStateMachine setting port={} to periodicTxNoPeriodicState",portId);
+			System.out.println("portPeriodicStateMachine setting port={} to periodicTxNoPeriodicState" + portId + "and the flag is : " + periodicTxContext.getState().getStateFlag());
 		}else if((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.FAST_PERIODIC) &&
 						(this.partnerOper.getPortState() & LacpConst.LONG_TIMEOUT)==0){
 			periodicTxContext.setState(periodicTxSlowState);
 			log.info("portPeriodicStateMachine setting port={} to periodicTxSlowState",portId);
+			System.out.println("portPeriodicStateMachine setting port={} to periodicTxSlowState" + portId);
 		}else if((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.FAST_PERIODIC) &&
 				((timerExpired != null) && (timerExpired.getTimerWheelType() == Utils.timerWheeltype.PERIODIC_TIMER))){
 			periodicTxContext.setState(periodicTxPeriodicState);
 			log.info("portPeriodicStateMachine setting port={} to periodicTxPeriodicState",portId);
+			System.out.println("portPeriodicStateMachine setting port={} to periodicTxPeriodicState" + portId);
 		}
 		else if ((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.SLOW_PERIODIC) &&
 						((this.partnerOper.getPortState() & LacpConst.SHORT_TIMEOUT)==0) || 
 								(((timerExpired != null) && (timerExpired.getTimerWheelType() == Utils.timerWheeltype.PERIODIC_TIMER)))){
 			periodicTxContext.setState(periodicTxPeriodicState);
 			log.info("portPeriodicStateMachine setting port={} to periodicTxPeriodicState",portId);
+			System.out.println("portPeriodicStateMachine setting port={} to periodicTxPeriodicState" + portId);
 		}else if((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.PERIODIC_TX) &&
 				((this.partnerOper.getPortState() & LacpConst.SHORT_TIMEOUT)==0)){
 			periodicTxContext.setState(periodicTxFastState);
 			log.info("portPeriodicStateMachine setting port={} to periodicTxFastState",portId);
+			System.out.println("portPeriodicStateMachine setting port={} to periodicTxFastState" + portId);
 		}else if((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.PERIODIC_TX) &&
 				((this.partnerOper.getPortState() & LacpConst.LONG_TIMEOUT)==0)){
 			periodicTxContext.setState(periodicTxSlowState);
 			log.info("portPeriodicStateMachine setting port={} to periodicTxSlowState",portId);
 		}
-		log.info("portPeriodicStateMachine - calling executeStateAction method");
-		periodicTxContext.getState().executeStateAction(periodicTxContext, this);
-		slaveGetBond().setDirty(true);
+		log.info("portPeriodicStateMachine - calling executeStateAction method and the stateFlag is={}", periodicTxContext.getState().getStateFlag());
+		System.out.println("portPeriodicStateMachine - calling executeStateAction method and the stateFlag is : " + periodicTxContext.getState().getStateFlag());
+		if(lastState != periodicTxContext.getState().getStateFlag()){
+		System.out.println("lastState != currentState for port={} " + portId + "lastState is : " + lastState + " and the current State is : " + periodicTxContext.getState().getStateFlag());
+		log.info("lastState != currentState for port={}, lastState is={} and the current State is={}", portId,lastState, periodicTxContext.getState().getStateFlag());
+			periodicTxContext.getState().executeStateAction(periodicTxContext,this,lacpdu);
+			slaveGetBond().setDirty(true);
+  		}else{
+		System.out.println("lastState == currentState for port={} " + portId + "lastState is : " + lastState + " and the current State is : " + periodicTxContext.getState().getStateFlag());
+		log.info("lastState == currentState for port={}, lastState is={} and the current State is={}", portId,lastState, periodicTxContext.getState().getStateFlag());
+		}
 		log.info("Exiting portPeriodicStateMachine for port={}",portId);
 		System.out.println("Exiting portPeriodicStateMachine for port={}" + portId);
 	}
@@ -1877,6 +1896,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		// check if there is something to put on tx queue
 		if ((this.isNtt()) && ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED)>0)) {
 				log.info("portTxStateMachine putting port={} on to tx queue",portId);
+				System.out.println("portTxStateMachine putting port={} on to tx queue and qType is={}" + portId + qType);
 				LacpPacketPdu obj = updateLacpFromPortToLacpPacketPdu();
 				lacpduSend(obj,qType);
 				this.setNtt(false);

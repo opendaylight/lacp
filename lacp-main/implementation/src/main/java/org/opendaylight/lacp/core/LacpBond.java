@@ -743,8 +743,9 @@ public class LacpBond {
 	public boolean bondHasMember(long swId) {
 		this.bondStateMachineLock();
 		try {
-			if (systemIdMap.containsKey(swId))
+			if (systemIdMap.containsKey(swId)){
 				return true;
+			}
 			return false;
 		} finally {
 			this.bondStateMachineUnlock();			

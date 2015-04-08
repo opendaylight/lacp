@@ -27,7 +27,7 @@ public class PeriodicTxState {
 		log.info("Exiting PeriodicTxState setStateFlag");
 	}
 
-	public void executeStateAction(PeriodicTxContext  obj, LacpPort portObjRef){
+	public void executeStateAction(PeriodicTxContext  obj, LacpPort portObjRef,LacpBpduInfo pdu){
 				
 	}
 }

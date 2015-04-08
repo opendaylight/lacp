@@ -24,16 +24,28 @@ public class PeriodicTxNoPeriodicState extends PeriodicTxState {
 		stateFlag = LacpConst.PERIODIC_STATES.NO_PERIODIC;
 	}
 	public void executeStateAction(PeriodicTxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
+
 		//Stop periodic_timer	
 		
+		System.out.println("Entering PeriodicTxNoPeriodicState executeStateAction");
+		log.info("Entering PeriodicTxNoPeriodicState executeStateAction");
 		stateFlag = LacpConst.PERIODIC_STATES.NO_PERIODIC;
+		/*
 		if(!portObjRef.getPeriodicWhileTimer().isExpired()){
 			portObjRef.getPeriodicWhileTimer().cancel();
 		}
+		*/
+
 		obj.setState(this);
+		System.out.println("Before UCT -Current State is : " + obj.getState().getStateFlag());
+		log.info("Before UCT - Current State is={}" , obj.getState().getStateFlag());
 		//UCT to fast-periodic
 		obj.setState(portObjRef.periodicTxFastState);
-		obj.getState().executeStateAction(obj, portObjRef);
+		obj.getState().executeStateAction(obj, portObjRef,pdu);
+		System.out.println("After UCT - Current State is : " + obj.getState().getStateFlag());
+		log.info("After UCT - Current State is={}" , obj.getState().getStateFlag());
+		System.out.println("Exiting PeriodicTxNoPeriodicState executeStateAction");
+		log.info("Exiting PeriodicTxNoPeriodicState executeStateAction");
 	}
 	
 	public LacpConst.PERIODIC_STATES getStateFlag(){

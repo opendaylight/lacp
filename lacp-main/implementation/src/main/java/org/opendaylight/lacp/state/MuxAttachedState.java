@@ -37,7 +37,8 @@ public class MuxAttachedState extends MuxState {
 		stateFlag = LacpConst.MUX_STATES.MUX_ATTACHED;
 		log.debug("MuxAttachedState-executeStateAction Entry");
 		portObjRef.attachBondToAgg();
-		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState() & LacpConst.PORT_STATE_SYNCHRONIZATION));
+		//portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState() & LacpConst.PORT_STATE_SYNCHRONIZATION));
+		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState() | LacpConst.PORT_STATE_SYNCHRONIZATION));
 		try {
 			portObjRef.disableCollectingDistributing(portObjRef.slaveGetPortId(),portObjRef.getPortAggregator());
 		
