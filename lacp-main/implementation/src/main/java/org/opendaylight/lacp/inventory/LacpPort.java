@@ -1198,7 +1198,8 @@ public class LacpPort implements Comparable<LacpPort> {
 			actorInfoBuilder.setKey(new Integer(this.actorOperPortKey));
 			actorInfoBuilder.setPortPriority(new Integer(this.getActorPortPriority()));
 			actorInfoBuilder.setPort(new Integer(this.getActorPortNumber()));
-			actorInfoBuilder.setState( new Short(this.getActorOperPortState()));
+                        short pState = this.getActorOperPortState();
+			actorInfoBuilder.setState(Short.valueOf(pState));
 
 			actorInfoBuilder.setTlvType(TlvTypeOption.ActorInfo);
 			actorInfoBuilder.setInfoLen(new Short(actorInfoLen));
@@ -1222,7 +1223,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			//TODO-RAJESH
 			partnerInfoBuilder.setPortPriority(new Integer(255));
 			partnerInfoBuilder.setPort(new Integer(partner.portNumber));
-			partnerInfoBuilder.setState( new Short(partner.portState));
+			partnerInfoBuilder.setState(Short.valueOf(partner.portState));
 
 			partnerInfoBuilder.setTlvType(TlvTypeOption.PartnerInfo);
 			partnerInfoBuilder.setInfoLen(new Short(partnerInfoLen));

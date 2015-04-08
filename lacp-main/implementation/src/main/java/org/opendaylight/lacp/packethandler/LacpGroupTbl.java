@@ -253,6 +253,11 @@ System.out.println("addGroup:exception"+ e.getMessage());
         if (nodeConnectorref == null)
             //return 0;
             return null;
+	if (origGroup == null)
+        {
+		System.out.println("lacpAddPort: origGroup is NULL"); 
+                return null;
+        }
         log.info("LACP: lacpAddPort ", nodeConnectorref);
 	GroupId groupId = origGroup.getGroupId();
 	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorref.getValue();
@@ -338,13 +343,6 @@ System.out.println ("populate group: type all");
         bucket.setKey(new BucketKey(new BucketId((long) 1)));
         List<Action> bucketActionList = Lists.newArrayList();
 
-if (origGroup == null)
-{
-System.out.println ("origgroup is null");
-}
-else
-{
-System.out.println ("origgroup is not null");
 	Buckets origbuckets = origGroup.getBuckets();
 	NodeConnectorId origncId;
 
@@ -371,7 +369,6 @@ System.out.println ("returning null here at 1");
 			}
 		   }
 	    }
-}
 				
          /* Create output action for this ncId*/
         OutputActionBuilder oab = new OutputActionBuilder();
@@ -414,11 +411,17 @@ System.out.println("readgrp returning null");
 		
    }
 
-   public int lacpRemPort(GroupId groupId, NodeConnectorRef nodeConnectorref, boolean IsUnicastGrp) {
+   public Group lacpRemPort(Group origGroup, NodeConnectorRef nodeConnectorref, boolean IsUnicastGrp) {
         if (nodeConnectorref == null)
-            return 0;
+            return null;
+	if (origGroup == null)
+        {
+		System.out.println("lacpAddPort: origGroup is NULL");
+		return null;
+	}
         log.info("LACP: lacpAddPort ", nodeConnectorref);
 	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorref.getValue();
+        GroupId groupId = origGroup.getGroupId();
 
         NodeConnectorId ncId = InstanceIdentifier.keyOf(ncInstId).getId();
 
@@ -426,7 +429,7 @@ System.out.println("readgrp returning null");
 	{
 		System.out.println("ncId is NULL");
 		log.info("LACP: lacpAddPort Node Connector ID is NULL");
-		return 0;
+		return null;
 	}
 	
 	InstanceIdentifier<Node> nodeInstId = ncInstId.firstIdentifierOf(Node.class);
@@ -436,21 +439,21 @@ System.out.println("readgrp returning null");
 	{
 		System.out.println("nodeId is NULL");
 		log.info("LACP: lacpAddPort: nodeId is NULL");
-		return 0;
+		return null;
 	}
 	NodeRef nodeRef = new NodeRef(nodeInstId);
 	NodeKey nodeKey = new NodeKey(nodeId);
         GroupKey groupkey = new GroupKey(groupId);
 
         InstanceIdentifier <Group> lacpGId = InstanceIdentifier.create(Nodes.class).child(Node.class, nodeKey).augmentation(FlowCapableNode.class).child(Group.class, groupkey);
-	Group origGroup = getGroup(groupkey, nodeKey);
+	/*Group origGroup = getGroup(groupkey, nodeKey);
 	if (origGroup == null) {
 		System.out.println("lacpAddPort: origGroup is NULL");
 		return 0;
-	}
+	}*/
 	Group updGroup = populatedelGroup(IsUnicastGrp, nodeRef, nodeId, ncId, groupId, origGroup);
 	updateGroup(lacpGId, origGroup, updGroup , nodeInstId);
-	return 0;
+	return updGroup;
 
     }
 

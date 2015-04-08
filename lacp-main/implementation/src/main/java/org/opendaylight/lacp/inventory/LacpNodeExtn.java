@@ -33,6 +33,7 @@ import org.opendaylight.lacp.grouptbl.LacpGroupTbl;
 import org.opendaylight.lacp.core.RSMManager;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.lacp.flow.LacpFlow;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -60,6 +61,7 @@ public class LacpNodeExtn
     private boolean rsmStatus;
     private LacpGroupTbl groupTbl;
     private GroupId bcastGroupId;
+    private Group bcastGroup;
     
     public LacpNodeExtn (InstanceIdentifier nodeId)
     {
@@ -68,6 +70,7 @@ public class LacpNodeExtn
         bcastGroupId = new GroupId (groupId);
         nodeInstId = nodeId;
         lacpBuilder = new LacpNodeBuilder();
+        bcastGroup = null;
         
         switchId = LacpUtil.getNodeSwitchId(nodeId);
         String sysId = obtainSystemMac();
@@ -106,18 +109,15 @@ public class LacpNodeExtn
         }
         updateNodeConnectorLacpInfo (port);
         this.nonLacpPortList.add(port);
-        /*
-        if (nonLacpPortList.size == 1)
+        if (nonLacpPortList.size() == 1)
         {
-            groupTbl.lacpAddGroup (false, new NodeConnectorRef(port), bcastGroupId);
+            bcastGroup = groupTbl.lacpAddGroup (false, new NodeConnectorRef(port), bcastGroupId);
         }
         else
         {
-            groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroupId);
+            bcastGroup = groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroup);
         }
         System.out.println ("in addnonlacpPort for " + port);
-        groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroupId);
-        */
         return true;
     }
     public boolean addLacpPort (InstanceIdentifier<NodeConnector> portId, LacpPort lacpPort)
@@ -132,17 +132,14 @@ public class LacpNodeExtn
     }
     public boolean removeNonLacpPort (InstanceIdentifier<NodeConnector> port)
     {
-        /*
-        if (nonLacpPortList.size == 1)
+        if (nonLacpPortList.size() <= 1)
         {
             groupTbl.lacpRemGroup (false, new NodeConnectorRef(port), bcastGroupId);
         }
         else
         {
-            groupTbl.lacpRemPort (bcastGroupId, new NodeConnectorRef(port), false);
+            bcastGroup = groupTbl.lacpRemPort (bcastGroup, new NodeConnectorRef(port), false);
         }
-        groupTbl.lacpRemPort (bcastGroupId, new NodeConnectorRef(port), false);
-        */
         return (nonLacpPortList.remove(port));
     }
     public LacpPort removeLacpPort (InstanceIdentifier<NodeConnector> portId, boolean hardReset)

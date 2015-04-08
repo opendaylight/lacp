@@ -49,6 +49,7 @@ import org.opendaylight.lacp.Utils.*;
 import org.opendaylight.lacp.grouptbl.LacpGroupTbl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregators;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregatorsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregatorsBuilder;
@@ -99,6 +100,7 @@ public class LacpBond {
     private GroupId aggGrpId;
     private LacpGroupTbl lacpGroupTbl;
     private List<LacpPort> activePortList;
+    private Group lagGroup;
 
 	public byte[] getVirtualSysMacAddr() {
 		return virtualSysMacAddr;
@@ -294,6 +296,7 @@ public class LacpBond {
                 activePortList = new ArrayList<LacpPort>();
                 lacpAggBuilder.setLagGroupid(groupId);
                 lacpAggBuilder.setAggId(bondInstanceId);
+                lagGroup = null;
 		log.info("Exiting LacpBond constructor"); 
 	}
 	
@@ -880,15 +883,16 @@ public class LacpBond {
             return false;
         }
         activePortList.add (lacpPort);
-        //lacpGroupTbl.lacpAddPort(true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
         updateLacpAggregatorsDS();
         if (activePortList.size() <= 1)
         {
             LacpLogPort.createLogicalPort(this);
+            lagGroup = lacpGroupTbl.lacpAddGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
         }
         else
         {
             lacpPort.setLogicalNCRef(logNodeConnRef);
+            lagGroup = lacpGroupTbl.lacpAddPort(true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), lagGroup);
         }
         return true;
     }
@@ -899,11 +903,15 @@ public class LacpBond {
             return false;
         }
         activePortList.remove (lacpPort);
-        lacpGroupTbl.lacpRemPort(aggGrpId, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true);
         updateLacpAggregatorsDS();
         if (activePortList.size() == 0)
         {
             LacpLogPort.deleteLogicalPort(this);
+            lacpGroupTbl.lacpRemGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
+        }
+        else
+        {
+            lagGroup = lacpGroupTbl.lacpRemPort (lagGroup, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true);
         }
         return true;
     }
