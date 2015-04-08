@@ -16,7 +16,8 @@ import org.opendaylight.lacp.timer.TimerExpiryMessage;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 
 import org.opendaylight.lacp.core.LacpBpduInfo;
-import org.opendaylight.lacp.core.LacpBond;
+import org.opendaylight.lacp.inventory.LacpBond;
+import org.opendaylight.lacp.inventory.LacpPort;
 import org.opendaylight.lacp.core.PortId;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -196,8 +197,8 @@ public class RSMThread implements Runnable
 				String.format("0x%04x",key), String.format("0x%04x",priority));
 			log.info("LACP Bond is not found for portId={} ", portId);
 			int bond_priority = (rsmMgrRef.getMidSysPriority() & 0xffff);
-			log.info("in else - bond_priority value is = {}", bond_priority);
-			bond = LacpBond.newInstance((short)rsmMgrRef.getGlobalLacpkey());
+			log.debug("in else - bond_priority value is = {}", bond_priority);
+			bond = LacpBond.newInstance((short)rsmMgrRef.getGlobalLacpkey(), lacpNode);
 			rsmMgrRef.incGlobalLacpKey();
 			newEntry = true;
 			if (priority <  bond_priority) {

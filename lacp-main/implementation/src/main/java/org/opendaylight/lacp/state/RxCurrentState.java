@@ -11,9 +11,8 @@ package org.opendaylight.lacp.state;
 
 import java.util.Arrays;
 import org.opendaylight.lacp.core.LacpConst;
-import org.opendaylight.lacp.core.LacpPort;
-
-import org.opendaylight.lacp.core.LacpPort.PortParams;
+import org.opendaylight.lacp.inventory.LacpPort;
+import org.opendaylight.lacp.inventory.LacpPort.PortParams;
 import org.opendaylight.lacp.core.LacpBpduInfo;
 
 import org.slf4j.Logger;

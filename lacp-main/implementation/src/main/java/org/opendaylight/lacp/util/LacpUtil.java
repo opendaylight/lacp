@@ -9,6 +9,7 @@ package org.opendaylight.lacp.util;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +17,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-
-
+import java.util.Random;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.math.BigInteger;
-
 
 public class LacpUtil
 {
@@ -32,6 +31,9 @@ public class LacpUtil
     private static DataBroker dataBrokerService = null;
     private static final Logger LOG = LoggerFactory.getLogger(LacpUtil.class);
     private static final String NODE_URI_PREF = "openflow:";
+    private static SalGroupService salGroupService;
+    private static final long LOG_PORT_NUM = 5000;
+    private static final Random RAND_GRP_GEN = new Random();
 
     private LacpUtil ()
     {
@@ -62,6 +64,25 @@ public class LacpUtil
             swId = new Long ("-1");
         }
         return swId;
+    }
+    public static void setSalGroupService(SalGroupService salGrpService)
+    {
+	salGroupService = salGrpService;
+    }
+    public static SalGroupService getSalGroupService()
+    {
+	return salGroupService;
+    }
+    public static long getLogPortNum ()
+    {
+        return LOG_PORT_NUM;
+    }
+    public static Long getNextGroupId()
+    {
+        long value = RAND_GRP_GEN.nextLong();
+        Long id = Long.valueOf(value & (long) 0x0fffffff);
+        System.out.println("value "+ value+" id " +id);
+        return id;
     }
 
      public static String macToString(String srcstr) {

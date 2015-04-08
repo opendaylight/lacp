@@ -1,12 +1,11 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   * This program and the accompanying materials are made available under the
- *    * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *     * and is available at http://www.eclipse.org/legal/epl-v10.html
- *      *
- *       */
+ *  Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
+ *  This program and the accompanying materials are made available under the
+ *  terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ *  and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
-package org.opendaylight.lacp.core;
+package org.opendaylight.lacp.inventory;
 
 
 import java.util.ArrayList;
@@ -23,23 +22,46 @@ import java.util.List;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.opendaylight.lacp.core.LacpPort;
-import org.opendaylight.lacp.core.LacpConst.*;
+import org.opendaylight.lacp.inventory.LacpPort;
+import org.opendaylight.lacp.inventory.LacpLogPort;
+import org.opendaylight.lacp.core.LacpConst;
+import org.opendaylight.lacp.core.LacpBpduInfo;
+import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPdu;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPduBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.ActorInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.ActorInfoBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.PartnerInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.PartnerInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-
-
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.lacp.Utils.*;
+import org.opendaylight.lacp.grouptbl.LacpGroupTbl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregators;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregatorsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregatorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.lacpaggregator.ListOfLagPorts;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.lacpaggregator.ListOfLagPortsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNode;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+
 
 public class LacpBond {
 
@@ -69,8 +91,15 @@ public class LacpBond {
 	private boolean isLacpEnabled;
 	private boolean dirty;
 	private boolean failed;
+        
+    private InstanceIdentifier aggInstId;
+    private LacpAggregatorsBuilder lacpAggBuilder;
+    private LacpNodeExtn lacpNodeRef;
+    private NodeConnectorRef logNodeConnRef;
+    private GroupId aggGrpId;
+    private LacpGroupTbl lacpGroupTbl;
+    private List<LacpPort> activePortList;
 
-	
 	public byte[] getVirtualSysMacAddr() {
 		return virtualSysMacAddr;
 	}
@@ -92,9 +121,6 @@ public class LacpBond {
 	}
 	public List<LacpAggregator> getAggregatorList() {
 		return aggregatorList;
-	}
-	public void setBondInstanceId(int bondInstanceId) {
-		this.bondInstanceId = bondInstanceId;
 	}
 	public void setSlaveList(List<LacpPort> slaveList) {
 		this.slaveList = slaveList;
@@ -216,18 +242,17 @@ public class LacpBond {
 		this.lacpFast = val;
 	}	
 	
-	
-	public static LacpBond newInstance(short key) {
+	public static LacpBond newInstance(short key, LacpNodeExtn lacpNode) {
 		
-		return new LacpBond((short)0xffff,key);
+		return new LacpBond((short)0xffff,key, lacpNode);
 	}
 
-	public static LacpBond newInstance(short sys_priority,short key) {
+	public static LacpBond newInstance(short sys_priority,short key, LacpNodeExtn lacpNode) {
 		
-		return new LacpBond(sys_priority,key);
+		return new LacpBond(sys_priority,key, lacpNode);
 	}
 	
-	private LacpBond(short sys_priority,short key) 
+	private LacpBond(short sys_priority,short key, LacpNodeExtn lacpNode) 
 	{
 		log.info("LacpBond constructor"); 
 		log.info("LacpBond is created with sys priority ={} and key={}",sys_priority,key); 
@@ -252,7 +277,23 @@ public class LacpBond {
 		this.adminKey = key;
 		this.activeSince = null;
 		this.dirty = true;
-		
+                lacpNodeRef = lacpNode;
+                lacpAggBuilder = new LacpAggregatorsBuilder();
+                NodeRef node = new NodeRef(lacpNode.getNodeId());
+                lacpAggBuilder.setLagNodeRef(node);
+                logNodeConnRef = null;
+                InstanceIdentifier<Node> nodeId = lacpNode.getNodeId();
+                NodeId nId = nodeId.firstKeyOf(Node.class, NodeKey.class).getId();
+                aggInstId = InstanceIdentifier.builder(Nodes.class)
+                              .child (Node.class, new NodeKey (nId))
+                              .augmentation(LacpNode.class)
+                              .child (LacpAggregators.class, new LacpAggregatorsKey(bondInstanceId)).toInstance();
+                lacpGroupTbl = new LacpGroupTbl(LacpUtil.getSalGroupService(), LacpUtil.getDataBrokerService());
+                Long groupId = LacpUtil.getNextGroupId();
+                aggGrpId = new GroupId(groupId);
+                activePortList = new ArrayList<LacpPort>();
+                lacpAggBuilder.setLagGroupid(groupId);
+                lacpAggBuilder.setAggId(bondInstanceId);
 		log.info("Exiting LacpBond constructor"); 
 	}
 	
@@ -270,7 +311,7 @@ public class LacpBond {
 		
 	}
 	
-	void bondAddSlave(long swId, short portId, short port_priority,LacpBpduInfo bpduInfo) {
+	public void bondAddSlave(long swId, short portId, short port_priority,LacpBpduInfo bpduInfo) {
 
 		log.info("bondAddSlave Entry"); 
 		byte[] macAddr;
@@ -431,7 +472,7 @@ public class LacpBond {
     }
 		
 		
-    void bondUpdateLacpRate()
+    public void bondUpdateLacpRate()
     {
 	log.info("bondUpdateLacpRate Entry"); 
 
@@ -449,7 +490,7 @@ public class LacpBond {
     }
     
     
-   void bondUpdateSystemPriority(short priority) 
+   public void bondUpdateSystemPriority(short priority) 
     {
 	log.info("bondUpdateSystemPriority Entry"); 
     	if (this.sysPriority == priority){
@@ -470,7 +511,7 @@ public class LacpBond {
     }
 
  
-    void bondAggSelectionLogic()
+    public void bondAggSelectionLogic()
     {
 	log.info("bondAggSelectionLogic Entry"); 
 
@@ -743,9 +784,10 @@ public class LacpBond {
 	public boolean bondHasMember(long swId) {
 		this.bondStateMachineLock();
 		try {
-			if (systemIdMap.containsKey(swId)){
+			if (systemIdMap.containsKey(swId))
+                        {
 				return true;
-			}
+                        }
 			return false;
 		} finally {
 			this.bondStateMachineUnlock();			
@@ -782,4 +824,112 @@ public class LacpBond {
 		else 
 			return 0;
 	}
+    public void updateLacpAggregatorsDS ()
+    {
+        NodeConnectorRef ncRef;
+        DataBroker dataService = LacpUtil.getDataBrokerService();
+
+        final WriteTransaction write = dataService.newWriteOnlyTransaction();
+        // TODO KALAI fill other fields also.
+
+        LacpAggregator lacpAgg = getActiveAgg();
+
+        MacAddress mac = new MacAddress(HexEncode.bytesToHexStringFormat(lacpAgg.getAggMacAddress()));
+        lacpAggBuilder.setActorAggMacAddress(mac);
+        int actorKey = lacpAgg.getActorOperAggKey();
+        lacpAggBuilder.setActorOperAggKey(actorKey);
+        lacpAggBuilder.setKey(new LacpAggregatorsKey(bondInstanceId));
+       // lacpAggBuilder.setPartnerAggMacAddress(new MacAddress(lacp
+        int partnerKey = lacpAgg.getPartnerOperAggKey();
+        lacpAggBuilder.setPartnerOperAggKey(partnerKey);
+        MacAddress pMac = new MacAddress(HexEncode.bytesToHexStringFormat(lacpAgg.getPartnerSystem()));
+        lacpAggBuilder.setPartnerSystemId(pMac);
+        int partPrio = lacpAgg.getPartnerSystemPriority();
+        lacpAggBuilder.setPartnerSystemPriority(partPrio);
+        ListOfLagPortsBuilder lagPortBuilder = new ListOfLagPortsBuilder();
+        List<ListOfLagPorts> lagPortList = new ArrayList<ListOfLagPorts>();
+        for(LacpPort lacpPortTmp : activePortList)
+        {
+            ncRef = new NodeConnectorRef (lacpPortTmp.getNodeConnectorId());
+            lagPortBuilder.setLacpPortRef(ncRef);
+            lagPortList.add(lagPortBuilder.build());
+        }
+        lacpAggBuilder.setListOfLagPorts(lagPortList);
+        LacpAggregators lacpAggs = lacpAggBuilder.build();
+
+        write.merge(LogicalDatastoreType.OPERATIONAL, aggInstId, lacpAggs, true);
+        final CheckedFuture result = write.submit();
+        Futures.addCallback(result, new FutureCallback()
+        {
+            @Override
+            public void onSuccess(Object o)
+            {
+                log.info("LacpAggregators updation write success for txt {}", write.getIdentifier());
+            }
+            @Override
+            public void onFailure(Throwable throwable)
+            {
+                log.error("LacpAggregators updation write failed for tx {}", write.getIdentifier(), throwable.getCause());
+            }
+        });
+    }
+    public boolean addActivePort (LacpPort lacpPort)
+    {
+        if (activePortList.contains (lacpPort))
+        {
+            return false;
+        }
+        activePortList.add (lacpPort);
+        lacpGroupTbl.lacpAddPort(true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
+        updateLacpAggregatorsDS();
+        if (activePortList.size() <= 1)
+        {
+            LacpLogPort.createLogicalPort(this);
+        }
+        else
+        {
+            lacpPort.setLogicalNCRef(logNodeConnRef);
+        }
+        return true;
+    }
+    public boolean removeActivePort (LacpPort lacpPort)
+    {
+        if (!(activePortList.contains (lacpPort)))
+        {
+            return false;
+        }
+        activePortList.remove (lacpPort);
+        lacpGroupTbl.lacpRemPort(aggGrpId, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true);
+        updateLacpAggregatorsDS();
+        if (activePortList.size() == 0)
+        {
+            LacpLogPort.deleteLogicalPort(this);
+        }
+        return true;
+    }
+    public LacpNodeExtn getLacpNode()
+    {
+        return lacpNodeRef;
+    }
+    public void setLogicalNCRef (NodeConnectorRef ncRef)
+    {
+        logNodeConnRef = ncRef;
+    }
+    public NodeConnectorRef getLogicalNCRef ()
+    {
+        return logNodeConnRef;
+    }
+    public List getActivePortList()
+    {
+        return activePortList;
+    }
+    public LacpAggregators buildLacpAgg ()
+    {  
+        return lacpAggBuilder.build();
+    }
+    public InstanceIdentifier getLacpAggInstId()
+    {
+        return aggInstId;
+    }
+    
 }
