@@ -20,6 +20,7 @@ import org.opendaylight.lacp.inventorylistener.LacpDataListener;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.inventory.LacpPort;
+import org.opendaylight.lacp.inventory.LacpLogPort;
 import org.opendaylight.lacp.packethandler.LacpPacketHandler;
 import org.opendaylight.lacp.packethandler.TxUtils;
 import org.opendaylight.lacp.flow.LacpFlow;
@@ -58,7 +59,8 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
     }
 
     @Override
-    public java.lang.AutoCloseable createInstance() {
+    public java.lang.AutoCloseable createInstance()
+    {
 	int queueId = 0;
         log.info("createInstance invoked for the lacp  module.");
         NotificationProviderService notificationService = getNotificationServiceDependency();
@@ -80,6 +82,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         LacpUtil.setDataBrokerService(dataService);
         LacpPort.setDataBrokerService(dataService);
         LacpUtil.setSalGroupService(salGroupService);
+        LacpLogPort.setNotificationService(notificationService);
         portDataListener = new LacpDataListener (dataService);
         extPortListener = portDataListener.registerDataChangeListener();
 
@@ -92,7 +95,6 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         lacpPacketHandler.updateQueueId(LacpRxQueue.getLacpRxQueueId());
         packetListener = notificationService.registerNotificationListener(lacpPacketHandler);
 
-	LacpGroupTbl lacpGroupTbl = new LacpGroupTbl(salGroupService, dataService);
 
 	PacketProcessingService packetProcessingService =
 	    rpcRegistryDependency.getRpcService(PacketProcessingService.class);

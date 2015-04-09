@@ -45,7 +45,6 @@ public class LacpPacketHandler implements PacketProcessingListener {
         {
             return;
         }
-        LOG.debug("Received a PDU packet");
         byte[] data = packetReceived.getPayload();
         if (data.length <= 0)
         {
@@ -70,7 +69,6 @@ public class LacpPacketHandler implements PacketProcessingListener {
             }
             else
             {
-                LOG.warn("Received packet is not an lacp packet. Discarding it");
                 return;
             }
         }

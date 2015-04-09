@@ -833,8 +833,9 @@ public class LacpBond {
         DataBroker dataService = LacpUtil.getDataBrokerService();
 
         final WriteTransaction write = dataService.newWriteOnlyTransaction();
-        // TODO KALAI fill other fields also.
+        // TODO fill partner sys prio and agg mac
 
+        log.debug ("entering updateLacpAggregators for bond {} ", bondInstanceId);
         LacpAggregator lacpAgg = getActiveAgg();
 
         MacAddress mac = new MacAddress(HexEncode.bytesToHexStringFormat(lacpAgg.getAggMacAddress()));
@@ -848,18 +849,25 @@ public class LacpBond {
         MacAddress pMac = new MacAddress(HexEncode.bytesToHexStringFormat(lacpAgg.getPartnerSystem()));
         lacpAggBuilder.setPartnerSystemId(pMac);
         int partPrio = lacpAgg.getPartnerSystemPriority();
+        if (partPrio < 0)
+        {
+            partPrio = 0;
+        }
         lacpAggBuilder.setPartnerSystemPriority(partPrio);
         ListOfLagPortsBuilder lagPortBuilder = new ListOfLagPortsBuilder();
         List<ListOfLagPorts> lagPortList = new ArrayList<ListOfLagPorts>();
+        log.debug ("updating agg port list");
         for(LacpPort lacpPortTmp : activePortList)
         {
             ncRef = new NodeConnectorRef (lacpPortTmp.getNodeConnectorId());
             lagPortBuilder.setLacpPortRef(ncRef);
             lagPortList.add(lagPortBuilder.build());
+            log.debug ("update agg ds {} for port {} ", bondInstanceId, ncRef);
         }
         lacpAggBuilder.setListOfLagPorts(lagPortList);
         LacpAggregators lacpAggs = lacpAggBuilder.build();
-
+        
+        log.debug ("writing the add ds");
         write.merge(LogicalDatastoreType.OPERATIONAL, aggInstId, lacpAggs, true);
         final CheckedFuture result = write.submit();
         Futures.addCallback(result, new FutureCallback()
@@ -875,22 +883,28 @@ public class LacpBond {
                 log.error("LacpAggregators updation write failed for tx {}", write.getIdentifier(), throwable.getCause());
             }
         });
+        log.debug ("exiting updateLacpAggregators");
     }
     public boolean addActivePort (LacpPort lacpPort)
     {
+        log.debug ("entring addActivePort");
         if (activePortList.contains (lacpPort))
         {
+            log.debug ("port {} is already present. returning false ", lacpPort.getNodeConnectorId());
             return false;
         }
+        log.debug ("adding port {} to bond{} ", lacpPort.getNodeConnectorId(), aggInstId);
         activePortList.add (lacpPort);
         updateLacpAggregatorsDS();
         if (activePortList.size() <= 1)
         {
+            log.debug ("creating the logical port and adding lag group ");
             LacpLogPort.createLogicalPort(this);
             lagGroup = lacpGroupTbl.lacpAddGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
         }
         else
         {
+            log.debug ("setting NCRef and adding port to lag group");
             lacpPort.setLogicalNCRef(logNodeConnRef);
             lagGroup = lacpGroupTbl.lacpAddPort(true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), lagGroup);
         }
