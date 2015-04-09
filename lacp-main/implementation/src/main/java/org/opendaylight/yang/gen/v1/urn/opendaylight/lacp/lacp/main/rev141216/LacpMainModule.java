@@ -19,6 +19,7 @@ import org.opendaylight.lacp.inventorylistener.LacpNodeListener;
 import org.opendaylight.lacp.inventorylistener.LacpDataListener;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.lacp.inventory.LacpSystem;
+import org.opendaylight.lacp.inventory.LacpPort;
 import org.opendaylight.lacp.packethandler.LacpPacketHandler;
 import org.opendaylight.lacp.packethandler.TxUtils;
 import org.opendaylight.lacp.flow.LacpFlow;
@@ -77,6 +78,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         lacpFlow.setLacpFlowPriority(getLacpFlowPriority());
         lacpFlow.setLacpFlowTableId(getLacpFlowTableId());
         LacpUtil.setDataBrokerService(dataService);
+        LacpPort.setDataBrokerService(dataService);
         LacpUtil.setSalGroupService(salGroupService);
         portDataListener = new LacpDataListener (dataService);
         extPortListener = portDataListener.registerDataChangeListener();
