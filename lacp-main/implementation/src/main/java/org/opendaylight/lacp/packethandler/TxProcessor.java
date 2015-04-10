@@ -45,14 +45,14 @@ import org.opendaylight.lacp.queue.*;
 
 public class TxProcessor implements Runnable {
 
-	private int  queueId;
+	private LacpTxQueue.QueueType  queueId;
 	private final static Logger log = LoggerFactory.getLogger(TxProcessor.class);
 	PacketProcessingService pktProcessService;
 //	private int execType=0;
 
 	
 
-	public TxProcessor(int queueId, PacketProcessingService serv) {
+	public TxProcessor(LacpTxQueue.QueueType queueId, PacketProcessingService serv) {
 		this.queueId = queueId;
 		this.pktProcessService = serv;
 	}

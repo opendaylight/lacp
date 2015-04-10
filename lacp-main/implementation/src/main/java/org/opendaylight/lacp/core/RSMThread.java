@@ -320,12 +320,13 @@ public class RSMThread implements Runnable
 
 	log.info("handleLacpPortState - Entry");
 	LacpBond bond = null;
+	LacpPort lacpPort = null;
 
 	long swId = portState.getSwID();
 	short portId = (short)portState.getPortID();
 	int portFeatures = portState.getPortFeatures();
     InstanceIdentifier<NodeConnector> ncId = portState.getNodeConnectorInstanceId();
-	
+	System.out.println("In handleLacpPortState");	
 	//PortId portObj = new PortId((short)portState.getPortID());
 	
 	bond = lacpList.get(portId);	
@@ -333,12 +334,51 @@ public class RSMThread implements Runnable
 	if(bond != null){
 		if(portState.getPortStatus()==1){
 			log.info("handleLacpPortState - found lacpBond for port={},  send link up into bond={}", portId,bond.getBondId());
+			System.out.println("POrt status is UP");
 			bond.bondUpdateLinkUpSlave(swId,portId,portFeatures);
 		}else{
 		    log.info("handleLacpPortState - found lacpBond for port={},  send link down int bond={}", portId,bond.getBondId());
+		    System.out.println("POrt status is Down");	 	
 		    bond.bondUpdateLinkDownSlave(swId,portId);
-            lacpNode.removeLacpPort(ncId, false);
+            		lacpNode.removeLacpPort(ncId, false);
 		
+                    lacpPort = bond.getSlavePortObject(portId);
+
+                    if( lacpPort != null){
+                            lacpPort.lacpPortCleanup();
+                        System.out.println("After cancelling port timers");
+                    }
+
+                    short aggId = 0;
+                    if (bond!=null)  {
+                        byte[] sysId = null;
+                        short key = 0 ;
+                        bond.bondStateMachineLock();
+                        try {
+                                aggId = bond.bondGetAggId(swId,portId);
+                                if (bond.getActiveAgg()!=null) {
+                                        sysId = bond.getActiveAgg().getPartnerSystem();
+                                        key = bond.getActiveAgg().aggGetPartnerOperAggKey();
+                                }
+                                log.info("Port[{}] at SW={} is removed from LacpBond",
+                                        portId,swId );
+
+                                bond.bondDelSlave(swId, portId);
+                        } finally {
+                                bond.bondStateMachineUnlock();
+                        }
+                        lacpList.remove(new PortId(portId));
+                        if (!bond.bondHasMember()) {
+                                if (key!=0) {
+                                        log.info("SW={} Key={} is removed from lacp system key list",
+                                                swId, key);
+                                        LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId,key);
+                                        lacpSysKeyList.remove(sysKeyInfo);
+                                }
+                        }
+                    }
+
+
 		    /*
 		    short aggId = 0;
  		    if (bond!=null)  {
@@ -393,12 +433,51 @@ public class RSMThread implements Runnable
 	}
 	log.info("handleLacpPortState - Exit");
     }
+
+    public void nodeCleanup(){
+            long swId = lacpNode.getSwitchId();
+            byte[] sysId = null;
+            short key = 0 ;
+
+            log.info("nodeCleanup Entry");
+            if(lacpList.size() != 0){
+                    for (LacpBond bond: lacpList.values()) {
+                            if (bond.getActiveAgg() != null) {
+                                    sysId = bond.getActiveAgg().getPartnerSystem();
+                                    key = bond.getActiveAgg().aggGetPartnerOperAggKey();
+                            }
+
+                            if (!bond.bondHasMember()) {
+                                    if (key!=0) {
+                                            log.info("SW={} Key={} is removed from lacp system key list",
+                                                            swId, key);
+                                            LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId,key);
+                                            lacpSysKeyList.remove(sysKeyInfo);
+                                    }
+                            }
+
+                            for (LacpPort lacpPort: bond.getSlaveList()) {
+                                    if( lacpPort != null){
+                                            lacpPort.lacpPortCleanup();
+                                            bond.bondDelSlave(swId, lacpPort.slaveGetPortId());
+                                            lacpList.remove(new PortId(lacpPort.slaveGetPortId()));
+                                    }
+                            }
+			     System.out.println("The ports in the bond is deleted");	
+
+                    }
+            }
+            log.info("nodeCleanup Exit");
+    }
+
+
     public void handleLacpNodeDeletion ()
     {
         // empty queues and delete it.
         LacpPDUPortStatusContainer pduElem = null;
         TimerExpiryMessage tmrElem = null;
         long swId = lacpNode.getSwitchId();
+	System.out.println("In NOde Deletion API");
         while ((pduElem = pduQueue.dequeue(swId)) != null);
         while ((tmrElem = timerQueue.dequeue(swId)) != null);
         if (pduQueue.deleteLacpQueue(swId) == false)
@@ -409,6 +488,8 @@ public class RSMThread implements Runnable
         {
             log.warn("failed to delete the timer queue for the node {}", lacpNode.getNodeId());
         }
+	System.out.println("Cleared all the Queues");
+	nodeCleanup();
         // remove from rsmThread mgr.
         rsmMgrRef.deleteRSM (lacpNode);
         log.debug("handleLacpNodeDeletion: removing the RSM thread created for this node");
@@ -441,16 +522,16 @@ public class RSMThread implements Runnable
 			handleLacpBpdu((LacpBpduInfo)pduElem);
 		}else if(pduElem.getMessageType() == 
 				LacpPDUPortStatusContainer.MessageType.LACP_PORT_STATUS_MSG){
+			System.out.println("Got .LACP_PORT_STATUS_MSG message");
 			handleLacpPortState((LacpPortStatus)pduElem);
 		}
-                else if (pduElem.getMessageType() == LacpPDUPortStatusContainer.MessageType.LACP_NODE_DEL_MSG)
-                {
-                    /* as node is getting deleted, break out of this while loop. Skip the next timer queue loop
-                     * and break the outer while loop also */
-                    continueRun = false;
-                    tmrElemCnt = MAX_TMR_ELM_CNT + 1;
-                    break;
-                }
+		else if (pduElem.getMessageType() == LacpPDUPortStatusContainer.MessageType.LACP_NODE_DEL_MSG)
+		{
+			/* as node is getting deleted, break out of this while loop. Skip the next timer queue loop
+			 * and break the outer while loop also */
+			handleLacpNodeDeletion();
+			return;
+		}
             }
 
 	    System.out.println("Checking for any timer expiry objects....");
@@ -461,20 +542,24 @@ public class RSMThread implements Runnable
 		System.out.println("Found timer expiry message on the queue");
 		handlePortTimeout(tmrElem);
             }
+
             // both the queues are free. Sleep for some time before verifing the queues
-            if ((pduElemCnt == 0) && (tmrElemCnt == 0))
-            try
-            {
-        	log.info("RSM thread for the node {} is going to sleep...", lacpNode.getNodeId());
-                Thread.sleep(2000);
-            }
-            catch (InterruptedException e)
-            {
-                log.info("RSM thread for node {} interrupted. continue further q reading", lacpNode.getNodeId());
-                //continue with further queue processing.
-            }
+	    if ((pduElemCnt == 0) && (tmrElemCnt == 0)){
+		    log.info("RSM thread for the node {} is going to sleep...", lacpNode.getNodeId());
+		    while((pduQueue.read((long)lacpNode.getSwitchId()) == null) &&
+				    (timerQueue.read((long)lacpNode.getSwitchId()) == null) ){
+			    try
+			    {
+				    Thread.sleep(2);
+			    }
+			    catch (InterruptedException e)
+			    {
+				    log.info("RSM thread for node {} interrupted. continue further q reading", lacpNode.getNodeId());
+			    }
+		    }
+	    }
+            
         }
-        handleLacpNodeDeletion();
 
     }
 }

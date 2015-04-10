@@ -3,11 +3,10 @@ package org.opendaylight.lacp.queue;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-//public  class LacpPDUQueue extends LacpQueue {
 public  class LacpPDUQueue {
 
-    private static final Map<Long, LacpQueue<LacpPDUPortStatusContainer>> LacpPDUQueueMap =
-        new ConcurrentHashMap<Long,LacpQueue<LacpPDUPortStatusContainer>>();
+    private static final Map<Long, LacpDeque<LacpPDUPortStatusContainer>> LacpPDUQueueMap =
+        new ConcurrentHashMap<Long,LacpDeque<LacpPDUPortStatusContainer>>();
     private static final LacpPDUQueue instance = new LacpPDUQueue();
 
     protected LacpPDUQueue(){
@@ -40,13 +39,13 @@ public  class LacpPDUQueue {
      */	
     public boolean enqueue(Long switchId, LacpPDUPortStatusContainer pdu){
         boolean result = false;
-        LacpQueue<LacpPDUPortStatusContainer> lacpPDUQueueId;
+        LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId;
 
-        if(!isLacpQueuePresent(switchId)){
+    /*    if(!isLacpQueuePresent(switchId)){
             //System.out.println("Adding new queue and new item in queue");
-            lacpPDUQueueId = new LacpQueue<LacpPDUPortStatusContainer>();
+            lacpPDUQueueId = new LacpDeque<LacpPDUPortStatusContainer>();
             LacpPDUQueueMap.put(switchId, lacpPDUQueueId);                          
-        }
+        }*/
 
         synchronized(this.LacpPDUQueueMap.get(switchId)){
             LacpPDUQueueMap.get(switchId).enqueue(pdu);
@@ -62,7 +61,7 @@ public  class LacpPDUQueue {
      */ 	
     public LacpPDUPortStatusContainer dequeue(Long switchId){
         LacpPDUPortStatusContainer obj = null;
-        LacpQueue<LacpPDUPortStatusContainer> lacpPDUQueueId = LacpPDUQueueMap.get(switchId);
+        LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId = LacpPDUQueueMap.get(switchId);
 
         if(lacpPDUQueueId != null){
             synchronized(this.LacpPDUQueueMap.get(switchId)){
@@ -75,10 +74,10 @@ public  class LacpPDUQueue {
     //Adds a new PDU queue	
     public boolean addLacpQueue(long switchId){
         boolean result = true;
-        LacpQueue<LacpPDUPortStatusContainer> lacpPDUQueueId = LacpPDUQueueMap.get(switchId);
+        LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId = LacpPDUQueueMap.get(switchId);
 
         if(lacpPDUQueueId == null){
-            lacpPDUQueueId = new LacpQueue<LacpPDUPortStatusContainer>();
+            lacpPDUQueueId = new LacpDeque<LacpPDUPortStatusContainer>();
             LacpPDUQueueMap.put(switchId, lacpPDUQueueId);
             //System.out.println("Adding new queue for a given switch " + switchId);
         }
@@ -101,6 +100,39 @@ public  class LacpPDUQueue {
             }
         }
         return result;
+    }
+
+    /*
+     * The utility method enqueues the data in the head of the PDU queue.
+     * It creates the queue if it is not created.
+     */
+    public boolean enqueueAtFront(Long switchId, LacpPDUPortStatusContainer pdu){
+        boolean result = false;
+        LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId;
+
+/*        if(!isLacpQueuePresent(switchId)){
+            lacpPDUQueueId = new LacpDeque<LacpPDUPortStatusContainer>();
+            LacpPDUQueueMap.put(switchId, lacpPDUQueueId);
+        }*/
+
+        synchronized(this.LacpPDUQueueMap.get(switchId)){
+            LacpPDUQueueMap.get(switchId).addFirst(pdu);
+            result = true;
+        }
+
+        return result;
+    }
+
+    public LacpPDUPortStatusContainer read(Long switchId){
+        LacpPDUPortStatusContainer obj = null;
+        LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId = LacpPDUQueueMap.get(switchId);
+
+        if(lacpPDUQueueId != null){
+            synchronized(this.LacpPDUQueueMap.get(switchId)){
+                obj = LacpPDUQueueMap.get(switchId).read();
+            }
+        }
+        return obj;	
     }
 
     //Size of the queue

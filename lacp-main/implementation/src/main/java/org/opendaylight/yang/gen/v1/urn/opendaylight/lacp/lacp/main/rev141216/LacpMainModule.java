@@ -20,10 +20,13 @@ import org.opendaylight.lacp.inventorylistener.LacpDataListener;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.inventory.LacpPort;
+import org.opendaylight.lacp.inventory.LacpLogPort;
+//import org.opendaylight.lacp.inventory.LacpLogPort;
 import org.opendaylight.lacp.packethandler.LacpPacketHandler;
 import org.opendaylight.lacp.packethandler.TxUtils;
 import org.opendaylight.lacp.flow.LacpFlow;
 import org.opendaylight.lacp.queue.LacpRxQueue;
+import org.opendaylight.lacp.queue.LacpTxQueue;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +62,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-	int queueId = 0;
+	LacpTxQueue.QueueType queueId = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
         log.info("createInstance invoked for the lacp  module.");
         NotificationProviderService notificationService = getNotificationServiceDependency();
         DataBroker dataService = getDataBrokerDependency();
@@ -80,6 +83,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         LacpUtil.setDataBrokerService(dataService);
         LacpPort.setDataBrokerService(dataService);
         LacpUtil.setSalGroupService(salGroupService);
+        LacpLogPort.setNotificationService(notificationService);
         portDataListener = new LacpDataListener (dataService);
         extPortListener = portDataListener.registerDataChangeListener();
 
@@ -110,11 +114,11 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 	/* Spawn the Default threads - PDU Decoder and Tx Threads */
 
 	pduDecoderExecutor.submit(new PduDecoderProcessor());
-
+	
 	for (int i=0; i<4; i++) {
 		TxThrExecutor.submit(new TxProcessor(queueId,packetProcessingService));
 	}
-	queueId = 1;
+	queueId = LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE;
 	for (int i=0; i<6; i++) {
 		TxThrExecutor.submit(new TxProcessor(queueId,packetProcessingService));
 	}

@@ -107,6 +107,19 @@ public  class LacpTimerQueue {
             return result;
         }
 
+       public TimerExpiryMessage read(long switchId){
+        TimerExpiryMessage obj = null;
+        LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LacpTimerQueueMap.get(switchId);
+
+        if(lacpTimerQueueId != null){
+            //synchronized(this.LacpTimerQueueMap){
+            synchronized(this.LacpTimerQueueMap.get(switchId)){
+                obj = LacpTimerQueueMap.get(switchId).read();
+            }
+        }
+        return obj;
+        }
+
         /*
          * Utility Method to find the size of the queue
          */ 	 

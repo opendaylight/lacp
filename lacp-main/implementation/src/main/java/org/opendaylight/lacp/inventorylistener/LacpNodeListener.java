@@ -141,6 +141,8 @@ public class LacpNodeListener implements OpendaylightInventoryListener
         {
             InstanceIdentifier <Node> nodeId = lNode;
             LacpNodeExtn lacpNode = null;
+
+	    System.out.println("In handleNodeDeletion"); 
             synchronized (LacpSystem.class)
             {
                 lacpNode = lacpSystem.getLacpNode(nodeId);
@@ -153,7 +155,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 lacpNode.setLacpNodeDeleteStatus (true);
                 LacpNodeNotif nodeNotif = new LacpNodeNotif();
                 LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
-                if (pduQueue.enqueue(swId, nodeNotif) == false)
+                if (pduQueue.enqueueAtFront(swId, nodeNotif) == false)
                 {
                     LOG.warn ("Failed to enqueue node deletion message to the pduQ for node {}", nodeId);
                 }
@@ -214,10 +216,12 @@ public class LacpNodeListener implements OpendaylightInventoryListener
 
                 boolean result = false;
                 if (ncId != null){
+			System.out.println("ncId is no NULL");
                         short port_id = NodePort.getPortId(new NodeConnectorRef(ncId));
                         long sw_id = NodePort.getSwitchId(new NodeConnectorRef(ncId));
-                        NodeConnector nc = (NodeConnector)InstanceIdentifier.keyOf(ncId);
-                        int portFeaturesResult = LacpPortProperties.mapSpeedDuplexFromPortFeature(nc);
+			//TODO Need to fix this- Rajesh
+//                        NodeConnector nc = (NodeConnector)InstanceIdentifier.keyOf(ncId);
+                        int portFeaturesResult = 0;//LacpPortProperties.mapSpeedDuplexFromPortFeature(nc);
                         LacpPDUPortStatusContainer pduElem = null;
                         pduElem = new LacpPortStatus(sw_id,port_id,upDown,portFeaturesResult, ncId);
                         LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
@@ -225,6 +229,9 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                                 LOG.debug("Failed to enque port status object for port={}",port_id);
                                 result = false;
                         }
+			else{
+				System.out.println("enqueue is successfull");
+			}
                         result = true;
                 }
                 return result;
@@ -267,10 +274,12 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             {
                 lacpNode = lacpSystem.getLacpNode(nodeId);
             }
+            System.out.println("in handlePortDelete"); 		
             if (lacpNode != null)
             {
                 synchronized (lacpNode)
                 {
+			System.out.println("Before enqueuePortStatus");
 		    if(!enqueuePortStatus(ncId,2)){
                         LOG.debug("port {} with state DOWN is enqued succesfully for port state procesing", ncId);
                     }else{
