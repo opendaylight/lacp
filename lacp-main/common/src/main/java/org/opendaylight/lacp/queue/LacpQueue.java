@@ -31,6 +31,10 @@ public class LacpQueue<E> {
             return list.size();
     }
 
+    public E read(){
+        return list.peek();
+    }
+
     public boolean remove(){
             E item;
             while ((item = list.poll()) != null) {

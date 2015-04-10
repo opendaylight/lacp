@@ -14,8 +14,11 @@ public  class LacpTxQueue {
         new ArrayList<LacpQueue<LacpPacketPdu>>();					
     private static final LacpTxQueue instance = new LacpTxQueue();
 
-    public static final int LACP_TX_NTT_QUEUE = 0;
-    public static final int LACP_TX_PERIODIC_QUEUE = 1;
+    public static enum QueueType{
+        LACP_TX_NTT_QUEUE,
+        LACP_TX_PERIODIC_QUEUE,
+        LACP_TX_QUEUE_MAX
+    }
 
     protected LacpTxQueue(){
 
@@ -37,14 +40,32 @@ public  class LacpTxQueue {
         return instance;
     }
 
+    private int getQueueId(QueueType queueType){
+        int queueId = 0;
+        switch(queueType){
+            case LACP_TX_NTT_QUEUE:
+                queueId = 0;
+                break;
+
+            case LACP_TX_PERIODIC_QUEUE:
+                queueId = 1;
+                break;
+
+            default:
+                queueId = -1;
+                break;
+        }
+        return queueId;
+    }
+
     /*
      * Validity method to check if the queue is created or not.
      */ 
-    public boolean isLacpQueuePresent(int queueId){
+    public boolean isLacpQueuePresent(QueueType queueType){
         boolean result = false;
 
         if((!LacpTxQueueArr.isEmpty()) && 
-                LacpTxQueueArr.get(queueId) != null){
+                LacpTxQueueArr.get(getQueueId(queueType)) != null){
             result = true;
         }           
         return result;
@@ -54,11 +75,12 @@ public  class LacpTxQueue {
      * The utility method enqueues the data to the Tx queue.
      * It creates the queue if it is not created.
      */  	
-    public boolean enqueue(int queueId, LacpPacketPdu pdu){
+
+    public boolean enqueue(QueueType queueType, LacpPacketPdu pdu){
         boolean result = false;
-        synchronized(LacpTxQueueArr.get(queueId)){
-            if(isLacpQueuePresent(queueId)){
-                LacpTxQueueArr.get(queueId).enqueue(pdu);
+        synchronized(LacpTxQueueArr.get(getQueueId(queueType))){
+            if(isLacpQueuePresent(queueType)){
+                LacpTxQueueArr.get(getQueueId(queueType)).enqueue(pdu);
                 result = true;
             }
         }
@@ -68,13 +90,13 @@ public  class LacpTxQueue {
     /*
      * Dequeues the data from the Tx queue
      */  
-    public LacpPacketPdu dequeue(int queueId){
+    public LacpPacketPdu dequeue(QueueType queueType){
         LacpPacketPdu obj = null;
-        LacpQueue<LacpPacketPdu> lacpTxQueueId = LacpTxQueueArr.get(queueId);
+        LacpQueue<LacpPacketPdu> lacpTxQueueId = LacpTxQueueArr.get(getQueueId(queueType));
 
         if(lacpTxQueueId != null){
-            synchronized(LacpTxQueueArr.get(queueId)){
-                obj = LacpTxQueueArr.get(queueId).dequeue();
+            synchronized(LacpTxQueueArr.get(getQueueId(queueType))){
+                obj = LacpTxQueueArr.get(getQueueId(queueType)).dequeue();
             }
         }
         return obj;
@@ -83,11 +105,11 @@ public  class LacpTxQueue {
     /*
      * Adds a new Transmit queue 
      */ 
-    public boolean addLacpQueue(int queueId){
+    public boolean addLacpQueue(QueueType queueType){
         boolean result = true;
         LacpQueue<LacpPacketPdu> lacpTxQueueId = new LacpQueue<LacpPacketPdu>();
 
-        LacpTxQueueArr.add(queueId, lacpTxQueueId);
+        LacpTxQueueArr.add(getQueueId(queueType), lacpTxQueueId);
         return result;
     }
 
@@ -96,15 +118,15 @@ public  class LacpTxQueue {
      * It also cleans the arraylist entry for the 	
      * corresponding PDU queue.
      */ 
-    public boolean deleteLacpQueue(int queueId){
+    public boolean deleteLacpQueue(QueueType queueType){
         boolean result = false;
 
-        if(isLacpQueuePresent(queueId)){
-            synchronized(LacpTxQueueArr.get(queueId)){
-                LacpTxQueueArr.get(queueId).remove();
-                LacpTxQueueArr.remove(queueId);
+        if(isLacpQueuePresent(queueType)){
+            synchronized(LacpTxQueueArr.get(getQueueId(queueType))){
+                LacpTxQueueArr.get(getQueueId(queueType)).remove();
+                LacpTxQueueArr.remove(getQueueId(queueType));
                 result = true;
-            } 
+            }
         }
 
         return result;
@@ -113,13 +135,13 @@ public  class LacpTxQueue {
     /*
      * Utility method to find the size of the queue
      */  
-    public long getLacpQueueSize(int queueId){
+
+    public long getLacpQueueSize(QueueType queueType){
 
         long size = 0;
 
-        if(LacpTxQueueArr.get(queueId) != null){
-            //System.out.println("The given queueId " + queueId + " is present in the LacpPDUqueueMap");
-            size = LacpTxQueueArr.get(queueId).size();
+        if(LacpTxQueueArr.get(getQueueId(queueType)) != null){
+            size = LacpTxQueueArr.get(getQueueId(queueType)).size();
         }
         return size;
     }

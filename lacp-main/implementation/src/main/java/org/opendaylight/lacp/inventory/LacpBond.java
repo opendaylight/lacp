@@ -368,7 +368,7 @@ public class LacpBond {
 	
 
 	
-	void bondDelSlave(long swId, short portId) {
+	public void bondDelSlave(long swId, short portId) {
 		log.info("bondDelSlave Entry"); 
 		
 		short systemId = 0;
@@ -432,7 +432,7 @@ public class LacpBond {
 	}
 		
 	
-    LacpAggregator getActiveAgg(){
+    public LacpAggregator getActiveAgg(){
 	log.info("getActiveAgg Entry"); 
     	if (aggregatorList == null || aggregatorList.size() == 0)
     		return null;
@@ -952,6 +952,17 @@ public class LacpBond {
     public InstanceIdentifier getLacpAggInstId()
     {
         return aggInstId;
+    }
+    public LacpPort getSlavePortObject(short portId){
+            return portSlaveMap.get(portId);
+    }
+
+    public void lacpBondCleanup(){
+            for (LacpPort lacpPort: slaveList) {
+                    if( lacpPort != null){
+                            lacpPort.lacpPortCleanup();
+                    }
+            }
     }
     
 }

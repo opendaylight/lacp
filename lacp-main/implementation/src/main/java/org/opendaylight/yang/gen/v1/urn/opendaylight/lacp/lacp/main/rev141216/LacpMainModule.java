@@ -25,6 +25,7 @@ import org.opendaylight.lacp.packethandler.LacpPacketHandler;
 import org.opendaylight.lacp.packethandler.TxUtils;
 import org.opendaylight.lacp.flow.LacpFlow;
 import org.opendaylight.lacp.queue.LacpRxQueue;
+import org.opendaylight.lacp.queue.LacpTxQueue;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
     @Override
     public java.lang.AutoCloseable createInstance()
     {
-	int queueId = 0;
+	LacpTxQueue.QueueType queueId = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
         log.info("createInstance invoked for the lacp  module.");
         NotificationProviderService notificationService = getNotificationServiceDependency();
         DataBroker dataService = getDataBrokerDependency();
@@ -116,7 +117,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 	for (int i=0; i<4; i++) {
 		TxThrExecutor.submit(new TxProcessor(queueId,packetProcessingService));
 	}
-	queueId = 1;
+	queueId = LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE;
 	for (int i=0; i<6; i++) {
 		TxThrExecutor.submit(new TxProcessor(queueId,packetProcessingService));
 	}

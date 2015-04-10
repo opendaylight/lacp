@@ -1253,7 +1253,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		return obj.build();
 	}
 
-	int lacpduSend(LacpPacketPdu obj, int qType)
+	int lacpduSend(LacpPacketPdu obj, LacpTxQueue.QueueType qType)
 	{
 		log.info("Entering lacpduSend for port={}", portId);
 		if (isInitialized) {
@@ -1483,7 +1483,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		log.info("Exiting portSystemPrioriyChange for port={}",portId);
 	}
 	
-	public int slaveSendBpdu(LacpPacketPdu bpdu,int qType) {
+	public int slaveSendBpdu(LacpPacketPdu bpdu, LacpTxQueue.QueueType qType) {
 		log.info("Entering slaveSendBpdu for port={}",portId);
 		if (bpdu == null) return -1;
 		if (this.getLink() != LacpConst.BOND_LINK_UP){
@@ -1920,21 +1920,21 @@ public class LacpPort implements Comparable<LacpPort> {
 	{
 		log.info("Entering portTxStateMachine for port={}",portId);
 		System.out.println("Entering portTxStateMachine for port={}" + portId);
-		int qType = -1;
+		LacpTxQueue.QueueType qType = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
 
 		if(timerExpired != null){
 
 			if(timerExpired.getTimerWheelType() == Utils.timerWheeltype.CURRENT_WHILE_TIMER){
-				qType = LacpTxQueue.LACP_TX_PERIODIC_QUEUE;
+				qType = LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE;
 			}else if(timerExpired.getTimerWheelType() == Utils.timerWheeltype.PERIODIC_TIMER){
-				qType = LacpTxQueue.LACP_TX_PERIODIC_QUEUE;
+				qType = LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE;
 			}else if(timerExpired.getTimerWheelType() == Utils.timerWheeltype.WAIT_WHILE_TIMER){
-				qType = LacpTxQueue.LACP_TX_NTT_QUEUE;
+				qType = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
 			}else{
 				//log
 			}
 		}else{
-			qType = LacpTxQueue.LACP_TX_NTT_QUEUE;
+			qType = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
 		}
 
 		/*
@@ -2083,4 +2083,19 @@ public class LacpPort implements Comparable<LacpPort> {
 		}
 		return hwMac;
 	}
+
+        public void lacpPortCleanup(){
+                if(this.currWhileTimeout != null){
+                        this.currWhileTimeout.cancel();
+                }
+
+                if(this.periodicTimeout != null){
+                        this.periodicTimeout.cancel();
+                }
+
+                if(this.waitWhileTimeout != null){
+                        this.waitWhileTimeout.cancel();
+                }
+                this.detachBondFromAgg();
+        }
 }
