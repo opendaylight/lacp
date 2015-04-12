@@ -254,11 +254,13 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                         LOG.debug("port already available with lacp node. Ignoring it {}", ncId);
                         return;
                     }
+		    /*
           	    if(!enqueuePortStatus(ncId,1)){
                         LOG.debug("port {} with state UP is enqued succesfully for port state procesing", ncId);
                     }else{
                         LOG.error("port {}, enque failed", ncId);
                     }
+		    */
                 }
             }
             else

@@ -32,7 +32,9 @@ public class PortWaitWhileTimerRegister extends BasePortTimerRegister implements
 		System.out.println("Waitwhile - Timeout occured for port:" + this.getPortID() + " at " + getTime() + " and time in ms is " + System.currentTimeMillis());
 		TimerExpiryMessage obj = new TimerExpiryMessage(swid,this.getPortID(),Utils.timerWheeltype.WAIT_WHILE_TIMER);
 		LacpTimerQueue objT = LacpTimerQueue.getLacpTimerQueueInstance();
-		objT.enqueue(swid, obj);
+		if(objT.isLacpQueuePresent(swid)){
+			objT.enqueue(swid, obj);
+		}
 	}
 }
 

@@ -334,7 +334,7 @@ public class RSMThread implements Runnable
 	if(bond != null){
 		if(portState.getPortStatus()==1){
 			log.info("handleLacpPortState - found lacpBond for port={},  send link up into bond={}", portId,bond.getBondId());
-			System.out.println("POrt status is UP");
+			System.out.println("POrt status is UP, not passing ");
 			bond.bondUpdateLinkUpSlave(swId,portId,portFeatures);
 		}else{
 		    log.info("handleLacpPortState - found lacpBond for port={},  send link down int bond={}", portId,bond.getBondId());
@@ -367,7 +367,7 @@ public class RSMThread implements Runnable
                         } finally {
                                 bond.bondStateMachineUnlock();
                         }
-                        lacpList.remove(new PortId(portId));
+                        lacpList.remove(portId);
                         if (!bond.bondHasMember()) {
                                 if (key!=0) {
                                         log.info("SW={} Key={} is removed from lacp system key list",
@@ -489,7 +489,7 @@ public class RSMThread implements Runnable
             log.warn("failed to delete the timer queue for the node {}", lacpNode.getNodeId());
         }
 	System.out.println("Cleared all the Queues");
-	nodeCleanup();
+	//nodeCleanup();
         // remove from rsmThread mgr.
         rsmMgrRef.deleteRSM (lacpNode);
         log.debug("handleLacpNodeDeletion: removing the RSM thread created for this node");

@@ -28,7 +28,9 @@ public class PortPeriodicTimerRegister extends BasePortTimerRegister implements 
 		TimerExpiryMessage obj = new TimerExpiryMessage(swid, this.getPortID(),Utils.timerWheeltype.PERIODIC_TIMER);
 		LacpTimerQueue objT = LacpTimerQueue.getLacpTimerQueueInstance();
 		System.out.println("PortPeriodicTimerRegister Before enqueing the object");
-		objT.enqueue(swid, obj);
+		if(objT.isLacpQueuePresent(swid)){
+			objT.enqueue(swid, obj);
+		}
 		System.out.println("PortPeriodicTimerRegister After enqueing the object");
 	}
 

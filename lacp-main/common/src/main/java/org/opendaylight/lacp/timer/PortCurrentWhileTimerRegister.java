@@ -24,7 +24,9 @@ public class PortCurrentWhileTimerRegister extends BasePortTimerRegister impleme
 		long swid = this.getSystemID();
 		TimerExpiryMessage obj = new TimerExpiryMessage(swid, this.getPortID(),Utils.timerWheeltype.CURRENT_WHILE_TIMER);
 		LacpTimerQueue objT = LacpTimerQueue.getLacpTimerQueueInstance();
-		objT.enqueue(swid, obj);
+		if(objT.isLacpQueuePresent(swid)){
+			objT.enqueue(swid, obj);
+		}
 	}
 
 }
