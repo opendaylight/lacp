@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNodeBuilder;
@@ -103,6 +104,14 @@ public class LacpNodeExtn
     }
     public boolean addNonLacpPort (InstanceIdentifier<NodeConnector> port)
     {
+        NodeConnectorId ncId = InstanceIdentifier.keyOf(port).getId();
+        if (ncId.getValue().contains("LOCAL"))
+        {
+            /* Ignoring port updates for LOCAL port connected to the controller */
+            LOG.debug ("getting a add port indication for LOCAL port. ignoring it");
+            return false;
+        }
+
         if (this.nonLacpPortList.contains(port))
         {
             return false;
@@ -117,7 +126,6 @@ public class LacpNodeExtn
         {
             bcastGroup = groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroup);
         }
-        System.out.println ("in addnonlacpPort for " + port);
         return true;
     }
     public boolean addLacpPort (InstanceIdentifier<NodeConnector> portId, LacpPort lacpPort)
@@ -132,6 +140,14 @@ public class LacpNodeExtn
     }
     public boolean removeNonLacpPort (InstanceIdentifier<NodeConnector> port)
     {
+        NodeConnectorId ncId = InstanceIdentifier.keyOf(port).getId();
+        if (ncId.getValue().contains("LOCAL"))
+        {
+            /* Ignoring port updates for LOCAL port connected to the controller */
+            LOG.debug ("getting a remove port indication for LOCAL port. ignoring it");
+            return false;
+        }
+
         if (nonLacpPortList.size() <= 1)
         {
             groupTbl.lacpRemGroup (false, new NodeConnectorRef(port), bcastGroupId);
