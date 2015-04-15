@@ -79,8 +79,10 @@ public class LacpUtil
     }
     public static Long getNextGroupId()
     {
-        long value = RAND_GRP_GEN.nextLong();
-        Long id = Long.valueOf(value & (long) 0x0fffffff);
+        /*long value = RAND_GRP_GEN.nextLong();
+        Long id = Long.valueOf(value & (long) 0x0fff);*/
+        int value = RAND_GRP_GEN.nextInt(65535);
+        Long id = Long.valueOf(value);
         System.out.println("value "+ value+" id " +id);
         return id;
     }
