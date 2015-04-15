@@ -150,6 +150,12 @@ public class RSMThread implements Runnable
 		log.info("handleLacpBpdu - Entry - bond not found based on portId={}",portId);
 		System.out.println("handleLacpBpdu - bond not found for portId={}" + portId);
 
+		if(isStaleLacpPduInQ(lacpBpdu)){
+			log.info("handleLacpBpdu - isStaleLacpPduInQ - returned true, as this packet is yet to be processed from the queue and there is no corresponding bond found for this PDU and the state of the port is already in Collecting-Distributing");
+			log.info("Dropping this packet with no further processing");
+			return;
+		}
+
 		byte[] sysId = lacpBpdu.getActorSystemInfo().getNodeSysAddr();
 		short key = lacpBpdu.getActorSystemInfo().getNodeKey();
 		int priority = (lacpBpdu.getActorSystemInfo().getNodeSysPri()) & 0xffff;
@@ -561,5 +567,13 @@ public class RSMThread implements Runnable
             
         }
 
+    }
+    public boolean isStaleLacpPduInQ(LacpBpduInfo lacpdu){
+	boolean result = false;
+	if(((lacpdu.getActorSystemInfo().getNodePortState() & LacpConst.PORT_STATE_COLLECTING) > 0) || 
+                                      ((lacpdu.getActorSystemInfo().getNodePortState() & LacpConst.PORT_STATE_DISTRIBUTING) > 0)) {
+		result = true;
+	}
+	return result;
     }
 }
