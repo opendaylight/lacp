@@ -1142,7 +1142,9 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.setActorAdminPortKey(val);
 	}
 	
-	
+	public static short toUnsigned(byte b) {
+	    return (short) (b >= 0 ? b : 256 + b);
+	}
 	
 	LacpPacketPdu updateLacpFromPortToLacpPacketPdu(){
 
@@ -1198,7 +1200,14 @@ public class LacpPort implements Comparable<LacpPort> {
 			actorInfoBuilder.setKey(new Integer(this.actorOperPortKey));
 			actorInfoBuilder.setPortPriority(new Integer(this.getActorPortPriority()));
 			actorInfoBuilder.setPort(new Integer(this.getActorPortNumber()));
+			/*
+ 			//commented by rajesh on 14 apr
                         short pState = this.getActorOperPortState();
+			actorInfoBuilder.setState(Short.valueOf(pState));
+ 			//commented by rajesh on 14 apr
+			*/
+
+			short pState = toUnsigned(this.getActorOperPortState());
 			actorInfoBuilder.setState(Short.valueOf(pState));
 
 			actorInfoBuilder.setTlvType(TlvTypeOption.ActorInfo);
@@ -1223,6 +1232,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			//TODO-RAJESH
 			partnerInfoBuilder.setPortPriority(new Integer(255));
 			partnerInfoBuilder.setPort(new Integer(partner.portNumber));
+
 			partnerInfoBuilder.setState(Short.valueOf(partner.portState));
 
 			partnerInfoBuilder.setTlvType(TlvTypeOption.PartnerInfo);
