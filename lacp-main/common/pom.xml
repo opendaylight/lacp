@@ -27,55 +27,14 @@
     </dependency>
     <dependency>
        <groupId>org.opendaylight.openflowplugin.model</groupId>
-          <artifactId>model-flow-service</artifactId>
+       <artifactId>model-flow-service</artifactId>
     </dependency>
 
     <dependency>
-          <groupId>org.opendaylight.lacp.main</groupId>
-            <artifactId>lacpmain-model</artifactId>
-            <version>${project.version}</version>
+       <groupId>org.opendaylight.lacp.main</groupId>
+       <artifactId>lacpmain-model</artifactId>
+       <version>${project.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-<!--
-    <dependency>
-      <groupId>org.opendaylight.controller.model</groupId>
-      <artifactId>model-flow-service</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.controller.model</groupId>
-      <artifactId>model-topology</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.l2switch.packethandler</groupId>
-      <artifactId>packethandler-model</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.l2switch.packethandler</groupId>
-      <artifactId>packethandler-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.l2switch.addresstracker</groupId>
-      <artifactId>addresstracker-model</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.l2switch.loopremover</groupId>
-      <artifactId>loopremover-model</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.controller.thirdparty</groupId>
-      <artifactId>net.sf.jung2</artifactId>
-    </dependency>
--->
-    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -87,6 +46,9 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+   <properties>
+      <maven.test.skip>${skipTests}</maven.test.skip>
+   </properties>
 
   <build>
     <plugins>
