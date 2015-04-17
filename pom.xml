@@ -16,10 +16,4 @@
     <module>distribution/base</module>
     <module>distribution/karaf</module>
   </modules>
-  <scm>
-    <connection>scm:git:ssh://git.opendaylight.org:29418/lacp.git</connection>
-    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/lacp.git</developerConnection>
-    <tag>HEAD</tag>
-    <url>https://wiki.opendaylight.org/view/Lacp:Main</url>
-  </scm>
 </project>

@@ -12,6 +12,7 @@
   <artifactId>lacp-parent</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <name>lacp</name>
   <prerequisites>
     <maven>4.0</maven>
   </prerequisites>
@@ -280,6 +281,38 @@
               </execution>
             </executions>
           </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>2.2.1</version>
+            <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar-no-fork</goal>
+              </goals>
+            </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9.1</version>
+            <executions>
+             <execution>
+              <id>attach-javadocs</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+             </execution>
+            </executions>
+          </plugin>
       </plugins>
   </build>
+  <scm>
+    <connection>scm:git:ssh://git.opendaylight.org:29418/lacp.git</connection>
+    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/lacp.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://wiki.opendaylight.org/view/LACP:Main</url>
+  </scm>
 </project>
