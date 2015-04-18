@@ -35,21 +35,21 @@ public class TimerFactoryTest {
 	}
 
 	@Test
-	public void test() {
+	public void test() throws Exception {
 		Timeout obj = null;
 
 		PortWaitWhileTimerRegister objPort = new PortWaitWhileTimerRegister((short)10,1L);
 		obj=instance1.registerPortForWaitWhileTimer(objPort, 5, TimeUnit.SECONDS);
-		obj.cancel();
+//		obj.cancel();
+		instance1.CancelPortForWaitWhileTimer(obj);
 	
 		PortPeriodicTimerRegister objPort1 = new PortPeriodicTimerRegister((short)10,1L);
 		obj=instance1.registerPortForWaitWhileTimer(objPort1, 5, TimeUnit.SECONDS);
-		obj.cancel();
+//		obj.cancel();
+		instance1.CancelPortForPeriodicTimer(obj);
 		
 		PortCurrentWhileTimerRegister objPort2 = new PortCurrentWhileTimerRegister((short)10,1L);
 		obj=instance1.registerPortForWaitWhileTimer(objPort2, 5, TimeUnit.SECONDS);
-		obj.cancel();
-
+		instance1.CancelCurrentWhileTimer(obj);
 	}
-
 }

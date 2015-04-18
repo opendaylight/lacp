@@ -41,12 +41,6 @@ public  class LacpPDUQueue {
         boolean result = false;
         LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId;
 
-    /*    if(!isLacpQueuePresent(switchId)){
-            //System.out.println("Adding new queue and new item in queue");
-            lacpPDUQueueId = new LacpDeque<LacpPDUPortStatusContainer>();
-            LacpPDUQueueMap.put(switchId, lacpPDUQueueId);                          
-        }*/
-
         synchronized(this.LacpPDUQueueMap.get(switchId)){
             LacpPDUQueueMap.get(switchId).enqueue(pdu);
             result = true;
@@ -79,7 +73,6 @@ public  class LacpPDUQueue {
         if(lacpPDUQueueId == null){
             lacpPDUQueueId = new LacpDeque<LacpPDUPortStatusContainer>();
             LacpPDUQueueMap.put(switchId, lacpPDUQueueId);
-            //System.out.println("Adding new queue for a given switch " + switchId);
         }
         return result;
     }
@@ -110,11 +103,6 @@ public  class LacpPDUQueue {
         boolean result = false;
         LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId;
 
-/*        if(!isLacpQueuePresent(switchId)){
-            lacpPDUQueueId = new LacpDeque<LacpPDUPortStatusContainer>();
-            LacpPDUQueueMap.put(switchId, lacpPDUQueueId);
-        }*/
-
         synchronized(this.LacpPDUQueueMap.get(switchId)){
             LacpPDUQueueMap.get(switchId).addFirst(pdu);
             result = true;
@@ -141,7 +129,6 @@ public  class LacpPDUQueue {
         long size = 0;
 
         if(LacpPDUQueueMap.get(switchId) != null){
-            //System.out.println("The given switchId " + switchId + " is present in the LacpPDUqueueMap");
             size = LacpPDUQueueMap.get(switchId).size();
         }
         return size;
