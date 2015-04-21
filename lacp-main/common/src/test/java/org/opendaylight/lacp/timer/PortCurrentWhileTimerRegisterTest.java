@@ -34,17 +34,14 @@ public class PortCurrentWhileTimerRegisterTest {
 	}
 
 	@Test
-	public void testPortCurrentWhileTimerRegister() {
+	public void testPortCurrentWhileTimerRegister() throws Exception {
 		currentWhile2 = new PortCurrentWhileTimerRegister((short)10, 20L);
-		//fail("Not yet implemented");
 	}
 
 	@Test
-	public void testRun() {
+	public void testRun() throws Exception {
 		instance.registerPortForCurrentWhileTimer(currentWhile1, 10L,TimeUnit.SECONDS);
 		//Timeout timeoutHandle = new Timeout();
 		//currentWhile1.run(timeoutHandle);
-		//fail("Not yet implemented");
 	}
-
 }

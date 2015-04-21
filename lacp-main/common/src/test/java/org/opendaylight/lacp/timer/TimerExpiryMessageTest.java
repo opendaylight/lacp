@@ -29,33 +29,40 @@ public class TimerExpiryMessageTest {
 	}
 
 	@Test
-	public void testTimerExpiryMessage() {
+	public void testTimerExpiryMessage() throws Exception {
 		timerExp2 = new TimerExpiryMessage(1L, 10, timerWheeltype.CURRENT_WHILE_TIMER);
-		//fail("Not yet implemented");
 	}
 
 	@Test
-	public void testSetPortID() {
+	public void testSetPortID() throws Exception {
 		timerExp1.setPortID(10);
-		//fail("Not yet implemented");
 	}
 
 	@Test
-	public void testGetPortID() {
+	public void testGetPortID() throws Exception {
 		timerExp1.getPortID();
-		//fail("Not yet implemented");
 	}
 
 	@Test
-	public void testGetTimerWheelType() {
+	public void testGetTimerWheelType() throws Exception {
 		timerExp1.getTimerWheelType();
-		//fail("Not yet implemented");
 	}
 
 	@Test
-	public void testSetTimerWheelType() {
+	public void testSetTimerWheelType() throws Exception {
 		timerExp1.setTimerWheelType(timerWheeltype.PERIODIC_TIMER);
-		//fail("Not yet implemented");
 	}
+
+        @Test
+        public void testSetSwitchId() throws Exception {
+                timerExp1.setSwitchID(1L);
+        }
+
+
+        @Test
+        public void testGetSwitchId() throws Exception {
+                timerExp1.setSwitchID(1L);
+                assertTrue(timerExp1.getSwitchID() == 1L);
+        }
 
 }

@@ -28,35 +28,29 @@ public class BasePortTimerRegisterTest {
 	}
 
 	@Test
-	public void testBasePortTimerRegister() {
+	public void testBasePortTimerRegister() throws Exception {
 		BasePortTimerRegister b1 = new BasePortTimerRegister((short)30,40L);
 		b1.setPortID((short)10);
 		b1.setSystemID(10L);
-		//fail("Not yet implemented");
 	}
 
 	@Test
-	public void testSetPortID() {
+	public void testSetPortID() throws Exception {
 		baseTimerReg.setPortID((short)100);
-		//fail("Not yet implemented");
 	}
 
 	@Test
-	public void testSetSystemID() {
+	public void testSetSystemID() throws Exception {
 		baseTimerReg.setSystemID(200L);
-		//fail("Not yet implemented");
 	}
 
 	@Test
-	public void testGetPortID() {
+	public void testGetPortID() throws Exception {
 		baseTimerReg.getPortID();
-		//fail("Not yet implemented");
 	}
 
 	@Test
-	public void testGetSystemID() {
+	public void testGetSystemID() throws Exception {
 		baseTimerReg.getSystemID();
-		//fail("Not yet implemented");
 	}
-
 }

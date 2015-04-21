@@ -43,7 +43,6 @@ public  class LacpTimerQueue {
         LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LacpTimerQueueMap.get(switchId);
 
         if(lacpTimerQueueId == null){
-            //System.out.println("Adding new queue and new item in queue");
             lacpTimerQueueId = new LacpQueue<TimerExpiryMessage>();
             LacpTimerQueueMap.put(switchId, lacpTimerQueueId);
         }
@@ -64,7 +63,6 @@ public  class LacpTimerQueue {
         LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LacpTimerQueueMap.get(switchId);
 
         if(lacpTimerQueueId != null){
-            //synchronized(this.LacpTimerQueueMap){
             synchronized(this.LacpTimerQueueMap.get(switchId)){
                 obj = LacpTimerQueueMap.get(switchId).dequeue();
             }
@@ -82,7 +80,6 @@ public  class LacpTimerQueue {
             if(lacpTimerQueueId == null){
                 lacpTimerQueueId = new LacpQueue<TimerExpiryMessage>();
                 LacpTimerQueueMap.put(switchId, lacpTimerQueueId);
-                //System.out.println("Adding new queue for a given switch " + switchId);
             }
             return result;
         }
@@ -112,7 +109,6 @@ public  class LacpTimerQueue {
         LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LacpTimerQueueMap.get(switchId);
 
         if(lacpTimerQueueId != null){
-            //synchronized(this.LacpTimerQueueMap){
             synchronized(this.LacpTimerQueueMap.get(switchId)){
                 obj = LacpTimerQueueMap.get(switchId).read();
             }
