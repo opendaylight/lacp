@@ -18,10 +18,10 @@ public class LacpBpduSysInfo {
 	private static final Logger log = LoggerFactory.getLogger(LacpBpduSysInfo.class);
 	private static final byte ETH_ADDR_LEN = 6;
 	private static final byte SYSTEMINFO_SIZE = 15; 
-	private short nodeSysPri;
+	private int nodeSysPri;
 	private byte[] nodeSysAddr;
 	private short nodeKey;
-	private short nodePortPri;
+	private int nodePortPri;
 	private short nodePortNum;
 	private byte nodePortState;
 
@@ -29,14 +29,14 @@ public class LacpBpduSysInfo {
 		super();
 		this.nodeSysAddr = new byte[ETH_ADDR_LEN];
 		this.nodeKey = 1;
-		this.nodePortPri = (short)0xffff;
-		this.nodeSysPri = (short)0xffff;
+		this.nodePortPri = (int)0x000000ff;
+		this.nodeSysPri = (int)0x0000ffff;
 		this.nodePortNum = 1;
 		this.nodePortState = 1;
 		Arrays.fill(this.nodeSysAddr, (byte)0);		
 	}
 
-	public LacpBpduSysInfo(short priority, byte[] macAddr, short key, short portPriority, short portNumber, byte portState) 
+	public LacpBpduSysInfo(int priority, byte[] macAddr, short key, int portPriority, short portNumber, byte portState) 
 	{
 		super();
 		this.nodeSysAddr = Arrays.copyOf(macAddr, ETH_ADDR_LEN);
@@ -63,10 +63,10 @@ public class LacpBpduSysInfo {
 	public byte[] serialize() {
 		byte[] data = new byte[SYSTEMINFO_SIZE];
 		ByteBuffer bb = ByteBuffer.wrap(data);
-		bb.putShort(this.nodeSysPri);
+		bb.putInt(this.nodeSysPri);
 		bb.put(this.nodeSysAddr);
 		bb.putShort(this.nodeKey);
-		bb.putShort(this.nodePortPri);
+		bb.putInt(this.nodePortPri);
 		bb.putShort(this.nodePortNum);
 		bb.put(this.nodePortState);
 		return data;
@@ -83,11 +83,11 @@ public class LacpBpduSysInfo {
 		return this;
 	}
 
-	public short getNodeSysPri() {
+	public int getNodeSysPri() {
 		return nodeSysPri;
 	}
 
-	public void setNodeSysPri(short nodeSystemPriority) {
+	public void setNodeSysPri(int nodeSystemPriority) {
 		this.nodeSysPri = nodeSystemPriority;
 	}
 
@@ -107,11 +107,11 @@ public class LacpBpduSysInfo {
 		this.nodeKey = nodeKey;
 	}
 
-	public short getNodePortPriority() {
+	public int getNodePortPriority() {
 		return nodePortPri;
 	}
 
-	public void setNodePortPri(short nodePortPriority) {
+	public void setNodePortPri(int nodePortPriority) {
 		this.nodePortPri = nodePortPriority;
 	}
 

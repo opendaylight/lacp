@@ -132,7 +132,7 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
 		final byte[] nodeSysAddr;
 		short portNum = actInfo.getPort().shortValue();
 		byte  portState = (byte)actInfo.getState().shortValue();
-		short portPri = actInfo.getPortPriority().shortValue();
+		int portPri = actInfo.getPortPriority().intValue();
 		short nodeKey = actInfo.getKey().shortValue();
 		//convertStringtoByte(macToString(new String (actInfo.getSystemId()));
 		System.out.println("Entering- setActorInfoFromPkt");
@@ -142,7 +142,9 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
 		nodeSysAddr = HexEncode.bytesFromHexString(actInfo.getSystemId().getValue());
 		System.out.println("LacpBpduInfo - setActorInfoFromPkt - The nodeSysAddr is :" + HexEncode.bytesToHexString(nodeSysAddr));
 		log.info("LacpBpduInfo - setActorInfoFromPkt - The nodeSysAddr is = {}" , HexEncode.bytesToHexString(nodeSysAddr));
-		short sysPri =  actInfo.getSystemPriority().shortValue();
+		int sysPri =  actInfo.getSystemPriority().intValue();
+		System.out.println("@@@@@@@@@@@@@@@@@@ Actor sysPri is @@@@@@@@@@@@@@@@  : " + sysPri);
+		System.out.println("@@@@@@@@@@@@@@@@@@ Actor portPri is @@@@@@@@@@@@@@@@  : " + portPri);
                 actorSystemInfo = new LacpBpduSysInfo(sysPri, nodeSysAddr, nodeKey, portPri, portNum, portState);
 	}
 
@@ -152,13 +154,15 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
 		final byte[] nodeSysAddr;
 		short portNum = partInfo.getPort().shortValue();
 		byte  portState = (byte)partInfo.getState().shortValue();
-		short portPri = partInfo.getPortPriority().shortValue();
+		int portPri = partInfo.getPortPriority().intValue();
 		short nodeKey = partInfo.getKey().shortValue();
 //		nodeSysAddr = Arrays.copyOf(HexEncode.bytesFromHexString((partInfo.getSystemId().getValue())), LacpConst.ETH_ADDR_LEN);
 		nodeSysAddr = HexEncode.bytesFromHexString((partInfo.getSystemId().getValue()));
 		System.out.println("LacpBpduInfo - setPartnerInfoFromPkt - The nodeSysAddr is :" + HexEncode.bytesToHexString(nodeSysAddr));
 		log.info("LacpBpduInfo - setPartnerInfoFromPkt - The nodeSysAddr is = {}" , HexEncode.bytesToHexString(nodeSysAddr));
-		short sysPri =  partInfo.getSystemPriority().shortValue();
+		int sysPri =  partInfo.getSystemPriority().intValue();
+		System.out.println("@@@@@@@@@@@@@@@@@@ Partner sysPri is @@@@@@@@@@@@@@@@  : " + sysPri);
+		System.out.println("@@@@@@@@@@@@@@@@@@ Partner portPri is @@@@@@@@@@@@@@@@  : " + portPri);
                 partnerSystemInfo = new LacpBpduSysInfo(sysPri, nodeSysAddr, nodeKey, portPri, portNum, portState);
 	}
 

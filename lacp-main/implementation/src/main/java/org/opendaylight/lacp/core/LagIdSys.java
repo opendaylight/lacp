@@ -15,10 +15,10 @@ import org.slf4j.LoggerFactory;
 public class LagIdSys implements Comparable<LagIdSys> {
 
 	private static final Logger log = LoggerFactory.getLogger(LagIdSys.class);
-	final short sysPriority;
+	final int sysPriority;
 	final byte[] sysMacAddress;
 	
-	public LagIdSys(short sys_priority, byte[] sys_mac) {
+	public LagIdSys(int sys_priority, byte[] sys_mac) {
 		super();
 		this.sysPriority = sys_priority;
 		this.sysMacAddress = Arrays.copyOf(sys_mac, LacpConst.ETH_ADDR_LEN);;
@@ -28,7 +28,7 @@ public class LagIdSys implements Comparable<LagIdSys> {
 		this(arg0.sysPriority, arg0.sysMacAddress);
 	}	
 	
-	public short getSys_priority() {
+	public int getSys_priority() {
 		return sysPriority;
 	}
 

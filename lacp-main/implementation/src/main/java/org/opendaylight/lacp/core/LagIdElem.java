@@ -18,7 +18,7 @@ public class LagIdElem implements Comparable<LagIdElem> {
 	final LagIdPort port;  // Port Parameter Number + Priority	
 	
 	
-	public LagIdElem(short sys_priority, byte[] sys_mac, short key, short port_priority, short port_number) {
+	public LagIdElem(int sys_priority, byte[] sys_mac, short key, int port_priority, short port_number) {
 		super();
 		log.debug("Entering LagIdElem constructor");
 		this.system = new LagIdSys(sys_priority, sys_mac);

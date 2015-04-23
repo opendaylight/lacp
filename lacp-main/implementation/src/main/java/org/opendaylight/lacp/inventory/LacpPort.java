@@ -81,7 +81,7 @@ import org.opendaylight.lacp.core.LagIdElem;
 public class LacpPort implements Comparable<LacpPort> {
 		
 	private short actorPortNumber;
-	private short actorPortPriority;
+	private int actorPortPriority;
 	private short actorPortAggregatorIdentifier;
 	private boolean ntt;
 	private short actorAdminPortKey;
@@ -104,10 +104,10 @@ public class LacpPort implements Comparable<LacpPort> {
 	private byte link;
 	
 	boolean isInitialized;
-	private short portPriority;	
+	private int portPriority;	
 	private LagId  lagId;
 	private byte[] actorSystem;              
-	private short actorSystemPriority;       
+	private int actorSystemPriority;       
 	private boolean isEnabled;
 	protected Date activeSince;
     
@@ -164,17 +164,17 @@ public class LacpPort implements Comparable<LacpPort> {
  	public class PortParams {
 
 		byte[] system;
-		short systemPriority;
+		int systemPriority;
 		short key;
 		short portNumber;
-		short portPriority;
+		int portPriority;
 		short portState;
 		public PortParams() {
 			system = new byte[LacpConst.ETH_ADDR_LEN];
 		}
 
-		public PortParams(byte[] system, short systemPriority, short key,
-				short portNumber, short portPriority, short portState) {
+		public PortParams(byte[] system, int systemPriority, short key,
+				short portNumber, int portPriority, short portState) {
 			super();
 			this.system = system;
 			this.systemPriority = systemPriority;
@@ -236,10 +236,10 @@ public class LacpPort implements Comparable<LacpPort> {
 
 
 		public void intializePortParams() {
-			systemPriority = (short) 0xffff;
+			systemPriority = (int) 0x0000ffff;
 			key = 1;
 			portNumber =1;
-			portPriority = (short)0xffff;
+			portPriority = (int)0x000000ff;
 			portState = 1;
 			Arrays.fill(system, (byte) 0);
 		}
@@ -261,7 +261,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			return system;
 		}
 
-		public short getSystemPriority() {
+		public int getSystemPriority() {
 			return systemPriority;
 		}
 
@@ -273,7 +273,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			return portNumber;
 		}
 
-		public short getPortPriority() {
+		public int getPortPriority() {
 			return portPriority;
 		}
 
@@ -285,7 +285,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			this.system = system;
 		}
 
-		public void setSystemPriority(short systemPriority) {
+		public void setSystemPriority(int systemPriority) {
 			this.systemPriority = systemPriority;
 		}
 
@@ -297,7 +297,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			this.portNumber = portNumber;
 		}
 
-		public void setPortPriority(short portPriority) {
+		public void setPortPriority(int portPriority) {
 			this.portPriority = portPriority;
 		}
 
@@ -315,10 +315,10 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.partnerAdmin.system = Arrays.copyOf(system,LacpConst.ETH_ADDR_LEN);
 	}
 	
-	public short portPartnerAdminGetSystemPriority() {
+	public int portPartnerAdminGetSystemPriority() {
 		return this.partnerAdmin.systemPriority;
 	}
-	public void portPartnerAdminsetSystemPriority(short val) {
+	public void portPartnerAdminsetSystemPriority(int val) {
 		this.partnerAdmin.systemPriority = val;
 	}
 	
@@ -335,10 +335,10 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void portPartnerAdminSetPortNumber(short val) {
 		this.partnerAdmin.portNumber = val;
 	}
-	public short portPartnerAdminGetPortPriority() {
+	public int portPartnerAdminGetPortPriority() {
 		return this.partnerAdmin.portPriority;
 	}
-	public void portPartnerAdminSetPortPriority(short val) {
+	public void portPartnerAdminSetPortPriority(int val) {
 		this.partnerAdmin.portPriority = val;
 	}
 	
@@ -359,10 +359,10 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.partnerOper.system = Arrays.copyOf(system,LacpConst.ETH_ADDR_LEN);
 	}
 	
-	public short portPartnerOperGetSystemPriority() {
+	public int portPartnerOperGetSystemPriority() {
 		return this.partnerOper.systemPriority;
 	}
-	public void portPartnerOperSetSystemPriority(short val) {
+	public void portPartnerOperSetSystemPriority(int val) {
 		this.partnerOper.systemPriority = val;
 	}
 	
@@ -380,10 +380,10 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void portPartnerOperSetPortNumber(short val) {
 		this.partnerOper.portNumber = val;
 	}
-	public short portPartnerOperGetPortPriority() {
+	public int portPartnerOperGetPortPriority() {
 		return this.partnerOper.portPriority;
 	}
-	public void portPartnerOperSetPortPriority(short val) {
+	public void portPartnerOperSetPortPriority(int val) {
 		this.partnerOper.portPriority = val;
 	}
 	
@@ -412,11 +412,11 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.actorPortNumber = portNumber;
 	}
 	
-	public short getActorPortPriority() {
+	public int getActorPortPriority() {
 		return actorPortPriority;
 	}
 	
-	public void setActorPortPriority(short portPriority) {
+	public void setActorPortPriority(int portPriority) {
 		actorPortPriority = portPriority;
 	}
 	
@@ -576,11 +576,11 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.actorSystem = actorSystem;
 	}
 
-	public short getActorSystemPriority() {
+	public int getActorSystemPriority() {
 		return actorSystemPriority;
 	}
 
-	public void setActorSystemPriority(short actorSystemPriority) {
+	public void setActorSystemPriority(int actorSystemPriority) {
 		this.actorSystemPriority = actorSystemPriority;
 	}
 
@@ -598,11 +598,11 @@ public class LacpPort implements Comparable<LacpPort> {
 	}
 
 	
-	public short getPortPriority() {
+	public int getPortPriority() {
 		return portPriority;
 	}
 
-	public void setPortPriority(short portPriority) {
+	public void setPortPriority(int portPriority) {
 		this.portPriority = portPriority;
 	}
 
@@ -661,7 +661,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.portLock = portLock;
 	}
 
-	private LacpPort(long swId, short portId, LacpBond bond, short port_priority, LacpBpduInfo bpduInfo) {
+	private LacpPort(long swId, short portId, LacpBond bond, int port_priority, LacpBpduInfo bpduInfo) {
 
 		log.info("Entering LacpPort constructor for switchid={} port={}",portId, swId);
 
@@ -1034,11 +1034,11 @@ public class LacpPort implements Comparable<LacpPort> {
 		return partnerOper;
 	}
 	
-	public void setPartnerAdmin(byte[] system, short key, short systemPriority, short portNum, short portPriority, short portState) {
+	public void setPartnerAdmin(byte[] system, short key, int systemPriority, short portNum, int portPriority, short portState) {
 		this.partnerAdmin = new PortParams( system,  systemPriority,  key, portNum,  portPriority,  portState);
 	}
 
-	public void setPartnerOper(byte[] system, short key, short systemPriority, short portNum, short portPriority, short portState)
+	public void setPartnerOper(byte[] system, short key, int systemPriority, short portNum, int portPriority, short portState)
         {
 	    this.partnerOper = new PortParams( system,  systemPriority,  key, portNum,  portPriority,  portState);
             lacpNCBuilder.setPartnerPortNumber(portNum);
@@ -1046,7 +1046,7 @@ public class LacpPort implements Comparable<LacpPort> {
                It will be updated when the logicalNCRef for the port is assigned. */
 	}
 
-	public static  LacpPort newInstance(long swId, short portId, LacpBond bond, short port_priority,LacpBpduInfo bpduInfo) {
+	public static  LacpPort newInstance(long swId, short portId, LacpBond bond, int port_priority,LacpBpduInfo bpduInfo) {
 		log.info("Entering/Exiting LacpPort newInstance() method for sw={} port={} priority={}",swId,portId,port_priority);
 		return new LacpPort(swId, portId, bond, port_priority,bpduInfo);
 	}
@@ -1063,9 +1063,9 @@ public class LacpPort implements Comparable<LacpPort> {
 	{
 		log.info("Entering lacpInitPort for port={}",portId);
 		this.setActorPortNumber(this.portId);
-		this.setActorPortPriority((short)0xffff);
+		this.setActorPortPriority((int)0x000000ff);
 		Arrays.fill(getActorSystem(), (byte)0);
-		this.setActorSystemPriority((short) 0xffff);
+		this.setActorSystemPriority((int) 0x0000ffff);
 		this.setActorPortAggregatorIdentifier((short)0);
 		this.setNtt(false);
 		this.setActorAdminPortKey((short)1);
@@ -1219,18 +1219,17 @@ public class LacpPort implements Comparable<LacpPort> {
 			final PortParams partner = this.partnerOper;
 			PartnerInfoBuilder partnerInfoBuilder = new PartnerInfoBuilder();
 
-			//partnerInfoBuilder.setSystemPriority(new Integer(partner.systemPriority));
+			partnerInfoBuilder.setSystemPriority(new Integer(partner.systemPriority));
 			//TODO-RAJESH
-			partnerInfoBuilder.setSystemPriority(new Integer(65535));
-			//partnerInfoBuilder.setSystemId(new String(partner.system));
+			//partnerInfoBuilder.setSystemPriority(new Integer(65535));
 			log.info("partner system id before bytesToHex conversion is :", (partner.system));
 			partnerInfoBuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(partner.system)));
 			System.out.println("partner system id is :" + HexEncode.bytesToHexStringFormat(partner.system));
 			log.info("partner system id after bytesToHex conversion is :", HexEncode.bytesToHexStringFormat(partner.system));
 			partnerInfoBuilder.setKey(new Integer(partner.key));
-			//partnerInfoBuilder.setPortPriority(new Integer(partner.portPriority));
+			partnerInfoBuilder.setPortPriority(new Integer(partner.portPriority));
 			//TODO-RAJESH
-			partnerInfoBuilder.setPortPriority(new Integer(255));
+			//partnerInfoBuilder.setPortPriority(new Integer(255));
 			partnerInfoBuilder.setPort(new Integer(partner.portNumber));
 
 			partnerInfoBuilder.setState(Short.valueOf(partner.portState));
@@ -1328,19 +1327,19 @@ public class LacpPort implements Comparable<LacpPort> {
 		return getActorPortAggregatorIdentifier();
 	}
 	
-	public short portGetActorPortPriority() {
+	public int portGetActorPortPriority() {
 		return getActorPortPriority();
 	}
 
-	public void portSetActorPortPriority(short val) {
+	public void portSetActorPortPriority(int val) {
 		this.setActorPortPriority(val);
 	}
 	
-	public short portGetActorSystemPriority() {
+	public int portGetActorSystemPriority() {
 		return getActorSystemPriority();
 	}
 
-	public void portSetActorSystemPriority(short val) {
+	public void portSetActorSystemPriority(int val) {
 		this.setActorSystemPriority(val);
 	}
 	
@@ -1376,7 +1375,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		log.info("Exiting lacpDisablePort for port={}",portId);
 	}
 			 
-	void slavePortPriorityChange(short priority) {
+	void slavePortPriorityChange(int priority) {
 
 		log.info("Entering slavePortPriorityChange for port={}",portId);
 		slavePSMLock();
@@ -1391,7 +1390,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		log.info("Exiting slavePortPriorityChange for port={}",portId);
 	 }
 	 
-	 void slaveSystemPriorityChange(short priority) {
+	 void slaveSystemPriorityChange(int priority) {
 		log.info("Entering slaveSystemPriorityChange for port={}",portId);
 		 slavePSMLock();
 		 try {
@@ -1466,7 +1465,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		log.info("Exiting slaveUpdateLacpRate for port={}",portId);
         }
 	
-	public void portPortPriorityChange(short priority) {
+	public void portPortPriorityChange(int priority) {
 		log.info("Entering portPortPriorityChange for port={}",portId);
 		if (!isInitialized){
 			return;
@@ -1479,7 +1478,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	}		
 	 
 	 
-	void portSystemPrioriyChange(short priority)
+	void portSystemPrioriyChange(int priority)
 	{
 
 		log.info("Entering portSystemPrioriyChange for port={}",portId);
@@ -1991,7 +1990,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		log.info("Exiting portHandleLinkChange for port={}", portId);
 	}
 	
-	void portAssignSlave(byte[] sys_mac_addr, int lacp_fast, short sys_priority, short port_priority, short admin_key) {
+	void portAssignSlave(byte[] sys_mac_addr, int lacp_fast, int sys_priority, int port_priority, short admin_key) {
 		
 		log.info("Entering portAssignSlave for port={}",portId);
 		lacpInitPort(lacp_fast);

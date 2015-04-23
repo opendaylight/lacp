@@ -11,12 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LagIdPort implements Comparable<LagIdPort> {
-	final short portPriority;
+	final int portPriority;
 	final short portNumber;
 	private static final Logger log = LoggerFactory.getLogger(LagIdPort.class);
 	
 	
-	public LagIdPort(short port_priority, short port_number) {
+	public LagIdPort(int port_priority, short port_number) {
 		super();
 		log.debug("Entering LagIdPort constructor");
 		this.portPriority = port_priority;
@@ -45,8 +45,8 @@ public class LagIdPort implements Comparable<LagIdPort> {
 		int val1, val2;
 		if (arg0 == null)
 			return -1;
-		val1 = this.portPriority & 0xffff;
-		val2 = arg0.portPriority & 0xffff;
+		val1 = this.portPriority & 0xffffffff;
+		val2 = arg0.portPriority & 0xffffffff;
 		if (val1 < val2)
 			return -1;
 		else if (val1 > val2 )

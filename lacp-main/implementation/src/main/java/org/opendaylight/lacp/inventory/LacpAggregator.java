@@ -162,7 +162,7 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 	private short actorAdminAggKey;
 	private short actorOperAggKey;
 	private byte[] partnerSystem;
-	private short partnerSystemPriority;
+	private int partnerSystemPriority;
 	private short partnerOperAggKey;
 	short receiveState;
 	short transmitState; 
@@ -432,7 +432,7 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		setActorAdminAggregatorKey((short)0);
 		setActorOperAggKey((short)0);
 		setPartnerSystem(Arrays.copyOf(LacpConst.NULL_MAC_ADDRESS, LacpConst.ETH_ADDR_LEN));
-		setPartnerSystemPriority((short)0);
+		setPartnerSystemPriority((int)0);
 		setPartnerOperAggKey((short)0);
 		this.setReceiveState((short)0);
 		this.setTransmitState((short)0);
@@ -737,12 +737,12 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 	}
 
 
-	public short getPartnerSystemPriority() {
+	public int getPartnerSystemPriority() {
 		return partnerSystemPriority;
 	}
 
 
-	public void setPartnerSystemPriority(short pri) {
+	public void setPartnerSystemPriority(int pri) {
 		this.partnerSystemPriority = pri;
 	}
 

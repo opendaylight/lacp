@@ -79,7 +79,7 @@ public class LacpBond {
 	private ReentrantLock bondLock;
 	private Date activeSince;
 	
-	private short sysPriority; 
+	private int sysPriority; 
 	private byte[] virtualSysMacAddr; /* The first system's MAC address + 0x2 */
 	private int aggSelectTimer;
 	private int lacpFast;
@@ -114,7 +114,7 @@ public class LacpBond {
 	public LinkedHashMap<Short, LacpPort> getPortSlaveMap() {
 		return portSlaveMap;
 	}
-	public short getSysPriority() {
+	public int getSysPriority() {
 		return sysPriority;
 	}
 
@@ -130,7 +130,7 @@ public class LacpBond {
 	public void setPortSlaveMap(LinkedHashMap<Short, LacpPort> portSlaveMap) {
 		this.portSlaveMap = portSlaveMap;
 	}
-	public void setSysPriority(short sysPriority) {
+	public void setSysPriority(int sysPriority) {
 		this.sysPriority = sysPriority;
 	}
 	public void setAdminKey(short adminKey) {
@@ -246,15 +246,15 @@ public class LacpBond {
 	
 	public static LacpBond newInstance(short key, LacpNodeExtn lacpNode) {
 		
-		return new LacpBond((short)0xffff,key, lacpNode);
+		return new LacpBond(0x0000ffff,key, lacpNode);
 	}
 
-	public static LacpBond newInstance(short sys_priority,short key, LacpNodeExtn lacpNode) {
+	public static LacpBond newInstance(int sys_priority,short key, LacpNodeExtn lacpNode) {
 		
 		return new LacpBond(sys_priority,key, lacpNode);
 	}
 	
-	private LacpBond(short sys_priority,short key, LacpNodeExtn lacpNode) 
+	private LacpBond(int sys_priority,short key, LacpNodeExtn lacpNode) 
 	{
 		log.info("LacpBond constructor"); 
 		log.info("LacpBond is created with sys priority ={} and key={}",sys_priority,key); 
@@ -300,11 +300,11 @@ public class LacpBond {
 		log.info("Exiting LacpBond constructor"); 
 	}
 	
-	public short bondGetSysPriority() {
+	public int bondGetSysPriority() {
 		return sysPriority;
 	}
 
-	public void bondSetSysPriority(short sys_priority) {
+	public void bondSetSysPriority(int sys_priority) {
 		this.sysPriority = sys_priority;
 
 	}
@@ -314,7 +314,7 @@ public class LacpBond {
 		
 	}
 	
-	public void bondAddSlave(long swId, short portId, short port_priority,LacpBpduInfo bpduInfo) {
+	public void bondAddSlave(long swId, short portId, int port_priority,LacpBpduInfo bpduInfo) {
 
 		log.info("bondAddSlave Entry"); 
 		byte[] macAddr;
@@ -493,7 +493,7 @@ public class LacpBond {
     }
     
     
-   public void bondUpdateSystemPriority(short priority) 
+   public void bondUpdateSystemPriority(int priority) 
     {
 	log.info("bondUpdateSystemPriority Entry"); 
     	if (this.sysPriority == priority){
