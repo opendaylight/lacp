@@ -176,7 +176,8 @@ public class LacpPort implements Comparable<LacpPort> {
 		public PortParams(byte[] system, int systemPriority, short key,
 				short portNumber, int portPriority, short portState) {
 			super();
-			this.system = system;
+			this.system = Arrays.copyOf(system, LacpConst.ETH_ADDR_LEN);
+			//this.system = system;
 			this.systemPriority = systemPriority;
 			this.key = key;
 			this.portNumber = portNumber;
@@ -282,7 +283,8 @@ public class LacpPort implements Comparable<LacpPort> {
 		}
 
 		public void setSystem(byte[] system) {
-			this.system = system;
+			this.system = Arrays.copyOf(system, LacpConst.ETH_ADDR_LEN);
+			//this.system = system;
 		}
 
 		public void setSystemPriority(int systemPriority) {
@@ -573,7 +575,8 @@ public class LacpPort implements Comparable<LacpPort> {
 	}
 
 	public void setActorSystem(byte[] actorSystem) {
-		this.actorSystem = actorSystem;
+		this.actorSystem = Arrays.copyOf(actorSystem, LacpConst.ETH_ADDR_LEN);
+		//this.actorSystem = actorSystem;
 	}
 
 	public int getActorSystemPriority() {
@@ -1905,7 +1908,7 @@ public class LacpPort implements Comparable<LacpPort> {
 						} catch (Exception e) {
 							String errStr = "last_lacp_sm_state :mux_coll_dist Bad lacpAggr";
 							log.error(errStr);
-							e.printStackTrace();
+							log.error(e.getMessage());
 						}
 				} 
 			}else{

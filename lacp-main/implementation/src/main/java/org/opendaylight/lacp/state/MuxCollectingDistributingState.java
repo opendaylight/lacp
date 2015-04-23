@@ -53,7 +53,7 @@ public class MuxCollectingDistributingState  extends MuxState {
 
 		}catch (Exception e) {
 			log.error("MuxCollectingDistributingState bad lacp aggr");
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		portObjRef.setNtt(true);
 		log.info("Exiting MuxCollectingDistributingState executeStateAction");

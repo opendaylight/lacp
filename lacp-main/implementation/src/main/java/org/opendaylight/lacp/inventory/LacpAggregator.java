@@ -688,7 +688,8 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 
 
 	public void setAggMacAddress(byte[] aggMacAddress) {
-		this.aggMacAddress = aggMacAddress;
+		this.aggMacAddress = Arrays.copyOf(aggMacAddress, LacpConst.ETH_ADDR_LEN);
+		//this.aggMacAddress = aggMacAddress;
 	}
 
 
@@ -733,7 +734,8 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 
 
 	public void setPartnerSystem(byte[] sys) {
-		this.partnerSystem = sys;
+		this.partnerSystem = Arrays.copyOf(sys, LacpConst.ETH_ADDR_LEN);
+		//this.partnerSystem = sys;
 	}
 
 

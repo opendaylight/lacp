@@ -33,6 +33,8 @@ public class MuxDetachedState  extends MuxState {
 		NTT = TRUE
 		*/
 		
+		
+		log.info("Entering MuxDetachedState executeStateAction");
 		stateFlag = LacpConst.MUX_STATES.MUX_DETACHED;
 		portObjRef.detachBondFromAgg();
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState() & ~LacpConst.PORT_STATE_SYNCHRONIZATION));
@@ -53,10 +55,9 @@ public class MuxDetachedState  extends MuxState {
 			
 		} catch (Exception e) {
 			log.error("MuxDetachedState bad lacp aggr");
-			e.printStackTrace();
-			
+			log.error(e.getMessage());
 		}
-
+		log.info("Exiting MuxDetachedState executeStateAction");
 	}
 
 	public LacpConst.MUX_STATES getStateFlag(){

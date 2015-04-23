@@ -106,7 +106,8 @@ public class LacpBond {
 		return virtualSysMacAddr;
 	}
 	public void setVirtualSysMacAddr(byte[] virtualSysMacAddr) {
-		this.virtualSysMacAddr = virtualSysMacAddr;
+		this.virtualSysMacAddr = Arrays.copyOf(virtualSysMacAddr, LacpConst.ETH_ADDR_LEN);
+		//this.virtualSysMacAddr = virtualSysMacAddr;
 	}
 	public List<LacpPort> getSlaveList() {
 		return slaveList;

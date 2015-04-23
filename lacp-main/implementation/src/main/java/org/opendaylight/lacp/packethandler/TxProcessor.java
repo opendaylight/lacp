@@ -99,7 +99,7 @@ public class TxProcessor implements Runnable {
 					}
 				}
 				}catch(Exception e){
-					e.printStackTrace();
+					log.error(e.getMessage());
 				}
 			}
 
