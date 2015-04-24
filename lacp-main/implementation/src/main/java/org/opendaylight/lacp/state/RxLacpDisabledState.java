@@ -18,9 +18,7 @@ public class RxLacpDisabledState extends RxState {
 	
 	private static final Logger log = LoggerFactory.getLogger(RxLacpDisabledState.class);
 	public RxLacpDisabledState(){
-		log.debug("Entering RxLacpDisabledState constructor");
 		stateFlag = LacpConst.RX_STATES.RX_LACP_DISABLED;
-		log.debug("Exiting RxLacpDisabledState constructor");
 	}
 	
 	public void executeStateAction(RxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
@@ -31,7 +29,6 @@ public class RxLacpDisabledState extends RxState {
 		4. Actor_Oper_Port_State.Expired = FALSE
 		*/
 		
-		log.info("RxLacpDisabledState executeStateAction Entry");
 		stateFlag = LacpConst.RX_STATES.RX_LACP_DISABLED;
 		portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & ~LacpConst.PORT_SELECTED));
 		recordDefault(portObjRef);
@@ -40,7 +37,6 @@ public class RxLacpDisabledState extends RxState {
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 				& ~LacpConst.PORT_STATE_EXPIRED));
 		obj.setState(this);
-		log.info("RxLacpDisabledState executeStateAction Exit");
 	}
 
 	public LacpConst.RX_STATES getStateFlag(){
@@ -48,9 +44,7 @@ public class RxLacpDisabledState extends RxState {
 	}
 	
 	public void setStateFlag(LacpConst.RX_STATES state){
-		log.debug("RxLacpDisabledState setStateFlag Entry");
 		stateFlag = state;
-		log.debug("RxLacpDisabledState setStateFlag Exit");
 	}
 }
 

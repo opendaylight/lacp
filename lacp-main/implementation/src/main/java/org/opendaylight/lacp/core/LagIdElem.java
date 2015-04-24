@@ -20,12 +20,9 @@ public class LagIdElem implements Comparable<LagIdElem> {
 	
 	public LagIdElem(int sys_priority, byte[] sys_mac, short key, int port_priority, short port_number) {
 		super();
-		log.debug("Entering LagIdElem constructor");
 		this.system = new LagIdSys(sys_priority, sys_mac);
 		this.key = key;
 		this.port = new LagIdPort(port_priority, port_number);
-		log.debug("LagIdElem LagId is ={}",port.toString());
-		log.debug("Exiting LagIdElem constructor");
 	}
 	
 	public LagIdElem(LagIdSys system, short key, LagIdPort port) {

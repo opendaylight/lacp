@@ -52,7 +52,6 @@ public class LagIdSys implements Comparable<LagIdSys> {
 	}
 	@Override
 	public int compareTo(LagIdSys arg0) {
-		// TODO Auto-generated method stub
 		int val1, val2;
 		if (arg0 == null)
 			return -1;

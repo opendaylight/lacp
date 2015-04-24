@@ -20,9 +20,7 @@ public class RxInitializeState extends RxState {
 	private static final Logger log = LoggerFactory.getLogger(RxInitializeState.class);
 	
 	public RxInitializeState(){
-		log.debug("Entering RxInitializeState constructor");
 		stateFlag = LacpConst.RX_STATES.RX_INITIALIZE;
-		log.debug("Exiting RxInitializeState constructor");
 	}
 	
 	public void executeStateAction(RxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
@@ -34,7 +32,6 @@ public class RxInitializeState extends RxState {
 		4. port_moved = FALSE
 		*/
 		
-		log.debug("Entering RxInitializeState executeStateAction");
 		stateFlag = LacpConst.RX_STATES.RX_INITIALIZE;
 		if (!portObjRef.isLacpEnabled()){
 			portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & (~LacpConst.PORT_LACP_ENABLED)));

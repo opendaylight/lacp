@@ -64,7 +64,6 @@ public class LagId implements Comparable<LagId> {
 	
 	@Override
 	public int compareTo(LagId arg0) {
-		// TODO Auto-generated method stub
 		int result;
 		result = this.highSystem.compareTo(arg0.highSystem);
 		if (result < 0)
@@ -89,7 +88,6 @@ public class LagId implements Comparable<LagId> {
 	}
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		String result="";
 		result+= String.format("HIGH SYS(SKP) : SYS_PRI=%x, SYS_MAC=%s, KEY = %x, PORT_PRI=%x, PORT_NUM=%x\n",
 				this.highSystem.system.getSys_priority(), MacString(this.highSystem.system.getSys_mac()), this.highSystem.key,

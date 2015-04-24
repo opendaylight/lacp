@@ -20,15 +20,11 @@ public class PeriodicTxContext  {
 	
 	
 	public PeriodicTxContext(){
-		log.debug("Entering PeriodicTxContext constructor");
 		this.periodicTxState = new PeriodicTxState();
-		log.debug("Exiting PeriodicTxContext constructor");
 	}
 	
 	public void	setState(PeriodicTxState stateObj){
-		log.debug("Entering PeriodicTxContext setState");
 		periodicTxState = stateObj;
-		log.debug("Exiting PeriodicTxContext setState");
 	}
 	
 	public PeriodicTxState getState(){

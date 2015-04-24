@@ -93,21 +93,20 @@ public class LacpBond {
 	private boolean dirty;
 	private boolean failed;
         
-    private InstanceIdentifier aggInstId;
-    private LacpAggregatorsBuilder lacpAggBuilder;
-    private LacpNodeExtn lacpNodeRef;
-    private NodeConnectorRef logNodeConnRef;
-    private GroupId aggGrpId;
-    private LacpGroupTbl lacpGroupTbl;
-    private List<LacpPort> activePortList;
-    private Group lagGroup;
+        private InstanceIdentifier aggInstId;
+        private LacpAggregatorsBuilder lacpAggBuilder;
+        private LacpNodeExtn lacpNodeRef;
+        private NodeConnectorRef logNodeConnRef;
+        private GroupId aggGrpId;
+        private LacpGroupTbl lacpGroupTbl;
+        private List<LacpPort> activePortList;
+        private Group lagGroup;
 
 	public byte[] getVirtualSysMacAddr() {
 		return virtualSysMacAddr;
 	}
 	public void setVirtualSysMacAddr(byte[] virtualSysMacAddr) {
 		this.virtualSysMacAddr = Arrays.copyOf(virtualSysMacAddr, LacpConst.ETH_ADDR_LEN);
-		//this.virtualSysMacAddr = virtualSysMacAddr;
 	}
 	public List<LacpPort> getSlaveList() {
 		return slaveList;
@@ -257,8 +256,7 @@ public class LacpBond {
 	
 	private LacpBond(int sys_priority,short key, LacpNodeExtn lacpNode) 
 	{
-		log.info("LacpBond constructor"); 
-		log.info("LacpBond is created with sys priority ={} and key={}",sys_priority,key); 
+		log.debug("LacpBond is created with sys priority ={} and key={}",sys_priority,key); 
 
 		bondInstanceId = UniqueId++;
 		this.bondLock = new ReentrantLock();
@@ -298,7 +296,6 @@ public class LacpBond {
                 lacpAggBuilder.setLagGroupid(groupId);
                 lacpAggBuilder.setAggId(bondInstanceId);
                 lagGroup = null;
-		log.info("Exiting LacpBond constructor"); 
 	}
 	
 	public int bondGetSysPriority() {
@@ -317,7 +314,6 @@ public class LacpBond {
 	
 	public void bondAddSlave(long swId, short portId, int port_priority,LacpBpduInfo bpduInfo) {
 
-		log.info("bondAddSlave Entry"); 
 		byte[] macAddr;
 
 		macAddr = LacpConst.mapMacAddrFromSwId(swId);
@@ -364,17 +360,13 @@ public class LacpBond {
 		} finally {
 			bondStateMachineUnlock();	
 		}
-		log.info("bondAddSlave Exit"); 
 	}
 	
 
 	
 	public void bondDelSlave(long swId, short portId) {
-		log.info("bondDelSlave Entry"); 
 		
 		short systemId = 0;
-
-
 		bondStateMachineLock();	
 		
 		try {
@@ -411,58 +403,51 @@ public class LacpBond {
 		} finally {
 			bondStateMachineUnlock();
 		}
-		log.info("bondDelSlave Exit"); 
 	}
 
 	
 	
 	LacpAggregator bondGetFreeAgg() {
-	log.info("bondGetFreeAgg Entry"); 
 		
     	if (aggregatorList == null || aggregatorList.size() == 0)
     		return null;
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.getNumOfPorts() == 0){
-			log.info("bondGetFreeAgg found free aggregator"); 
+			log.debug("bondGetFreeAgg found free aggregator"); 
     			return agg;
 		}
     	}
-	log.info("bondGetFreeAgg Exit"); 
 		return null;		
 	}
 		
 	
     public LacpAggregator getActiveAgg(){
-	log.info("getActiveAgg Entry"); 
     	if (aggregatorList == null || aggregatorList.size() == 0)
     		return null;
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.getIsActive() > 0){
-			log.info("getActiveAgg - Found active agg"); 
+			log.debug("getActiveAgg - Found active agg"); 
     			return agg;
 		}
     		
     	}
-	log.info("getActiveAgg Exit"); 
 	return null;
     }
 
 		
     LacpAggregator findLacpAggByFitPort(LacpPort port) 
     {
-	log.info("findLacpAggByFitPort Entry"); 
     	if (aggregatorList == null || aggregatorList.size() == 0)
     		return null;
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.isPortFitToAgg(port)) {
-			log.info("findLacpAggByFitPort - found aggregator for port={}", port.slaveGetPortId());
+			log.debug("findLacpAggByFitPort - found aggregator for port={}", port.slaveGetPortId());
 			 return agg;
 		}
 	}
-	log.info("findLacpAggByFitPort Exit"); 
 	return null;
     } 
     
@@ -478,8 +463,6 @@ public class LacpBond {
 		
     public void bondUpdateLacpRate()
     {
-	log.info("bondUpdateLacpRate Entry"); 
-
     	this.bondStateMachineLock();
 	try{
     		this.setDirty(true);
@@ -490,13 +473,11 @@ public class LacpBond {
 	finally{
 		this.bondStateMachineUnlock();
 	}
-	log.info("bondUpdateLacpRate Exit"); 
     }
     
     
    public void bondUpdateSystemPriority(int priority) 
     {
-	log.info("bondUpdateSystemPriority Entry"); 
     	if (this.sysPriority == priority){
     		return;
 	}
@@ -511,13 +492,11 @@ public class LacpBond {
     	} finally {
 		this.bondStateMachineUnlock();
     	}
-	log.info("bondUpdateSystemPriority Exit"); 
     }
 
  
     public void bondAggSelectionLogic()
     {
-	log.info("bondAggSelectionLogic Entry"); 
 
     	LacpAggregator best, active, agg, orig;
     	int i = 0;
@@ -555,20 +534,20 @@ public class LacpBond {
     			if (!(((active.aggGetActorOperAggKey()==0) && (best.aggGetActorOperAggKey()>0)))) {
     				best = null;
     				active.setIsActive((short)1);
-				log.info("bondAggSelectionLogic - active agg not null, setting the aggregator to active"); 
+				log.debug("bondAggSelectionLogic - active agg not null, setting the aggregator to active"); 
     			}
     		} else if (active == null) {
     			active = best;
     			best = null;
     			active.setIsActive((short)1);
-			log.info("bondAggSelectionLogic - active agg is null, setting the active=best aggregator to active"); 
+			log.debug("bondAggSelectionLogic - active agg is null, setting the active=best aggregator to active"); 
     		}
     	}
 
     	if (best!=null && (best == active)) {
     		best = null;
     		active.setIsActive((short)1);
-		log.info("bondAggSelectionLogic - active == best, setting the aggregator to active"); 
+		log.debug("bondAggSelectionLogic - active == best, setting the aggregator to active"); 
 
     	}
 
@@ -579,7 +558,7 @@ public class LacpBond {
     		}
     		best.setIsActive((short)1);
     		active = getActiveAgg();
-		log.info("bondAggSelectionLogic - best!=null, setting the aggregator to active"); 
+		log.debug("bondAggSelectionLogic - best!=null, setting the aggregator to active"); 
     	}  	
     	if (orig != active) {
     		log.info(
@@ -599,7 +578,6 @@ public class LacpBond {
     		this.setDirty(true);
     	}
 
-	log.info("bondAggSelectionLogic Exit"); 
     }
 
 	public boolean isLacpEnabled() {
@@ -607,7 +585,6 @@ public class LacpBond {
 	}
 
 	public void setLacpEnabled(boolean enabled) {
-	log.info("setLacpEnabled Entry"); 
 		if (this.isLacpEnabled != enabled) {
 			this.bondStateMachineLock();
 			try {
@@ -620,20 +597,17 @@ public class LacpBond {
 				this.bondStateMachineUnlock();
 			}
 		}
-	log.info("setLacpEnabled Exit"); 
 		
 	}
 
 	
 	public boolean isPartnerExist(byte[] sysId, short key) {
-		log.info("isPartnerExist Entry"); 
 		for (LacpPort slave:slaveList) {
 			if (slave.portPartnerOperGetKey() == key && Arrays.equals(sysId, slave.portPartnerOperGetSystem())){
-				log.info("isPartnerExist - returning true"); 
+				log.debug("isPartnerExist - returning true"); 
 				return true;
 			}
 		}
-		log.info("isPartnerExist Exit"); 
 		return false;
 	}    
 	
@@ -647,7 +621,6 @@ public class LacpBond {
 	} 
 	
 	public short getVirtualPortId(long swId, short portNumber) {
-		log.info("getVirtualPortId Entry"); 
 		short result = 0;
 		short systemId;
 		
@@ -655,26 +628,22 @@ public class LacpBond {
 			systemId = systemIdMap.get(swId);
 		}
 		else {
-			log.info("getVirtualPortId - VirtualPortId is not found for switch={} port number={}",swId,portNumber); 
 			return 0;
 		}
 	
 		result = (short) ((portNumber & 0x0fff) | (systemId << 12 & 0xf000));
-		log.info("getVirtualPortId - VirtualPortId is found for switch={} port number={} and the value is={}",swId,portNumber,result); 
-		log.info("getVirtualPortId Exit"); 
 		return result;
 	}
 
 	public void bondUpdateLinkUpSlave(long swId, short portId,
-			int currentFeatures) {
-		log.info("bondUpdateLinkUpSlave Entry"); 
+		int currentFeatures) {
 		this.bondStateMachineLock();
 		try {
 			if (portId != 0) {
 				int result = currentFeatures;
 				int speed = (result >> LacpConst.DUPLEX_KEY_BITS);
 				byte duplex = (byte) (result & LacpConst.DUPLEX_KEY_BITS);
-				log.info("bondUpdateLinkUpSlave : currentFeatures={}, speed={}",
+				log.debug("bondUpdateLinkUpSlave : currentFeatures={}, speed={}",
 						String.format("%x", currentFeatures), String.format("%x", speed));
 				LacpPort slave = portSlaveMap.get(portId);
 				slave.slavePSMLock();
@@ -689,16 +658,14 @@ public class LacpBond {
 						HexEncode.longToHexString((long)portId),
 						HexEncode.longToHexString(swId), new Date());
 			} else {
-				log.info("bondUpdateLinkUpSlave:Virtual Port is 0");
+				log.debug("bondUpdateLinkUpSlave:Port is 0");
 			}
 		} finally {
 			this.bondStateMachineUnlock();
 		}
-		log.info("bondUpdateLinkUpSlave Exit"); 
 	}
 
 	public void bondUpdateLinkDownSlave(long swId, short portId) {
-		log.info("bondUpdateLinkDownSlave Entry"); 
 		this.bondStateMachineLock();
 		try {
 			if (portId != 0) {
@@ -719,11 +686,9 @@ public class LacpBond {
 		} finally {
 			this.bondStateMachineUnlock();
 		}
-		log.info("bondUpdateLinkDownSlave Exit"); 
 	}
 	
 	public void bondDelMembersFrSw(long swId) {
-		log.info("bondDelMembersFrSw Entry"); 
 		this.bondStateMachineLock();
 		try {
 			this.setDirty(true);
@@ -741,27 +706,24 @@ public class LacpBond {
 		} finally {
 			this.bondStateMachineUnlock();
 		}
-		log.info("bondDelMembersFrSw Exit"); 
 	}
 
 	public short bondGetAggId(long swId, short portId) {
-		log.info("bondGetAggId Entry"); 
 		this.bondStateMachineLock();
 		try {
 			LacpPort slave = portSlaveMap.get(portId);
 			if (slave != null &&  slave.getPortAggregator()!=null)
 			{
-				log.info("bondGetAggId - returning AggId= {}",slave.getPortAggregator().getAggId()); 
+				log.debug("bondGetAggId - returning AggId= {}",slave.getPortAggregator().getAggId()); 
 				return (slave.getPortAggregator().getAggId());
 			}
 			else{
-				log.info("bondGetAggId - returning AggId= {} as slave is null",0); 
+				log.debug("bondGetAggId - returning AggId= {} as slave is null",0); 
 				return 0;
 			}
 		}
 		finally {
 			this.bondStateMachineUnlock();
-			log.info("bondGetAggId Exit"); 
 		}
 	}
 	
@@ -844,7 +806,7 @@ public class LacpBond {
         int actorKey = lacpAgg.getActorOperAggKey();
         lacpAggBuilder.setActorOperAggKey(actorKey);
         lacpAggBuilder.setKey(new LacpAggregatorsKey(bondInstanceId));
-       // lacpAggBuilder.setPartnerAggMacAddress(new MacAddress(lacp
+        //lacpAggBuilder.setPartnerAggMacAddress(new MacAddress(lacp
         int partnerKey = lacpAgg.getPartnerOperAggKey();
         lacpAggBuilder.setPartnerOperAggKey(partnerKey);
         MacAddress pMac = new MacAddress(HexEncode.bytesToHexStringFormat(lacpAgg.getPartnerSystem()));

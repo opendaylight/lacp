@@ -22,9 +22,7 @@ public class RxDefaultedState extends RxState {
 	
 	private static final Logger log = LoggerFactory.getLogger(RxDefaultedState.class);
 	public RxDefaultedState(){
-		log.debug("Entering RxDefaultedState constructor");
 		stateFlag = LacpConst.RX_STATES.RX_DEFAULTED;
-		log.debug("Exiting RxDefaultedState constructor");
 	}
 	public void executeStateAction(RxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
 
@@ -34,7 +32,6 @@ public class RxDefaultedState extends RxState {
 		3. Actor_Oper_Port_State.Expired = FALSE
 		*/
 		
-		log.debug("RxDefaultedState executeStateAction Entry");
 		stateFlag = LacpConst.RX_STATES.RX_DEFAULTED;
 		updateDefaultSelected(portObjRef);
 		recordDefault(portObjRef);
@@ -42,13 +39,11 @@ public class RxDefaultedState extends RxState {
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 									& ~LacpConst.PORT_STATE_EXPIRED));
 		obj.setState(this);
-		log.debug("RxDefaultedState executeStateAction Exit");
 		
 	}
 	
 	void updateDefaultSelected(LacpPort portObjRef)
 	{
-		log.info("RxDefaultedState updateDefaultSelected Entry");
 		final PortParams admin = portObjRef.getPartnerAdmin();
 		final PortParams oper = portObjRef.getPartnerOper();
 
@@ -63,16 +58,13 @@ public class RxDefaultedState extends RxState {
 			portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & ~LacpConst.PORT_SELECTED));
 			log.info("RxDefaultedState updateDefaultSelected, setting the port={} to UNSELECTED", portObjRef.slaveGetPortId());
 		}
-		log.info("RxDefaultedState updateDefaultSelected Exit");
 	}
 
 	public LacpConst.RX_STATES getStateFlag(){
 		return stateFlag;
 	}
 	public void setStateFlag(LacpConst.RX_STATES state){
-		log.debug("RxDefaultedState setStateFlag Entry");
 		stateFlag = state;
-		log.debug("RxDefaultedState setStateFlag Exit");
 	}
 }
 

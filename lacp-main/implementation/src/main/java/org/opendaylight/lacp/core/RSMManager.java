@@ -22,8 +22,6 @@ public class RSMManager
     private static final ConcurrentHashMap<Long, RSMThread> lacpThreadMap = new ConcurrentHashMap<Long, RSMThread>();
     final private static int midSysPriority = 0x8000;
     private static int globalLacpkey = 1;
-    //private LacpTxQueue lacpTxQueue;
-    //
     private static RSMManager rsmMgrInstance;
     
     
@@ -58,16 +56,9 @@ public class RSMManager
 	return midSysPriority;
    }
 
-   /*
-   public synchronized LacpTxQueue getSystemTxQueueInstance(){
-	return lacpTxQueue;
-   }
-   */
-
     public boolean createRSM(LacpNodeExtn lacpNode)
     {
         //hash for lacpNode. currently one thread per node.
-        System.out.println("RSMManager: createRSM");
         RSMThread nodeThread = null;
         nodeThread = lacpThreadMap.get(lacpNode.getSwitchId());
         if (nodeThread != null)
@@ -75,8 +66,6 @@ public class RSMManager
             log.warn("RSMThread object is already created for node {}", lacpNode.getNodeId());
             return false;
         }
-
-	//lacpTxQueue = LacpTxQueue.getLacpTxQueueInstance();
 
         nodeThread = new RSMThread();
         if (nodeThread.setLacpNode(lacpNode) == false)
@@ -88,7 +77,6 @@ public class RSMManager
         {
             lacpThreadMap.put(lacpNode.getSwitchId(), nodeThread);
             nodeThread.startRSM();
-        	System.out.println("RSMManager: RSM thread is put into the map and started");
         }
         return true;
     }

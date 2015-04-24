@@ -18,11 +18,8 @@ public class LagIdPort implements Comparable<LagIdPort> {
 	
 	public LagIdPort(int port_priority, short port_number) {
 		super();
-		log.debug("Entering LagIdPort constructor");
 		this.portPriority = port_priority;
 		this.portNumber = port_number;
-		log.debug("portPriority is = {} and portNumber is = {}", portPriority,portNumber);
-		log.debug("Exiting LagIdPort constructor");
 	}
 
 	public LagIdPort(LagIdPort arg0) {
@@ -41,7 +38,6 @@ public class LagIdPort implements Comparable<LagIdPort> {
 
 	@Override
 	public int compareTo(LagIdPort arg0) {
-		// TODO Auto-generated method stub
 		int val1, val2;
 		if (arg0 == null)
 			return -1;

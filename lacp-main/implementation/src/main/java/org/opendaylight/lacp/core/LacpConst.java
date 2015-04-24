@@ -161,7 +161,6 @@ public class LacpConst {
 	
 	
 	static public byte[] mapMacAddrFromSwId(long swId) {
-		log.debug("Entering mapMacAddrFromSwId");
 		byte[] longArray = new byte[8];
 		byte[] result = new byte[6];
 		ByteBuffer longArrayBB = ByteBuffer.wrap(longArray);
@@ -169,7 +168,6 @@ public class LacpConst {
 		
 		System.arraycopy(longArray, 2, result, 0, 6);
 		log.debug("mac address={} is returned", result);
-		log.debug("Exiting mapMacAddrFromSwId");
 		return result;		
 	}
 	

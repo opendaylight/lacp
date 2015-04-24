@@ -107,7 +107,6 @@ public class RSMThread implements Runnable
     }
     public void startRSM()
     {
-	System.out.println("RSMThread: Starting RSM Thread");
         rsm = new Thread(this);
         rsm.start();
     }
@@ -132,12 +131,9 @@ public class RSMThread implements Runnable
 
     public void  handleLacpBpdu(LacpBpduInfo lacpBpdu){
 
-	log.info("handleLacpBpdu - Entry - New LacpBpdu received for processing...");
-	System.out.println("RSMThread: handleLacpBpdu - Entry - New LacpBpdu received for processing...");
+	log.debug("handleLacpBpdu - Entry - New LacpBpdu received for processing...");
 
 	LacpBond bond = null;
-
-	//PortId obj = new PortId(lacpBpdu.getPortId());
 
 	long swId = lacpBpdu.getSwId();
 	short portId = lacpBpdu.getPortId();
@@ -148,8 +144,7 @@ public class RSMThread implements Runnable
         LacpSysKeyInfo sysKeyInfo = null;
 
 	if (bond == null) {
-		log.info("handleLacpBpdu - Entry - bond not found based on portId={}",portId);
-		System.out.println("handleLacpBpdu - bond not found for portId={}" + portId);
+		log.debug("handleLacpBpdu - Entry - bond not found based on portId={}",portId);
 
 		if(isStaleLacpPduInQ(lacpBpdu)){
 			log.info("handleLacpBpdu - isStaleLacpPduInQ - returned true, as this packet is yet to be processed from the queue and there is no corresponding bond found for this PDU and the state of the port is already in Collecting-Distributing");
@@ -160,24 +155,23 @@ public class RSMThread implements Runnable
 		byte[] sysId = lacpBpdu.getActorSystemInfo().getNodeSysAddr();
 		short key = lacpBpdu.getActorSystemInfo().getNodeKey();
 		int priority = (lacpBpdu.getActorSystemInfo().getNodeSysPri()) & INT_PRIORITY;
-		log.info("handleLacpBpdu - entry - priority value is = {}", priority);
+		log.debug("handleLacpBpdu - entry - priority value is = {}", priority);
 		sysKeyInfo = new LacpSysKeyInfo(sysId,key);
 		bond = findLacpBondByPartnerMacKey(sysId, key);
 		if (bond == null) {
-			log.info("handleLacpBpdu - couldn't find lacpBond for partner with sysId={} key={}", sysId, key);
+			log.debug("handleLacpBpdu - couldn't find lacpBond for partner with sysId={} key={}", sysId, key);
 			bond = lacpSysKeyList.get(sysKeyInfo);	
 		}else{
-			log.info("handleLacpBpdu - bond found by partner mac key partner with sysId={} key={}", sysId, key);
+			log.debug("handleLacpBpdu - bond found by partner mac key partner with sysId={} key={}", sysId, key);
 		} 
 		
 		if (bond!= null ) {
 			int bond_priority = (bond.bondGetSysPriority() & INT_PRIORITY);
-			log.info("handleLacpBpdu - LACP Bond is found sysId={}, key={}, priority={} ", LacpConst.toHex(sysId),
+			log.debug("handleLacpBpdu - LACP Bond is found sysId={}, key={}, priority={} ", LacpConst.toHex(sysId),
 			String.format("0x%04x",key), String.format("0x%04x",priority));
-			System.out.println("handleLacpBpdu - LACP Bond is found sysId={}, key={}, priority={} "+ LacpConst.toHex(sysId) + String.format("0x%04x",key) +  String.format("0x%04x",priority));
 			bond.bondAddSlave(swId, portId, 0x000000ff,lacpBpdu);
 			if (bond_priority >= priority) {
-				log.info("handleLacpBpdu - Bond [Key={}] Priority is changed from {} to {} because of Pri={} over Port={} and SW={} at {}",
+				log.debug("handleLacpBpdu - Bond [Key={}] Priority is changed from {} to {} because of Pri={} over Port={} and SW={} at {}",
 				String.format("0x%04x",bond.getAdminKey()),
 				String.format("0x%04x",bond_priority),
 				String.format("0x%04x",(priority >>1) & INT_PRIORITY),
@@ -197,14 +191,14 @@ public class RSMThread implements Runnable
 			bond.bondUpdateLinkUpSlave(swId,portId,portFeatureResult);
 			if (lacpList.putIfAbsent(portId, bond) == null) {
 				newEntry = true;
-				log.info("handleLacpBpdu - bond={} added for  given port={}",bond,  String.format("0x%04x",portId));
+				log.debug("handleLacpBpdu - bond={} added for  given port={}",bond,  String.format("0x%04x",portId));
 			}
 		}else{
-			log.info("handleLacpBpdu - LACP Bond is not found sysId={}, key={}, priority={} ", LacpConst.toHex(sysId),
+			log.debug("handleLacpBpdu - LACP Bond is not found sysId={}, key={}, priority={} ", LacpConst.toHex(sysId),
 				String.format("0x%04x",key), String.format("0x%04x",priority));
-			log.info("LACP Bond is not found for portId={} ", portId);
+			log.debug("LACP Bond is not found for portId={} ", portId);
 			int bond_priority = (rsmMgrRef.getMidSysPriority() & INT_PRIORITY);
-			log.info("in else - bond_priority value is = {}", bond_priority);
+			log.debug("in else - bond_priority value is = {}", bond_priority);
 			bond = LacpBond.newInstance((short)rsmMgrRef.getGlobalLacpkey(), lacpNode);
 			rsmMgrRef.incGlobalLacpKey();
 			newEntry = true;
@@ -213,10 +207,10 @@ public class RSMThread implements Runnable
 			} else {
 				priority = ((rsmMgrRef.getMidSysPriority()>>1) & INT_PRIORITY);
 			}
-			log.info("in else - priority value is = {}", priority);
+			log.debug("in else - priority value is = {}", priority);
 			bond.bondSetSysPriority(priority);
 			bond.bondAddSlave(swId,portId,0x000000ff,lacpBpdu);
-			log.info("LacpBond with key={} is created with system priority={} ",
+			log.debug("LacpBond with key={} is created with system priority={} ",
 					(rsmMgrRef.getGlobalLacpkey()-1), String.format("%04x",priority));
 			bond.setLacpEnabled(true);
 			NodeConnector portNC = null;
@@ -234,22 +228,20 @@ public class RSMThread implements Runnable
 			sysKeyInfo = new LacpSysKeyInfo(sysId,key);
 			lacpBond = lacpSysKeyList.putIfAbsent(sysKeyInfo,bond);
 			if( lacpBond != null) {
-				log.info("handleLacpBpdu - Exception: bond {} with sysKey {} already exist", bond.toString(), 
+				log.debug("handleLacpBpdu - Exception: bond {} with sysKey {} already exist", bond.toString(), 
 											sysKeyInfo.toString());
 			}
 		} 
 	}
 	if(bond != null){
-		System.out.println("handleLacpBpdu - Entry - bond found for portId={}" + portId);
 		doRxPktProcess(swId,portId,lacpBpdu,bond);
 	}
-	log.info("handleLacpBpdu - Exit...");
+	log.debug("handleLacpBpdu - Exit...");
     }
 
     public void doRxPktProcess(long switchId,short portId,LacpBpduInfo bpduInfo, LacpBond bond){
 
-	log.info("doRxPktProcess - Entry...");
-	System.out.println("doRxPktProcess - Entry...");
+	log.debug("doRxPktProcess - Entry...");
 	bond.bondStateMachineLock();
 	try {
 		Iterator<LacpPort> iter = bond.getSlaveList().iterator();
@@ -260,8 +252,7 @@ public class RSMThread implements Runnable
 
 				lacpPort.slavePSMLock();
 				try {
-					log.info("doRxPktProcess - retrieved LacpPort object for portId={}",portId);
-					System.out.println("doRxPktProcess - retrieved LacpPort object for portId={}" + portId);
+					log.debug("doRxPktProcess - retrieved LacpPort object for portId={}",portId);
 					lacpPort.slaveRxLacpBpduReceived(bpduInfo);
 				}	 
 				finally {
@@ -273,21 +264,18 @@ public class RSMThread implements Runnable
 	finally {
 		bond.bondStateMachineUnlock();
 	}
-	log.info("doRxPktProcess - Exit...");
-	System.out.println("doRxPktProcess - Exit...");
+	log.debug("doRxPktProcess - Exit...");
     }
 
     
     public void handlePortTimeout(TimerExpiryMessage tmExpiryMsg){
-	log.info("handlePortTimeout - Entry... ");
+	log.debug("handlePortTimeout - Entry... ");
 
 	short portId = (short)tmExpiryMsg.getPortID();
 	long switchId = tmExpiryMsg.getSwitchID();
 	LacpBpduInfo lacpdu = null;
-	log.info("handlePortTimeout - switchId={} portId={} expiryTimer={}", switchId, portId, tmExpiryMsg.getTimerWheelType());
-	System.out.println("handlePortTimeout - switchId= " + switchId + " " + "portId= " + portId + " expiryTimer= " + tmExpiryMsg.getTimerWheelType());
+	log.debug("handlePortTimeout - switchId={} portId={} expiryTimer={}", switchId, portId, tmExpiryMsg.getTimerWheelType());
 
-	//PortId obj = new PortId(portId);
 	LacpBond bond = lacpList.get(portId);
 
 	if(bond != null){
@@ -302,8 +290,7 @@ public class RSMThread implements Runnable
 
 					lacpPort.slavePSMLock();
 					try {
-						log.info("handlePortTimeout - retrieved LacpPort object for portId={}",portId);
-						System.out.println("handlePortTimeout - calling runProtocolStateMachine");
+						log.debug("handlePortTimeout - retrieved LacpPort object for portId={}",portId);
 						lacpPort.runProtocolStateMachine(lacpdu,tmExpiryMsg);
 					}	 
 					finally {
@@ -318,42 +305,36 @@ public class RSMThread implements Runnable
 	}else{
 		//log message	
 	}
-	log.info("handlePortTimeout - Exit... ");
-	System.out.println("handlePortTimeout - Exit... ");
+	log.debug("handlePortTimeout - Exit... ");
     }
 
 
     public void handleLacpPortState(LacpPortStatus portState){
 
-	log.info("handleLacpPortState - Entry");
+	log.debug("handleLacpPortState - Entry");
 	LacpBond bond = null;
 	LacpPort lacpPort = null;
 
 	long swId = portState.getSwID();
 	short portId = (short)portState.getPortID();
 	int portFeatures = portState.getPortFeatures();
-    InstanceIdentifier<NodeConnector> ncId = portState.getNodeConnectorInstanceId();
-	System.out.println("In handleLacpPortState");	
-	//PortId portObj = new PortId((short)portState.getPortID());
+        InstanceIdentifier<NodeConnector> ncId = portState.getNodeConnectorInstanceId();
 	
 	bond = lacpList.get(portId);	
 	
 	if(bond != null){
 		if(portState.getPortStatus()==1){
-			log.info("handleLacpPortState - found lacpBond for port={},  send link up into bond={}", portId,bond.getBondId());
-			System.out.println("POrt status is UP, not passing ");
+			log.debug("handleLacpPortState - found lacpBond for port={},  send link up into bond={}", portId,bond.getBondId());
 			bond.bondUpdateLinkUpSlave(swId,portId,portFeatures);
 		}else{
-		    log.info("handleLacpPortState - found lacpBond for port={},  send link down int bond={}", portId,bond.getBondId());
-		    System.out.println("POrt status is Down");	 	
+		    log.debug("handleLacpPortState - found lacpBond for port={},  send link down int bond={}", portId,bond.getBondId());
 		    bond.bondUpdateLinkDownSlave(swId,portId);
-            		lacpNode.removeLacpPort(ncId, false);
+            	    lacpNode.removeLacpPort(ncId, false);
 		
                     lacpPort = bond.getSlavePortObject(portId);
 
                     if( lacpPort != null){
-                            lacpPort.lacpPortCleanup();
-                        System.out.println("After cancelling port timers");
+                        lacpPort.lacpPortCleanup();
                     }
 
                     short aggId = 0;
@@ -367,7 +348,7 @@ public class RSMThread implements Runnable
                                         sysId = bond.getActiveAgg().getPartnerSystem();
                                         key = bond.getActiveAgg().aggGetPartnerOperAggKey();
                                 }
-                                log.info("Port[{}] at SW={} is removed from LacpBond",
+                                log.debug("Port[{}] at SW={} is removed from LacpBond",
                                         portId,swId );
 
                                 bond.bondDelSlave(swId, portId);
@@ -377,57 +358,13 @@ public class RSMThread implements Runnable
                         lacpList.remove(portId);
                         if (!bond.bondHasMember()) {
                                 if (key!=0) {
-                                        log.info("SW={} Key={} is removed from lacp system key list",
+                                        log.debug("SW={} Key={} is removed from lacp system key list",
                                                 swId, key);
                                         LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId,key);
                                         lacpSysKeyList.remove(sysKeyInfo);
                                 }
                         }
                     }
-
-
-		    /*
-		    short aggId = 0;
- 		    if (bond!=null)  {
-			byte[] sysId = null;
-			short key = 0 ;
-			bond.bondStateMachineLock();	
-			try {
-				aggId = bond.bondGetAggId(swId,portId);
-				if (bond.getActiveAgg()!=null) {
-					sysId = bond.getActiveAgg().getPartnerSystem();
-					key = bond.getActiveAgg().aggGetPartnerOperAggKey();
-				}							
-				if (aggId > 0) {
-					if (bond.getBondId() > 0) {
-						int bondId = bond.getBondId();
-						//TODO - Notify to sw - Group table update
-						//updateActionToSw(bondId,swId,portId,false);
-						//modifyBond(bondId,false,swId,portId);
-					}
-				}	
-				log.info("Port[{}] at SW={} is removed from LacpBond", 
-					portId,swId );
-
-				bond.bondUpdateLinkDownSlave(swId,portId);
-				bond.bondDelSlave(swId, portId);
-			} finally {
-				bond.bondStateMachineUnlock();
-			}
-			lacpList.remove(new PortId(portId));
-			if (!bond.bondHasMember()) {
-				//TODO
-				//removeBond(bond.getBondId());
-				if (key!=0) {
-					log.info("SW={} Key={} is removed from lacp system key list",
-						swId, key);
-					LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId,key);
-					lacpSysKeyList.remove(sysKeyInfo);
-				}		
-			}						
-
-	    	    }
-		    */
 		}
 	}
     else
@@ -435,18 +372,18 @@ public class RSMThread implements Runnable
         boolean result = lacpNode.removeNonLacpPort(ncId);
         if (result == false)
         {
-		    log.info("handleLacpPortState - couldn't find port={} in switch {}, no action to be taken", portId, swId);
+		    log.debug("handleLacpPortState - couldn't find port={} in switch {}, no action to be taken", portId, swId);
         }
-	}
-	log.info("handleLacpPortState - Exit");
     }
+	log.debug("handleLacpPortState - Exit");
+  }
 
     public void nodeCleanup(){
             long swId = lacpNode.getSwitchId();
             byte[] sysId = null;
             short key = 0 ;
 
-            log.info("nodeCleanup Entry");
+            log.debug("nodeCleanup Entry");
             if(lacpList.size() != 0){
                     for (LacpBond bond: lacpList.values()) {
                             if (bond.getActiveAgg() != null) {
@@ -456,7 +393,7 @@ public class RSMThread implements Runnable
 
                             if (!bond.bondHasMember()) {
                                     if (key!=0) {
-                                            log.info("SW={} Key={} is removed from lacp system key list",
+                                            log.debug("SW={} Key={} is removed from lacp system key list",
                                                             swId, key);
                                             LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId,key);
                                             lacpSysKeyList.remove(sysKeyInfo);
@@ -470,11 +407,9 @@ public class RSMThread implements Runnable
                                             lacpList.remove(new PortId(lacpPort.slaveGetPortId()));
                                     }
                             }
-			     System.out.println("The ports in the bond is deleted");	
-
                     }
             }
-            log.info("nodeCleanup Exit");
+            log.debug("nodeCleanup Exit");
     }
 
 
@@ -484,7 +419,6 @@ public class RSMThread implements Runnable
         LacpPDUPortStatusContainer pduElem = null;
         TimerExpiryMessage tmrElem = null;
         long swId = lacpNode.getSwitchId();
-	System.out.println("In NOde Deletion API");
         while ((pduElem = pduQueue.dequeue(swId)) != null);
         while ((tmrElem = timerQueue.dequeue(swId)) != null);
         if (pduQueue.deleteLacpQueue(swId) == false)
@@ -495,7 +429,6 @@ public class RSMThread implements Runnable
         {
             log.warn("failed to delete the timer queue for the node {}", lacpNode.getNodeId());
         }
-	System.out.println("Cleared all the Queues");
 	//nodeCleanup();
         // remove from rsmThread mgr.
         rsmMgrRef.deleteRSM (lacpNode);
@@ -503,14 +436,12 @@ public class RSMThread implements Runnable
         // remove from lacp system call deleteLacpNode.
         LacpSystem lacpSystem = LacpSystem.getLacpSystem();
         lacpSystem.removeLacpNode (swId);
-        log.info("deleting the node {} from lacp system", swId);
     }
 
     @Override
     public void run()
     {
-        log.info("started RSM thread for the node {}", lacpNode.getNodeId());
-	System.out.println("RSMThread: started RSM thread for the node {}" + lacpNode.getNodeId());
+        log.debug("started RSM thread for the node {}", lacpNode.getNodeId());
         boolean continueRun = true;
 
         while (continueRun == true)
@@ -529,7 +460,7 @@ public class RSMThread implements Runnable
 			handleLacpBpdu((LacpBpduInfo)pduElem);
 		}else if(pduElem.getMessageType() == 
 				LacpPDUPortStatusContainer.MessageType.LACP_PORT_STATUS_MSG){
-			System.out.println("Got .LACP_PORT_STATUS_MSG message");
+			log.debug("Got LACP_PORT_STATUS_MSG message");
 			handleLacpPortState((LacpPortStatus)pduElem);
 		}
 		else if (pduElem.getMessageType() == LacpPDUPortStatusContainer.MessageType.LACP_NODE_DEL_MSG)
@@ -541,18 +472,16 @@ public class RSMThread implements Runnable
 		}
             }
 
-	    System.out.println("Checking for any timer expiry objects....");
             while ((tmrElemCnt <= MAX_TMR_ELM_CNT)
                    && ((tmrElem = timerQueue.dequeue((long)lacpNode.getSwitchId())) != null))
             {
                 tmrElemCnt++;
-		System.out.println("Found timer expiry message on the queue");
 		handlePortTimeout(tmrElem);
             }
 
             // both the queues are free. Sleep for some time before verifing the queues
 	    if ((pduElemCnt == 0) && (tmrElemCnt == 0)){
-		    log.info("RSM thread for the node {} is going to sleep...", lacpNode.getNodeId());
+		    log.debug("RSM thread for the node {} is going to sleep...", lacpNode.getNodeId());
 		    while((pduQueue.read((long)lacpNode.getSwitchId()) == null) &&
 				    (timerQueue.read((long)lacpNode.getSwitchId()) == null) ){
 			    try
@@ -561,7 +490,7 @@ public class RSMThread implements Runnable
 			    }
 			    catch (InterruptedException e)
 			    {
-				    log.info("RSM thread for node {} interrupted. continue further q reading", lacpNode.getNodeId());
+				    log.debug("RSM thread for node {} interrupted. continue further q reading", lacpNode.getNodeId());
 			    }
 		    }
 	    }
