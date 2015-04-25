@@ -16,15 +16,11 @@ public class MuxContext {
 		
 
 	public MuxContext(){
-		log.debug("Entering MuxContext constructor");
 		this.muxState = new MuxState();
-		log.debug("Exiting MuxContext constructor");
 	}
 	
 	public void	setState(MuxState stateObj){
-		log.debug("Entering MuxContext setState");
 		muxState = stateObj;
-		log.debug("Exiting MuxContext setState");
 	}
 	
 	public MuxState getState(){

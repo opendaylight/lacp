@@ -20,9 +20,7 @@ public class MuxCollectingDistributingState  extends MuxState {
 	private static final Logger log = LoggerFactory.getLogger(MuxCollectingDistributingState.class);
 	
 	public MuxCollectingDistributingState(){
-		log.debug("Entering MuxCollectingDistributingState constructor");
 		stateFlag = LacpConst.MUX_STATES.MUX_COLLECTING_DISTRIBUTING;
-		log.debug("Exiting MuxCollectingDistributingState constructor");
 	}
 	
 	public void executeStateAction(MuxContext obj, LacpPort portObjRef){
@@ -33,8 +31,6 @@ public class MuxCollectingDistributingState  extends MuxState {
 	Enable_Collecting_Distributing
 	NTT = TRUE
 	*/
-		
-	log.info("Entering MuxCollectingDistributingState executeStateAction");
 		
 	stateFlag = LacpConst.MUX_STATES.MUX_COLLECTING_DISTRIBUTING;
 	portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
@@ -56,7 +52,6 @@ public class MuxCollectingDistributingState  extends MuxState {
 			log.error(e.getMessage());
 		}
 		portObjRef.setNtt(true);
-		log.info("Exiting MuxCollectingDistributingState executeStateAction");
 	}
 
 	public LacpConst.MUX_STATES getStateFlag(){
@@ -64,9 +59,6 @@ public class MuxCollectingDistributingState  extends MuxState {
 	}
 	
 	public void setStateFlag(LacpConst.MUX_STATES state){
-		log.debug("Entering MuxCollectingDistributingState setStateFlag");
 		stateFlag = state;
-		log.debug("Exiting MuxCollectingDistributingState setStateFlag");
-		
 	}
 }

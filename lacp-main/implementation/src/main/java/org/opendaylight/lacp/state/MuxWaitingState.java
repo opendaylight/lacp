@@ -25,16 +25,8 @@ public class MuxWaitingState  extends MuxState {
 	
 	public void executeStateAction(MuxContext obj, LacpPort portObjRef){
 		stateFlag = LacpConst.MUX_STATES.MUX_WAITING;
-		log.info("Entering MuxWaitingState executeStateAction");
-		System.out.println("Entering MuxWaitingState executeStateAction");
-		log.info("setting Agg wait timer for port={}", portObjRef.slaveGetPortId());
 		//Start wait_while_timer
-		System.out.println("Setting wait while timer for port = " + portObjRef.slaveGetPortId());
 		portObjRef.setWaitWhileTimer((long)LacpConst.AGGREGATE_WAIT_TIME);
-		System.out.println("After registering setWaitWhileTimer for port = " + portObjRef.slaveGetPortId());
-		log.info("After registering setWaitWhileTimer for port ={}" , portObjRef.slaveGetPortId());
-		log.info("Exiting MuxWaitingState executeStateAction,setting Agg wait timer for port={}", portObjRef.slaveGetPortId());
-		System.out.println("Exiting MuxWaitingState executeStateAction");
 	}
 
 	public LacpConst.MUX_STATES getStateFlag(){

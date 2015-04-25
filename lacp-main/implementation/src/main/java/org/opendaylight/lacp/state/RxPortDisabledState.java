@@ -21,7 +21,6 @@ public class RxPortDisabledState extends RxState {
 	}
 	public void executeStateAction(RxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
 		//Partner_Oper_Port_State.Synchronization = FALSE
-		
 		stateFlag = LacpConst.RX_STATES.RX_PORT_DISABLED;
 		portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & ~LacpConst.PORT_MATCHED));
 		portObjRef.getPartnerOper().setPortState((short)((portObjRef.getPartnerOper().getPortState()) & (~LacpConst.PORT_STATE_SYNCHRONIZATION )));

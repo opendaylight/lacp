@@ -17,10 +17,7 @@ import org.slf4j.LoggerFactory;
 public class RxExpiredState extends RxState {
 	private static final Logger log = LoggerFactory.getLogger(RxExpiredState.class);
 	public RxExpiredState(){
-
-		log.debug("Entering RxExpiredState constructor");
 		stateFlag = LacpConst.RX_STATES.RX_EXPIRED;
-		log.debug("Exiting RxExpiredState constructor");
 	}
 	public void executeStateAction(RxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
 		/*
@@ -30,7 +27,6 @@ public class RxExpiredState extends RxState {
 		4. Actor_Oper_Port_State.Expired = TRUE
 		*/
 		
-		log.info("Entering RxExpiredState executeStateAction");
 
 		stateFlag = LacpConst.RX_STATES.RX_EXPIRED;
 		portObjRef.getPartnerOper().setPortState((short)(portObjRef.getPartnerOper().getPortState() & ~LacpConst.PORT_STATE_SYNCHRONIZATION));
@@ -40,16 +36,12 @@ public class RxExpiredState extends RxState {
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 				| LacpConst.PORT_STATE_EXPIRED));
 		obj.setState(this);
-		log.info("Exiting RxExpiredState executeStateAction");
 	}
 	
 	public LacpConst.RX_STATES getStateFlag(){
 		return stateFlag;
 	}
 	public void setStateFlag(LacpConst.RX_STATES state){
-		log.debug("Entering RxExpiredState setStateFlag");
 		stateFlag = state;
-		log.debug("Exiting RxExpiredState setStateFlag");
-		
 	}
 }

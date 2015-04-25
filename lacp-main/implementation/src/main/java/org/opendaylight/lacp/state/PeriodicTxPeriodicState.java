@@ -20,21 +20,17 @@ public class PeriodicTxPeriodicState extends PeriodicTxState {
 	private static final Logger log = LoggerFactory.getLogger(PeriodicTxPeriodicState.class);
 
 	public PeriodicTxPeriodicState(){
-		log.debug("Entering PeriodicTxPeriodicState constructor");
 		stateFlag = LacpConst.PERIODIC_STATES.PERIODIC_TX;
-		log.debug("Exiting PeriodicTxPeriodicState constructor");
 	}
 	
 	public void executeStateAction(PeriodicTxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
 		//NTT = TRUE
 		stateFlag = LacpConst.PERIODIC_STATES.PERIODIC_TX;
-		log.debug("Entering PeriodicTxPeriodicState executeStateAction, setting ntt to true for port={}",
-		portObjRef.slaveGetPortId());
+		log.debug("Entering PeriodicTxPeriodicState executeStateAction, setting ntt to true for port={}", portObjRef.slaveGetPortId());
 		if(!portObjRef.getPeriodicWhileTimer().isExpired()){
 			portObjRef.getPeriodicWhileTimer().cancel();
 		}
 		portObjRef.setNtt(true);
-		log.debug("Exiting PeriodicTxPeriodicState executeStateActionto");
 	}
 	
 	public LacpConst.PERIODIC_STATES getStateFlag(){
@@ -42,8 +38,6 @@ public class PeriodicTxPeriodicState extends PeriodicTxState {
 	}
 	
 	public void setStateFlag(LacpConst.PERIODIC_STATES state){
-		log.debug("Entering PeriodicTxPeriodicState setStateFlag");
 		stateFlag = state;
-		log.debug("Exiting PeriodicTxPeriodicState setStateFlag");
 	}
 }

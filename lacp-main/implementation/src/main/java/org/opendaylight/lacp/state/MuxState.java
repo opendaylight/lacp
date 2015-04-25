@@ -20,9 +20,7 @@ public class MuxState {
 	protected LacpConst.MUX_STATES stateFlag;
 	
 	MuxState(){
-		log.debug("Entering MuxState constructor");
 		setStateFlag(LacpConst.MUX_STATES.MUX_DUMMY);
-		log.debug("Exiting MuxState constructor");
 	}
 	
 	public LacpConst.MUX_STATES getStateFlag(){
@@ -30,9 +28,7 @@ public class MuxState {
 	}
 	
 	public void setStateFlag(LacpConst.MUX_STATES state){
-		log.debug("Entering MuxState setStateFlag");
 		stateFlag = state;
-		log.debug("Exiting MuxState setStateFlag");
 	}
 
 	public void executeStateAction(MuxContext obj, LacpPort portObjRef){

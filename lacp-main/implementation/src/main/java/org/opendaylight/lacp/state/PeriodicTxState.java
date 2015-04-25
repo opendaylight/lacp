@@ -12,9 +12,7 @@ public class PeriodicTxState {
 	protected LacpConst.PERIODIC_STATES stateFlag;
 	
 	public PeriodicTxState(){
-		log.info("Entering PeriodicTxState constructor");
 		setStateFlag(LacpConst.PERIODIC_STATES.PERIODIC_DUMMY);
-		log.info("Exiting PeriodicTxState constructor");
 	}
 	
 	public LacpConst.PERIODIC_STATES getStateFlag(){
@@ -22,9 +20,7 @@ public class PeriodicTxState {
 	}
 	
 	public void setStateFlag(LacpConst.PERIODIC_STATES state){
-		log.info("Entering PeriodicTxState setStateFlag");
 		stateFlag = state;
-		log.info("Exiting PeriodicTxState setStateFlag");
 	}
 
 	public void executeStateAction(PeriodicTxContext  obj, LacpPort portObjRef,LacpBpduInfo pdu){

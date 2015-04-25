@@ -20,9 +20,7 @@ public class RxState {
 	protected LacpConst.RX_STATES stateFlag;
 	
 	RxState(){
-		log.debug("Entering RxState constructor");
 		setStateFlag(LacpConst.RX_STATES.RX_DUMMY);
-		log.debug("Exiting RxState constructor");
 	}
 	
 	public LacpConst.RX_STATES getStateFlag(){
@@ -30,9 +28,7 @@ public class RxState {
 	}
 	
 	public void setStateFlag(LacpConst.RX_STATES state){
-		log.debug("Entering RxState setStateFlag");
 		stateFlag = state;
-		log.debug("Exiting RxState setStateFlag");
 	}
 
 	public void executeStateAction(RxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
@@ -40,12 +36,10 @@ public class RxState {
 	}
 
 	public void recordDefault(LacpPort portObjRef){
-		log.info("Entering RxState recordDefault for port={}", portObjRef.slaveGetPortId());
 		portObjRef.getPartnerOper().setValue(portObjRef.getPartnerAdmin());
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 				| LacpConst.PORT_STATE_DEFAULTED));
 		portObjRef.portSetLagId();
-		log.info("Exiting RxState recordDefault for port={}", portObjRef.slaveGetPortId());
 	}
 }
 

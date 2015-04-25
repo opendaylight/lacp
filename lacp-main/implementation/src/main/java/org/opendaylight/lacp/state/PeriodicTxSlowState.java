@@ -19,23 +19,13 @@ public class PeriodicTxSlowState extends PeriodicTxState {
 	
 	private static final Logger log = LoggerFactory.getLogger(PeriodicTxSlowState.class);
 	public PeriodicTxSlowState(){
-		log.info("Entering PeriodicTxSlowState constructor");
 		stateFlag = LacpConst.PERIODIC_STATES.SLOW_PERIODIC;
-		log.info("Exiting PeriodicTxSlowState constructor");
 	}
 	public void executeStateAction(PeriodicTxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
 		//Start periodic_timer (slow_periodic_time)
-
-		log.info("Entering PeriodicTxSlowState executeStateAction, setting periodic while timer for port={} with slow periodic time",portObjRef.slaveGetPortId());
-
-			
-		
 		stateFlag = LacpConst.PERIODIC_STATES.SLOW_PERIODIC;
-		System.out.println("PeriodicTxSlowState - before calling setPeriodicWhileTimer with slow_periodic_time");
 		portObjRef.setPeriodicWhileTimer(LacpConst.SLOW_PERIODIC_TIME);
-		System.out.println("PeriodicTxSlowState - after calling setPeriodicWhileTimer with slow_periodic_time");
 		obj.setState(this);
-		log.info("Exiting PeriodicTxSlowState executeStateAction");
 	}
 	
 	public LacpConst.PERIODIC_STATES getStateFlag(){
@@ -43,9 +33,7 @@ public class PeriodicTxSlowState extends PeriodicTxState {
 	}
 	
 	public void setStateFlag(LacpConst.PERIODIC_STATES state){
-		log.info("Entering PeriodicTxSlowState setStateFlag");
 		stateFlag = state;
-		log.info("Exiting PeriodicTxSlowState setStateFlag");
 	}
 
 }

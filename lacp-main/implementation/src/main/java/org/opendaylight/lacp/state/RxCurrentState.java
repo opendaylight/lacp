@@ -25,9 +25,7 @@ public class RxCurrentState extends RxState {
 	private static final Logger log = LoggerFactory.getLogger(RxCurrentState.class);
 	
 	public RxCurrentState(){
-		log.debug("Entering RxCurrentState constructor");
 		stateFlag = LacpConst.RX_STATES.RX_CURRENT;
-		log.debug("Exiting RxCurrentState constructor");
 	}
 	
 	public void executeStateAction(RxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
@@ -38,7 +36,6 @@ public class RxCurrentState extends RxState {
 		start current_while_timer (Actor_Oper_Port_State.LACP_Timeout)
 		Actor_Oper_Port_State.Expired = FALSE
 		*/
-		log.debug("Entering RxCurrentState executeStateAction method");
 		stateFlag = LacpConst.RX_STATES.RX_CURRENT;
 		updateSelected(portObjRef,pdu);
 		updateNTT(portObjRef,pdu);
@@ -53,7 +50,6 @@ public class RxCurrentState extends RxState {
 	
 	void updateSelected(LacpPort portObjRef,LacpBpduInfo lacpdu)
 	{
-		log.info("Entering RxCurrentState updateSelected method");
 		if (lacpdu!=null) {
 			final PortParams partner = portObjRef.getPartnerOper();
 	
@@ -69,12 +65,10 @@ public class RxCurrentState extends RxState {
 				log.info("RxCurrentState updateSelected one or more values do not match, selected is set to UNSELECTED for port={}",portObjRef.slaveGetPortId());
 			}
 		}
-		log.info("Exiting RxCurrentState updateSelected method");
 	}
 	
 	void updateNTT(LacpPort portObjRef,LacpBpduInfo lacpdu)
 	{
-		log.info("Entering RxCurrentState updateNTT method");
 		if (lacpdu!=null) {
 			if ((lacpdu.getPartnerSystemInfo().getNodePortNum() != portObjRef.getActorPortNumber()) ||
 				(lacpdu.getPartnerSystemInfo().getNodePortPriority() != portObjRef.getActorPortPriority()) ||
@@ -95,12 +89,10 @@ public class RxCurrentState extends RxState {
 				}
 			
 		}
-		log.info("Exiting RxCurrentState updateNTT method");
 	}
 
 	void recordPDU(LacpPort portObjRef,LacpBpduInfo lacpdu)
 	{
-		log.info("Entering RxCurrentState recordPDU");
 		if (lacpdu!=null) {
 			PortParams partner = portObjRef.getPartnerOper();
 
@@ -125,12 +117,10 @@ public class RxCurrentState extends RxState {
 				log.info("Setting partner SYNC to false for port={}",portObjRef.slaveGetPortId());
 			}
 		}
-		log.info("Exiting RxCurrentState recordPDU");
 	}
 
 	void chooseMatched(LacpPort portObjRef,LacpBpduInfo lacpdu)
 	{
-		log.info("Entering RxCurrentState chooseMatched");
 
 		if ((((lacpdu.getPartnerSystemInfo().getNodePortNum() == portObjRef.getActorPortNumber()) &&
 			(lacpdu.getPartnerSystemInfo().getNodePortPriority() == portObjRef.getActorPortPriority()) &&
@@ -164,7 +154,6 @@ public class RxCurrentState extends RxState {
 			
 				
 		}
-		log.info("Exiting RxCurrentState chooseMatched");
 	}
 
 	
@@ -173,8 +162,6 @@ public class RxCurrentState extends RxState {
 	}
 	
 	public void setStateFlag(LacpConst.RX_STATES state){
-		log.debug("Entering RxCurrentState setStateFlag");
 		stateFlag = state;
-		log.debug("Exiting RxCurrentState setStateFlag");
 	}
 }

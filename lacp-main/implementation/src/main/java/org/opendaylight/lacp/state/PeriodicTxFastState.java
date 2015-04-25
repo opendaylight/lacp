@@ -26,9 +26,7 @@ public class PeriodicTxFastState extends PeriodicTxState {
 		stateFlag = LacpConst.PERIODIC_STATES.FAST_PERIODIC;
 		//portObjRef.setPeriodicWhileTimer(LacpConst.FAST_PERIODIC_TIME);
 		//overriding as we currently support only slow timeout
-		System.out.println("PeriodicTxFastState - before calling setPeriodicWhileTimer with slow_periodic_time");
 		portObjRef.setPeriodicWhileTimer(LacpConst.SLOW_PERIODIC_TIME);
-		System.out.println("PeriodicTxFastState - after calling setPeriodicWhileTimer with slow_periodic_time");
 		obj.setState(this);
 	}
 	

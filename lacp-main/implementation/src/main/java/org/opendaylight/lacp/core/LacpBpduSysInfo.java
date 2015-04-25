@@ -97,7 +97,6 @@ public class LacpBpduSysInfo {
 
 	public void setNodeSysAddr(byte[] nodeSystemAddr) {
 		this.nodeSysAddr = Arrays.copyOf(nodeSystemAddr, ETH_ADDR_LEN);
-		//this.nodeSysAddr = nodeSystemAddr;
 	}
 
 	public short getNodeKey() {
