@@ -93,14 +93,14 @@ public class LacpBond {
 	private boolean dirty;
 	private boolean failed;
         
-        private InstanceIdentifier aggInstId;
-        private LacpAggregatorsBuilder lacpAggBuilder;
-        private LacpNodeExtn lacpNodeRef;
-        private NodeConnectorRef logNodeConnRef;
-        private GroupId aggGrpId;
-        private LacpGroupTbl lacpGroupTbl;
-        private List<LacpPort> activePortList;
-        private Group lagGroup;
+    private InstanceIdentifier aggInstId;
+    private LacpAggregatorsBuilder lacpAggBuilder;
+    private LacpNodeExtn lacpNodeRef;
+    private NodeConnectorRef logNodeConnRef;
+    private GroupId aggGrpId;
+    private LacpGroupTbl lacpGroupTbl;
+    private List<LacpPort> activePortList;
+    private Group lagGroup;
 
 	public byte[] getVirtualSysMacAddr() {
 		return virtualSysMacAddr;
@@ -796,7 +796,7 @@ public class LacpBond {
         DataBroker dataService = LacpUtil.getDataBrokerService();
 
         final WriteTransaction write = dataService.newWriteOnlyTransaction();
-        // TODO fill partner sys prio and agg mac
+        // TODO fill partner agg mac
 
         log.debug ("entering updateLacpAggregators for bond {} ", bondInstanceId);
         LacpAggregator lacpAgg = getActiveAgg();
@@ -811,12 +811,7 @@ public class LacpBond {
         lacpAggBuilder.setPartnerOperAggKey(partnerKey);
         MacAddress pMac = new MacAddress(HexEncode.bytesToHexStringFormat(lacpAgg.getPartnerSystem()));
         lacpAggBuilder.setPartnerSystemId(pMac);
-        int partPrio = lacpAgg.getPartnerSystemPriority();
-        if (partPrio < 0)
-        {
-            partPrio = 0;
-        }
-        lacpAggBuilder.setPartnerSystemPriority(partPrio);
+        lacpAggBuilder.setPartnerSystemPriority(lacpAgg.getPartnerSystemPriority());
         ListOfLagPortsBuilder lagPortBuilder = new ListOfLagPortsBuilder();
         List<ListOfLagPorts> lagPortList = new ArrayList<ListOfLagPorts>();
         log.debug ("updating agg port list");
@@ -848,6 +843,28 @@ public class LacpBond {
         });
         log.debug ("exiting updateLacpAggregators");
     }
+    public void deleteLacpAggregatorDS ()
+    {
+        DataBroker dataService = LacpUtil.getDataBrokerService();
+        final WriteTransaction write = dataService.newWriteOnlyTransaction();
+
+        log.debug ("deleting the agg ds for bond {}", bondInstanceId);
+        write.delete(LogicalDatastoreType.OPERATIONAL, aggInstId);
+        final CheckedFuture result = write.submit();
+        Futures.addCallback(result, new FutureCallback()
+        {
+            @Override
+            public void onSuccess(Object o)
+            {
+                log.info("LacpAggregators deletion write success for txt {}", write.getIdentifier());
+            }
+            @Override
+            public void onFailure(Throwable throwable)
+            {
+                log.error("LacpAggregators deletion write failed for tx {}", write.getIdentifier(), throwable.getCause());
+            }
+        });
+    }
     public boolean addActivePort (LacpPort lacpPort)
     {
         log.debug ("entring addActivePort");
@@ -864,6 +881,7 @@ public class LacpBond {
             log.debug ("creating the logical port and adding lag group ");
             LacpLogPort.createLogicalPort(this);
             lagGroup = lacpGroupTbl.lacpAddGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
+            lacpNodeRef.addLacpAggregator(this);
         }
         else
         {
@@ -875,21 +893,28 @@ public class LacpBond {
     }
     public boolean removeActivePort (LacpPort lacpPort)
     {
+        log.debug ("in removeActivePort");
         if (!(activePortList.contains (lacpPort)))
         {
+            log.debug ("port {} is not present. returning false ", lacpPort.getNodeConnectorId());
             return false;
         }
-        activePortList.remove (lacpPort);
-        updateLacpAggregatorsDS();
-        if (activePortList.size() == 0)
+        lacpPort.resetLacpParams();
+        if (activePortList.size() == 1)
         {
+            lacpNodeRef.removeLacpAggregator(this);
+            activePortList.remove (lacpPort);
             LacpLogPort.deleteLogicalPort(this);
             lacpGroupTbl.lacpRemGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
+            deleteLacpAggregatorDS();
         }
         else
         {
+            activePortList.remove (lacpPort);
+            updateLacpAggregatorsDS();
             lagGroup = lacpGroupTbl.lacpRemPort (lagGroup, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true);
         }
+        lacpNodeRef.removeLacpPort(lacpPort.getNodeConnectorId(), false);
         return true;
     }
     public LacpNodeExtn getLacpNode()

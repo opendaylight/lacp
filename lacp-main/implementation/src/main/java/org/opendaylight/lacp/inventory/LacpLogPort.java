@@ -73,13 +73,6 @@ public class LacpLogPort
                                                 .setNodeConnectorRef(lacpBond.getLogicalNCRef());
         notify.publish(builder.build());
         LOG.info ("Revoked logical port {} created for aggregator {}", lacpBond.getLogicalNCRef(), lacpBond.getBondInstanceId());
-
-        List<LacpPort> portList = lacpBond.getActivePortList();
-        for (LacpPort port : portList)
-        {
-            LOG.debug ("Re-setting the logical port reference to the port {}", port.getNodeConnectorId());
-            port.setLogicalNCRef(null);
-        }
         return;
     }
 }

@@ -1955,7 +1955,7 @@ public class LacpPort implements Comparable<LacpPort> {
         LacpNodeConnector lacpNC;
         lacpNC  = lacpNCBuilder.build();
         InstanceIdentifier<LacpNodeConnector> lacpNCId = ncId.augmentation(LacpNodeConnector.class);
-        write.merge(LogicalDatastoreType.OPERATIONAL, lacpNCId, lacpNC, true);
+        write.put(LogicalDatastoreType.OPERATIONAL, lacpNCId, lacpNC);
         final CheckedFuture result = write.submit();
         Futures.addCallback(result, new FutureCallback()
         {
@@ -1978,6 +1978,16 @@ public class LacpPort implements Comparable<LacpPort> {
     public void setLogicalNCRef (NodeConnectorRef ref)
     {  
         lacpNCBuilder.setLogicalNodeconnectorRef(ref);
+        updateNCLacpInfo();
+    }
+    public void resetLacpParams()
+    {
+        log.debug ("in resetLacpParams for port {}", portId);
+        short portNum = 0;
+        lacpNCBuilder.setLogicalNodeconnectorRef(null);
+        lacpNCBuilder.setLacpAggRef(null);
+        lacpNCBuilder.setPartnerPortNumber(portNum);
+        log.debug ("updated the reset values in the port ds");
         updateNCLacpInfo();
     }
 

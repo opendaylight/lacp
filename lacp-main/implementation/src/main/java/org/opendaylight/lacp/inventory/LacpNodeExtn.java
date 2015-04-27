@@ -294,30 +294,36 @@ public class LacpNodeExtn
     }
     public boolean addLacpAggregator (LacpBond lacpAgg)
     {
+        LOG.debug ("in addLacpAggregator for bond {}", lacpAgg.getBondInstanceId());
         if (lagList.containsKey(lacpAgg.getBondInstanceId()))
         {
+            LOG.debug ("addLacpAggregator: given bond {} is already available in the node {}", lacpAgg.getBondInstanceId(), switchId);
             return false;
         }
         
         lagList.put(lacpAgg.getBondInstanceId(), lacpAgg);
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.add(lacpAgg.buildLacpAgg());
+        LOG.debug ("adding aggregator {}", lacpAgg.buildLacpAgg());
         lacpBuilder.setLacpAggregators(aggList);
-        updateLacpNodeDS(this.nodeInstId);
+        /* Aggregator list is only updated here. Aggregator DS will be 
+         * updated in LacpBond */
         return true;
     }
     public boolean removeLacpAggregator (LacpBond lacpAgg)
     {
+        LOG.debug ("in removeLacpAggregator for node {}", switchId);
         if (!(lagList.containsKey(lacpAgg.getBondInstanceId())))
         {
+            LOG.debug ("removeLacpAggregator: given bond {} is not available in the node {}", lacpAgg.getBondInstanceId(), switchId);
             return false;
         }
-        
         lacpAgg = lagList.remove(lacpAgg.getBondInstanceId());
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.remove(lacpAgg.buildLacpAgg());
         lacpBuilder.setLacpAggregators(aggList);
-        updateLacpNodeDS(this.nodeInstId);
+        /* Aggregator list is only updated here. Aggregator DS will be 
+         * updated in LacpBond */
         return true;
     }
     public void updateNodeConnectorLacpInfo (InstanceIdentifier port)
