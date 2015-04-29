@@ -102,7 +102,8 @@ public class RxCurrentState extends RxState {
 			partner.setSystem(Arrays.copyOf(lacpdu.getActorSystemInfo().getNodeSysAddr(), LacpConst.ETH_ADDR_LEN));
 			partner.setSystemPriority(lacpdu.getActorSystemInfo().getNodeSysPri());
 			partner.setKey(lacpdu.getActorSystemInfo().getNodeKey());
-			partner.setPortState(lacpdu.getActorSystemInfo().getNodePortState());
+                        short pstate = LacpPort.toUnsigned(lacpdu.getActorSystemInfo().getNodePortState());
+			partner.setPortState(pstate);
 			portObjRef.portSetLagId();
 			portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState() & ~LacpConst.PORT_STATE_DEFAULTED));
 

@@ -915,6 +915,15 @@ public class LacpBond {
             lagGroup = lacpGroupTbl.lacpRemPort (lagGroup, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true);
         }
         lacpNodeRef.removeLacpPort(lacpPort.getNodeConnectorId(), false);
+        if (lacpPort.getPortOperStatus() == true)
+        {
+            log.debug("removing the port as lacp port and adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
+            lacpNodeRef.addNonLacpPort(lacpPort.getNodeConnectorId());
+        }
+        else
+        {
+            log.debug("removing the port as lacp port and not adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
+        }
         return true;
     }
     public LacpNodeExtn getLacpNode()
