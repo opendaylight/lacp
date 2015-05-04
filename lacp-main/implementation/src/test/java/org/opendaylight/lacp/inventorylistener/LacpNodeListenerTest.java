@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.f
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.flow.capable.port.StateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorUpdatedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorUpdated;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortNumberUniBuilder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Matchers.any;
@@ -91,7 +92,8 @@ public class LacpNodeListenerTest {
     {
         InstanceIdentifier<NodeConnector> ncId = InstanceIdentifier.builder(Nodes.class).child(Node.class)
                           .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
-        FlowCapableNodeConnectorUpdated flowCap = new FlowCapableNodeConnectorUpdatedBuilder().setState(new StateBuilder().setLinkDown(false).build()).build();
+        FlowCapableNodeConnectorUpdated flowCap = new FlowCapableNodeConnectorUpdatedBuilder().setState(new StateBuilder().setLinkDown(false).build())
+                                                               .setPortNumber(PortNumberUniBuilder.getDefaultInstance("1")).build();
         NodeConnectorUpdated nodeConnectorUpdated = new NodeConnectorUpdatedBuilder().setNodeConnectorRef(new NodeConnectorRef(ncId))
                                                         .addAugmentation(FlowCapableNodeConnectorUpdated.class, flowCap).build();
         listener.onNodeConnectorUpdated(nodeConnectorUpdated);

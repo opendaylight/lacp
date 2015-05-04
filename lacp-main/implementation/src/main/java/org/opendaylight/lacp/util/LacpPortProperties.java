@@ -43,7 +43,12 @@ public class LacpPortProperties {
 
     private static final Logger log = LoggerFactory.getLogger(LacpPortProperties.class);
 
-    public static NodeConnector getNodeConnector(DataBroker dataService, NodeConnectorRef nodeConnectorRef){
+    public static NodeConnector getNodeConnector(DataBroker dataService, NodeConnectorRef nodeConnectorRef)
+    {
+        return (getNodeConnector (dataService, (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue()));
+    }
+    public static NodeConnector getNodeConnector(DataBroker dataService, InstanceIdentifier<NodeConnector> ncId)
+    {
 	NodeConnector nc = null;
 	log.debug("getNodeConnector - Entry");
 
@@ -52,14 +57,14 @@ public class LacpPortProperties {
 
         try {
        		Optional<NodeConnector> dataObjectOptional = readTransaction.read(LogicalDatastoreType.OPERATIONAL, 
-						(InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue()).get();
+                                                                              ncId).get();
         	if(dataObjectOptional.isPresent()){
           		nc = (NodeConnector) dataObjectOptional.get();
 		}
         }catch(Exception e) {
-        	log.error("Error reading node connector {}", nodeConnectorRef.getValue());
+        	log.error("Error reading node connector {}", ncId);
         	readTransaction.close();
-        	throw new RuntimeException("Error reading from operational store, node connector : " + nodeConnectorRef, e);
+        	throw new RuntimeException("Error reading from operational store, node connector : " + ncId, e);
         }
         readTransaction.close();
 	if(nc != null){
