@@ -25,6 +25,7 @@ import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortState;
 import org.opendaylight.lacp.Utils.*;
+import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.lacp.queue.LacpPDUQueue;
 import org.opendaylight.lacp.queue.LacpPortStatus;
@@ -142,7 +143,6 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             InstanceIdentifier <Node> nodeId = lNode;
             LacpNodeExtn lacpNode = null;
 
-	    System.out.println("In handleNodeDeletion"); 
             synchronized (LacpSystem.class)
             {
                 lacpNode = lacpSystem.getLacpNode(nodeId);
@@ -192,6 +192,12 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             {
                 lNodeCon = (InstanceIdentifier<NodeConnector>)ncUpdated.getNodeConnectorRef().getValue();
                 FlowCapableNodeConnectorUpdated flowConnector = ncUpdated.<FlowCapableNodeConnectorUpdated>getAugmentation(FlowCapableNodeConnectorUpdated.class);
+                long portNum = flowConnector.getPortNumber().getUint32();
+                if (portNum > LacpUtil.getLogPortNum())
+                {
+                    LOG.debug ("avoiding notifications for the logical port {}", portNum);
+                    return;
+                }
                 PortState portState = flowConnector.getState();
                 if ((portState == null) || (portState.isLinkDown()))
                 {
@@ -216,7 +222,6 @@ public class LacpNodeListener implements OpendaylightInventoryListener
 
                 boolean result = false;
                 if (ncId != null){
-			System.out.println("ncId is no NULL");
                         short port_id = NodePort.getPortId(new NodeConnectorRef(ncId));
                         long sw_id = NodePort.getSwitchId(new NodeConnectorRef(ncId));
 			//TODO Need to fix this- Rajesh
@@ -229,9 +234,6 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                                 LOG.debug("Failed to enque port status object for port={}",port_id);
                                 result = false;
                         }
-			else{
-				System.out.println("enqueue is successfull");
-			}
                         result = true;
                 }
                 return result;
@@ -276,12 +278,10 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             {
                 lacpNode = lacpSystem.getLacpNode(nodeId);
             }
-            System.out.println("in handlePortDelete"); 		
             if (lacpNode != null)
             {
                 synchronized (lacpNode)
                 {
-			System.out.println("Before enqueuePortStatus");
 		    if(!enqueuePortStatus(ncId,2)){
                         LOG.debug("port {} with state DOWN is enqued succesfully for port state procesing", ncId);
                     }else{

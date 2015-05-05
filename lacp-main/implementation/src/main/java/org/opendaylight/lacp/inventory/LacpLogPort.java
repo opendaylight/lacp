@@ -22,10 +22,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRemovedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.flow.capable.port.StateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorUpdatedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorUpdated;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortNumberUniBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.lacp.inventory.LacpPort;
 import org.opendaylight.lacp.inventory.LacpBond;
+import org.opendaylight.lacp.Utils.LacpPortProperties;
+import org.opendaylight.lacp.Utils.HexEncode;
 
 public class LacpLogPort
 {
@@ -50,15 +58,32 @@ public class LacpLogPort
                                                  .child (Node.class, new NodeKey (nId))
                                                  .child (NodeConnector.class, new NodeConnectorKey (portId)).toInstance();
         NodeConnectorRef ncRef = new NodeConnectorRef(id);
+
+        List<LacpPort> portList = lacpBond.getActivePortList();
+        LacpPort lPort = portList.get(0);
+        
+        NodeConnector nc = LacpPortProperties.getNodeConnector(LacpUtil.getDataBrokerService(), lPort.getNodeConnectorId());
+        FlowCapableNodeConnector flowNC = nc.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
+
+        FlowCapableNodeConnectorUpdatedBuilder flowCap = new FlowCapableNodeConnectorUpdatedBuilder()
+                                                         .setConfiguration(flowNC.getConfiguration())
+                                                         .setCurrentFeature(flowNC.getCurrentFeature())
+                                                         .setCurrentSpeed(flowNC.getCurrentSpeed())
+                                                         .setHardwareAddress(new MacAddress(HexEncode.bytesToHexStringFormat(lacpBond.getSysMacAddr())))
+                                                         .setMaximumSpeed(flowNC.getMaximumSpeed())
+                                                         .setName("bond"+lacpBond.getBondInstanceId())
+                                                         .setPortNumber(PortNumberUniBuilder.getDefaultInstance(Long.valueOf(portNum).toString()))
+                                                         .setState(new StateBuilder().setLinkDown(false).setBlocked(false).setLive(false).build());
+
         NodeConnectorUpdatedBuilder builder = new NodeConnectorUpdatedBuilder()
                                                   .setId(portId)
-                                                  .setNodeConnectorRef(ncRef);
+                                                  .setNodeConnectorRef(ncRef)
+                                                  .addAugmentation(FlowCapableNodeConnectorUpdated.class, flowCap.build());
         notify.publish(builder.build());
         LOG.info ("Notified logical port {} created for aggregator {}", id, lacpBond.getBondInstanceId());
 
         LOG.debug ("setting the logical port reference for aggregator {}", lacpBond.getBondInstanceId());
         lacpBond.setLogicalNCRef(ncRef);
-        List<LacpPort> portList = lacpBond.getActivePortList();
         for (LacpPort port : portList)
         {
             LOG.debug ("setting the logical port reference to the port {}", port.getNodeConnectorId());
