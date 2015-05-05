@@ -32,7 +32,8 @@ public class RxExpiredState extends RxState {
 		portObjRef.getPartnerOper().setPortState((short)(portObjRef.getPartnerOper().getPortState() & ~LacpConst.PORT_STATE_SYNCHRONIZATION));
 		portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & ~LacpConst.PORT_MATCHED));
 		portObjRef.getPartnerOper().setPortState((short)(portObjRef.getPartnerOper().getPortState() | LacpConst.PORT_STATE_LACP_ACTIVITY));
-		portObjRef.setCurrentWhileTimer((long)LacpConst.LONG_TIMEOUT_TIME);
+                // in expired state, starting current_while timer with the short timeout value.
+		portObjRef.setCurrentWhileTimer((long)LacpConst.SHORT_TIMEOUT_TIME);
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 				| LacpConst.PORT_STATE_EXPIRED));
 		obj.setState(this);

@@ -322,17 +322,20 @@ public class RSMThread implements Runnable
 	
 	bond = lacpList.get(portId);	
 	
-	if(bond != null){
+	if(bond != null)
+        {
 		if(portState.getPortStatus()==1){
 			log.debug("handleLacpPortState - found lacpBond for port={},  send link up into bond={}", portId,bond.getBondId());
 			bond.bondUpdateLinkUpSlave(swId,portId,portFeatures);
 		}else{
 		    log.debug("handleLacpPortState - found lacpBond for port={},  send link down int bond={}", portId,bond.getBondId());
-		    bond.bondUpdateLinkDownSlave(swId,portId);
-            	    lacpNode.removeLacpPort(ncId, false);
-		
                     lacpPort = bond.getSlavePortObject(portId);
-
+                    if( lacpPort != null)
+                    {
+                        lacpPort.setPortOperStatus(false); 
+                        log.debug("in handleLacpPortState - setting timeout to true"); 
+                    }
+		    bond.bondUpdateLinkDownSlave(swId,portId);
                     if( lacpPort != null){
                         lacpPort.lacpPortCleanup();
                     }
