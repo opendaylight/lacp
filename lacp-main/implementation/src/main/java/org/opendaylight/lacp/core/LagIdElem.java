@@ -46,16 +46,20 @@ public class LagIdElem implements Comparable<LagIdElem> {
 	public int compareToPartial(LagIdElem arg0) {
 		int val1,val2;
 		int result = this.system.compareTo(arg0.system);
-		if (result < 0)
+		if (result < 0){
 			return -1;
-		else if (result > 0)
+		}
+		else if (result > 0){
 			return 1;
+		}
 		val1 = this.key & 0xffff;
 		val2 = arg0.key & 0xffff;
-		if (val1 < val2)
+		if (val1 < val2){
 			return -1;
-		else if (val1 > val2)
+		}
+		else if (val1 > val2){
 			return 1;
+		}
 		return 0;		
 	}
 	
@@ -64,21 +68,27 @@ public class LagIdElem implements Comparable<LagIdElem> {
 		// TODO Auto-generated method stub
 		int val1,val2;
 		int result = this.system.compareTo(arg0.system);
-		if (result < 0)
+		if (result < 0){
 			return -1;
-		else if (result > 0)
+		}
+		else if (result > 0){
 			return 1;
+		}
 		val1 = this.key & 0xffff;
 		val2 = arg0.key & 0xffff;
-		if (val1 < val2)
+		if (val1 < val2){
 			return -1;
-		else if (val1 > val2)
+		}
+		else if (val1 > val2){
 			return 1;
+		}
 		result = this.port.compareTo(arg0.port);
-			if (result < 0)
+			if (result < 0){
 				return -1;
-			else if (result > 0)
+			}
+			else if (result > 0){
 				return 1;
+			}
 		return 0;
 	}
 

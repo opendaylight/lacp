@@ -24,29 +24,23 @@ import io.netty.util.TimerTask;
 	private Timer waitWhileTimerWheel = null;
 	private Timer periodicTimerWheel = null;
 			
-	//as the registerXXX methods are being called on by multiple RSM threads
-	//private Lock lock;
 			
 	private LacpWheelTimer(Utils.timerWheeltype wheelTimerType) {
 	        	
-	//lock = new ReentrantLock();
 	        	
 		        switch(wheelTimerType){
 		        	case CURRENT_WHILE_TIMER:
 		        	{
-		        		//System.out.println("Constructor current-while");
 		        		currentWhileTimerWheel = new HashedWheelTimer();
 		        		break;
 		        	}
 		        	case WAIT_WHILE_TIMER:
 		        	{
-		        		//System.out.println("Constructor wait-while");
 		        		waitWhileTimerWheel = new HashedWheelTimer();
 		        		break;
 		        	}
 		        	case PERIODIC_TIMER:
 		        	{
-		        		//System.out.println("Constructor periodic");
 		        		periodicTimerWheel = new HashedWheelTimer();
 		        		break;
 			        }
@@ -68,7 +62,6 @@ import io.netty.util.TimerTask;
 		        	case CURRENT_WHILE_TIMER:
 		        	{
 		        		if(instance == null){
-		        			//System.out.println("getInstance - First request received for current-while");
 		        			instance = new LacpWheelTimer(wheelTimerType);
 		        			timerWheelStore.put(Utils.timerWheeltype.CURRENT_WHILE_TIMER, instance);
 		        		}
@@ -77,11 +70,9 @@ import io.netty.util.TimerTask;
 		        	case WAIT_WHILE_TIMER:
 		        	{
 		        		if(instance == null){
-		        			//System.out.println("getInstance - First request received for wait-while");
 		        			instance = new LacpWheelTimer(wheelTimerType);
 		        			timerWheelStore.put(Utils.timerWheeltype.WAIT_WHILE_TIMER, instance);
 		        		}else {
-		        			//System.out.println("getInstance - Second request received for wait-while");
 		        		}
 		        		
 		        		break;
@@ -89,7 +80,6 @@ import io.netty.util.TimerTask;
 		        	case PERIODIC_TIMER:
 		        	{
 		        		if(instance == null){
-		        			//System.out.println("getInstance - First request received for periodic-timer");
 		        			instance = new LacpWheelTimer(wheelTimerType);
 		        			timerWheelStore.put(Utils.timerWheeltype.PERIODIC_TIMER, instance);
 		        		}
@@ -107,7 +97,6 @@ import io.netty.util.TimerTask;
 	    } //end of getInstance
 	    
 	    public Timeout registerPortForCurrentWhileTimer(TimerTask task, long delay, TimeUnit unit){
-		//TODO-make below lock wheel specific to avoid parallel execution of register requests
 		if(currentWhileTimerWheel != null){
 			synchronized(currentWhileTimerWheel) {
 				return currentWhileTimerWheel.newTimeout(task, delay, unit);

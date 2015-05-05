@@ -48,7 +48,6 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
 	private int type;
 	private LacpBpduSysInfo actorSystemInfo;
 	private LacpBpduSysInfo partnerSystemInfo;
-	//private LacpBpduMarkInfo markInfo;
 	private short collectorMaxDelay;
 	private Date receivedDate;
 	private NodeConnectorRef nodeConnRef;
@@ -75,7 +74,6 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
 		this.type = LACP_BPDU_TYPE;
 		actorSystemInfo = new LacpBpduSysInfo();
 		partnerSystemInfo = new LacpBpduSysInfo();
-		//markInfo = new LacpBpduMarkInfo();
 		this.collectorMaxDelay = 0;
 		receivedDate = new Date();
 		nodeConnRef = null;
@@ -123,20 +121,6 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
                 partnerSystemInfo = new LacpBpduSysInfo(sysPri, nodeSysAddr, nodeKey, portPri, portNum, portState);
 	}
 
-	/*
-	public LacpBpduInfo(long swId,short portId, LacpBpduMarkInfo markInfo) {
-		super();
-		this.type = LACP_MARK_REQUEST;
-		this.swId = swId;
-		this.portId = portId;
-		actorSystemInfo = new LacpBpduSysInfo();
-		partnerSystemInfo = new LacpBpduSysInfo();
-		this.markInfo = new LacpBpduMarkInfo(markInfo);
-		this.collectorMaxDelay = 0;
-		receivedDate = new Date();
-	}
-	*/
-	
 	public long getSwId() {
 		return swId;
 	}
@@ -197,39 +181,33 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
 		this.type = type;
 	}
 
-	/*
-	public LacpBpduMarkInfo getMarkInfo() {
-		return markInfo;
-	}
-
-	public void setMarkInfo(LacpBpduMarkInfo markInfo) {
-		this.markInfo = markInfo;
-	}
-	*/
-
 	@Override
 	public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj){
             return true;
-        if (!super.equals(obj))
+	}
+        if (!super.equals(obj)){
             return false;
-        if (!(obj instanceof LacpBpduInfo))
+	}
+        if (!(obj instanceof LacpBpduInfo)){
             return false;
+	}
         LacpBpduInfo other = (LacpBpduInfo) obj;
-        if (this.swId != other.swId)
+        if (this.swId != other.swId){
         	return false;
-        if (this.portId != other.portId)
+	}
+        if (this.portId != other.portId){
         	return false;
-        if (this.type != other.type)
+	}
+        if (this.type != other.type){
         	return false;
-        if (!this.actorSystemInfo.equals(other.actorSystemInfo))
+	}
+        if (!this.actorSystemInfo.equals(other.actorSystemInfo)){
         	return false;
-        if (!this.partnerSystemInfo.equals(other.partnerSystemInfo))
+	}
+        if (!this.partnerSystemInfo.equals(other.partnerSystemInfo)){
         	return false;
-	/*
-        if (!this.markInfo.equals(other.markInfo))
-        	return false;
-	*/
+	}
         if (this.collectorMaxDelay != other.collectorMaxDelay)
         	return false;
         if (!this.receivedDate.equals(other.receivedDate))
@@ -240,14 +218,13 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
 
 	@Override
 	public int hashCode() {
-		/* Update Prime Number */
+	/* Update Prime Number */
         final int prime = 1121;
         int result = super.hashCode();
         result = prime * result + (int) this.swId;
         result = prime * result + this.portId;
         result = prime * result + this.actorSystemInfo.hashCode();
         result = prime * result + this.partnerSystemInfo.hashCode();
-        //result = prime * result * this.markInfo.hashCode();
         result = prime * result + this.collectorMaxDelay;
         result = prime * result + this.receivedDate.hashCode();
 		return result;

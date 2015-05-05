@@ -19,8 +19,6 @@ public class PortCurrentWhileTimerRegister extends BasePortTimerRegister impleme
 	@Override
 	public void run(Timeout timeoutHandle) throws Exception {
 		//identify the right timer queue using systemid as key and then enque the message
-		//System.out.println("Waitwhile - Timeout occured for port:" + this.getPortID() + " at " + getTime() + 
-		//		" and time in ms is " + System.currentTimeMillis());
 		long swid = this.getSystemID();
 		TimerExpiryMessage obj = new TimerExpiryMessage(swid, this.getPortID(),Utils.timerWheeltype.CURRENT_WHILE_TIMER);
 		LacpTimerQueue objT = LacpTimerQueue.getLacpTimerQueueInstance();

@@ -276,14 +276,18 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 	
 	void setAggPortsReady(int val) 
 	{
-		if (getLagPortList() == null) return;
+		if (getLagPortList() == null){
+		 return;
+		}
 		for (LacpPort port : getLagPortList()){
 			port.setPortsReady(val);
 		}
 	}
 
 	int getAggPortsReady() {
-		if (getLagPortList() == null) return 0;
+		if (getLagPortList() == null){
+		 return 0;
+		}
 		for (LacpPort port : getLagPortList()) {
 			if (port.getPortsReady() == 0) {
 				return(0);
@@ -477,29 +481,37 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 	static LacpAggregator aggregatorSelection(LacpAggregator aggBest,LacpAggregator aggCurrent)
 	{
 
-		if (aggBest == null)
+		if (aggBest == null){
 			return aggCurrent;
-		else if (aggCurrent == null)
+		}
+		else if (aggCurrent == null){
 			return  aggBest;
-		if (!aggCurrent.isIndiv() && aggBest.isIndiv())
+		}
+		if (!aggCurrent.isIndiv() && aggBest.isIndiv()){
 			return aggCurrent;
-		if (aggCurrent.isIndiv() && !aggBest.isIndiv())
+		}
+		if (aggCurrent.isIndiv() && !aggBest.isIndiv()){
 			return aggBest;
-		if (aggCurrent.aggHasPartner()&& !aggBest.aggHasPartner())
+		}
+		if (aggCurrent.aggHasPartner()&& !aggBest.aggHasPartner()){
 			return aggCurrent;
-		if (!aggCurrent.aggHasPartner() && aggBest.aggHasPartner())
+		}
+		if (!aggCurrent.aggHasPartner() && aggBest.aggHasPartner()){
 			return aggBest;
+		}
 		switch (aggCurrent.aggGetBond().getAggSelectionMode()) {
 			case BOND_COUNT:
-				if (aggCurrent.getNumOfPorts() > aggBest.getNumOfPorts())
+				if (aggCurrent.getNumOfPorts() > aggBest.getNumOfPorts()){
                  			return aggCurrent;
-	
-				if (aggCurrent.getNumOfPorts() < aggBest.getNumOfPorts())
+				}
+				if (aggCurrent.getNumOfPorts() < aggBest.getNumOfPorts()){
                  			return aggBest;
+				}
 			case BOND_STABLE:
 			case BOND_BANDWIDTH:
-				if (aggCurrent.getAggBandwidth() > aggBest.getAggBandwidth())
+				if (aggCurrent.getAggBandwidth() > aggBest.getAggBandwidth()){
 					return aggCurrent;
+				}
 				break;
 			default:
 				log.info("Impossible agg select mode");
@@ -545,10 +557,18 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 
 	@Override
 	public int compareTo(LacpAggregator arg0) {
-		if (arg0 == null) return -1;
-		if (this.getAggLagId() == arg0.getAggLagId()) return 0;
-		if (arg0.getAggLagId() == null) return -1;
-		if (this.getAggLagId() == null) return 1;
+		if (arg0 == null){
+		 return -1;
+		}
+		if (this.getAggLagId() == arg0.getAggLagId()){
+		 return 0;
+		}
+		if (arg0.getAggLagId() == null){
+		 return -1;
+		}
+		if (this.getAggLagId() == null){
+		 return 1;
+		}
 		return this.getAggLagId().compareTo(arg0.getAggLagId());
 	}
 

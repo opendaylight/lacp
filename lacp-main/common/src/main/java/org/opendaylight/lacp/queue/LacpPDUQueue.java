@@ -26,10 +26,8 @@ public  class LacpPDUQueue {
         boolean result = false;
 
         if(LacpPDUQueueMap.get(switchId) != null){
-		System.out.println("isLacpQueuePresent returning true");
             result = true;
         }
-	System.out.println(" Exiting isLacpQueuePresent");
         return result;
     }
 

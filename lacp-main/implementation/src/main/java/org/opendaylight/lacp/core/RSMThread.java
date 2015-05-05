@@ -117,8 +117,9 @@ public class RSMThread implements Runnable
 
     private LacpBond findLacpBondByPartnerMacKey(byte[] sysId, short key) {
 
-	if (lacpList.size() == 0)
+	if (lacpList.size() == 0){
 		return null;
+	}
 
 	for (LacpBond bond: lacpList.values()) {
 		if (bond.isPartnerExist(sysId,key)) {
@@ -422,8 +423,8 @@ public class RSMThread implements Runnable
         LacpPDUPortStatusContainer pduElem = null;
         TimerExpiryMessage tmrElem = null;
         long swId = lacpNode.getSwitchId();
-        while ((pduElem = pduQueue.dequeue(swId)) != null);
-        while ((tmrElem = timerQueue.dequeue(swId)) != null);
+        while ((pduElem = pduQueue.dequeue(swId)) != null){};
+        while ((tmrElem = timerQueue.dequeue(swId)) != null){};
         if (pduQueue.deleteLacpQueue(swId) == false)
         {
             log.warn("failed to delete the pdu queue for the node {}", lacpNode.getNodeId());

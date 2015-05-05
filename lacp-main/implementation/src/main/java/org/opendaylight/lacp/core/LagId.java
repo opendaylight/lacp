@@ -39,10 +39,12 @@ public class LagId implements Comparable<LagId> {
 	}
 	
 	public byte isMacAddressInLagId(byte[] macAddr) {
-		if (highSystem.isMacAddrEqual(macAddr))
+		if (highSystem.isMacAddrEqual(macAddr)){
 			return LAGID_MAC_HGIHSYSTEM;
-		else if (lowSystem.isMacAddrEqual(macAddr))
+		}
+		else if (lowSystem.isMacAddrEqual(macAddr)){
 			return LAGID_MAC_LOWSYSTEM;
+		}
 		return LAGID_MAC_NOTFOUND;
 	}
 	
@@ -50,15 +52,19 @@ public class LagId implements Comparable<LagId> {
 	public int compareToPartial(LagId arg0) {
 		int result;
 		result = this.highSystem.compareToPartial(arg0.highSystem);
-		if (result < 0)
+		if (result < 0){
 			return -1;
-		else if (result > 0)
+		}
+		else if (result > 0){
 			return 1;
+		}
 		result = this.lowSystem.compareToPartial(arg0.lowSystem);
-		if (result < 0)
+		if (result < 0){
 			return -1;
-		else if (result > 0)
+		}
+		else if (result > 0){
 			return 1;		
+		}
 		return 0;		
 	}
 	
@@ -66,24 +72,30 @@ public class LagId implements Comparable<LagId> {
 	public int compareTo(LagId arg0) {
 		int result;
 		result = this.highSystem.compareTo(arg0.highSystem);
-		if (result < 0)
+		if (result < 0){
 			return -1;
-		else if (result > 0)
+		}
+		else if (result > 0){
 			return 1;
+		}
 		result = this.lowSystem.compareTo(arg0.lowSystem);
-		if (result < 0)
+		if (result < 0){
 			return -1;
-		else if (result > 0)
-			return 1;		
+		}
+		else if (result > 0){
+			return 1;
+		}		
 		return 0;
 	}
 
 	public String MacString(byte[] content) {
-		if (content!=null)
-		return (String.format("%2x:%2x:%2x:%2x:%2x:%2x", content[0],content[1],content[2],content[3],
+		if (content!=null){
+			return (String.format("%2x:%2x:%2x:%2x:%2x:%2x", content[0],content[1],content[2],content[3],
 				content[4],content[5]));
-		else
+		}
+		else{
 			return ("No MAC");
+		}
 		
 	}
 	@Override

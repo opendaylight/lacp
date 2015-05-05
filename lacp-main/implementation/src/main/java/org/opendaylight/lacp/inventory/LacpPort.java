@@ -211,25 +211,34 @@ public class LacpPort implements Comparable<LacpPort> {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj){
 				return true;
-			if (obj == null)
+			}
+			if (obj == null){
 				return false;
-			if (!(obj instanceof PortParams))
+			}
+			if (!(obj instanceof PortParams)){
 				return false;
+			}
 			PortParams other = (PortParams) obj;
-			if (!getOuterType().equals(other.getOuterType()))
+			if (!getOuterType().equals(other.getOuterType())){
 				return false;
-			if (key != other.key)
+			}
+			if (key != other.key){
 				return false;
-			if (portNumber != other.portNumber)
+			}
+			if (portNumber != other.portNumber){
 				return false;
-			if (portPriority != other.portPriority)
+			}
+			if (portPriority != other.portPriority){
 				return false;
-			if (!Arrays.equals(system, other.system))
+			}
+			if (!Arrays.equals(system, other.system)){
 				return false;
-			if (systemPriority != other.systemPriority)
+			}
+			if (systemPriority != other.systemPriority){
 				return false;
+			}
 			return true;
 		}
 		
@@ -780,10 +789,15 @@ public class LacpPort implements Comparable<LacpPort> {
 	
 	@Override
 	public int compareTo(LacpPort arg0) {
-		if (this.lagId == arg0.lagId)
+		if (this.lagId == arg0.lagId){
 			return 0;
-		if (arg0.lagId == null) return -1;
-		if (this.lagId == null) return 1;
+		}
+		if (arg0.lagId == null){
+		 return -1;
+		}
+		if (this.lagId == null){
+		 return 1;
+		}
 		return this.lagId.compareTo(arg0.lagId);
 	}
 	
@@ -800,21 +814,28 @@ public class LacpPort implements Comparable<LacpPort> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (!(obj instanceof LacpPort))
+		}
+		if (!(obj instanceof LacpPort)){
 			return false;
+		}
 		LacpPort other = (LacpPort) obj;
-		if (getInstanceId() != other.getInstanceId())
+		if (getInstanceId() != other.getInstanceId()){
 			return false;
-		if (getActorAdminPortKey() != other.getActorAdminPortKey())
+		}
+		if (getActorAdminPortKey() != other.getActorAdminPortKey()){
 			return false;
-		if (portId != other.portId)
+		}
+		if (portId != other.portId){
 			return false;
-		if (swId != other.swId)
+		}
+		if (swId != other.swId){
 			return false;
+		}
 		return true;
 	}
 	
@@ -1306,7 +1327,9 @@ public class LacpPort implements Comparable<LacpPort> {
 		log.debug("Entering lacpDisablePort for port={}",portId);
 		 boolean select_new_active_agg = false;
 
-		 if (!isInitialized) return;
+		 if (!isInitialized){
+			 return;
+		 }
 
 		 LacpAggregator aggregator = this.getPortAggregator();
 		 
@@ -1445,7 +1468,9 @@ public class LacpPort implements Comparable<LacpPort> {
 	
 	public int slaveSendBpdu(LacpPacketPdu bpdu, LacpTxQueue.QueueType qType) {
 		log.debug("Entering slaveSendBpdu for port={}",portId);
-		if (bpdu == null) return -1;
+		if (bpdu == null){
+		 return -1;
+		}
 		if (this.getLink() != LacpConst.BOND_LINK_UP){
 			log.warn("slaveSendBpdu did not put the LacpPacketPdu onto queue as port={} link is down ",portId);
 			return -1;
@@ -1581,9 +1606,10 @@ public class LacpPort implements Comparable<LacpPort> {
 					rxContext.setState(rxExpiredState);      
 					log.debug("portRxStateMachine setting port={} to rxExpiredState",portId);
 					log.debug("RX Machine Port=" + this.portId + " lastState=" + lastState +" state setting to RX_EXPIRED");
-				} else if (this.isEnabled && ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED)== 0))
+				} else if (this.isEnabled && ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED)== 0)){
 					rxContext.setState(rxLacpDisabledState);
 					log.debug("portRxStateMachine setting port={} to rxLacpDisabledState",portId);
+				}
 				break;
 			default:    
 				break;

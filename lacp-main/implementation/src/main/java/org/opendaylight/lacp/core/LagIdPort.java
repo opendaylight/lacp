@@ -39,21 +39,26 @@ public class LagIdPort implements Comparable<LagIdPort> {
 	@Override
 	public int compareTo(LagIdPort arg0) {
 		int val1, val2;
-		if (arg0 == null)
+		if (arg0 == null){
 			return -1;
+		}
 		val1 = this.portPriority & 0xffffffff;
 		val2 = arg0.portPriority & 0xffffffff;
-		if (val1 < val2)
+		if (val1 < val2){
 			return -1;
-		else if (val1 > val2 )
+		}
+		else if (val1 > val2 ){
 			 return 1;
+		}
 		val1 = this.portNumber & 0xffff;
 		val2 = arg0.portNumber & 0xffff;
 		
-		if (val1 < val2)
+		if (val1 < val2){
 			return -1;
-		else if (val1 > val2)
-			return 1;		
+		}
+		else if (val1 > val2){
+			return 1;
+		}		
 		return 0;
 	}
 

@@ -49,14 +49,6 @@ public class TxUtils {
 
 	private final static Logger log = LoggerFactory.getLogger(TxProcessor.class);
 
-	/*
-	private static PacketProcessingService packetProcessingService;
-
-	public static void setPacketProcessingService(PacketProcessingService packetProcessingService) {
-    		packetProcessingService = packetProcessingService;
-  	}	
-	*/
-
 	public static String macToString(String srcstr) {
 
                 if(srcstr == null) {
@@ -77,7 +69,6 @@ public class TxUtils {
                   for (int i=0;i<tb.length;i++) {
                           tsb.append(Integer.toHexString((int) tb[i]));
                  }
-                 System.out.println("Byte : " + tsb.toString());
 
 	}
 
@@ -92,7 +83,6 @@ public class TxUtils {
 	public static byte[] hexStringToByteArray(String s) {
     		int len = s.length();
 		byte[] data = null;
-		System.out.println("hexStringToByteArray: length - :" + s.length());
 		if(len == 1){
 			data = new byte[1];
         		data[0] = (byte) Character.digit(s.charAt(0), 16);
@@ -135,119 +125,64 @@ public class TxUtils {
 		byte[] bdata = new byte[128];
 
 		ByteBuffer bb = ByteBuffer.wrap(bdata);
-//		bb.put(convertStringtoByte(macToString(new String ((lacpPDU.getDestAddress().getValue()).toString()))));
-//		bb.put(hexStringToByteArray(macToString(new String ((lacpPDU.getDestAddress().getValue()).toString()))));
-		// commented by rajesh on 02 apr
-		//bb.put(HexEncode.bytesFromHexString((new String ((lacpPDU.getDestAddress().getValue()).toString()))));
-		// commented by rajesh on 02 apr
-		
 		bb.put(HexEncode.bytesFromHexString((new String ((lacpPDU.getDestAddress().getValue())))));
 		String s = macToString(new String ((lacpPDU.getDestAddress().getValue()).toString    ()));
 		byte[] b = new BigInteger(s,16).toByteArray();
-		System.out.println("Actual Destaddress new" + b);
 		StringBuffer sb3 = new StringBuffer();
                 for (int i=0;i<b.length;i++) {
                         sb3.append(Integer.toHexString((int) b[i]));
                 }
-                System.out.println("Actual Destaddress : " + sb3.toString());
 
-		//bb.put(convertStringtoByte(macToString(new String ((lacpPDU.getSrcAddress().getValue()).toString()))));
-		//bb.put(hexStringToByteArray(macToString(new String ((lacpPDU.getSrcAddress().getValue()).toString()))));
-		//commented bye rajesh on apr 02
-		//bb.put(HexEncode.bytesFromHexString((new String ((lacpPDU.getSrcAddress().getValue()).toString()))));
-		//commented bye rajesh on apr 02
-		
 		bb.put(HexEncode.bytesFromHexString((new String ((lacpPDU.getSrcAddress().getValue())))));
-		//System.out.println("lacpPDU.getSrcAddress" + hexStringToByteArray(macToString(new String ((lacpPDU.getSrcAddress().getValue()).toString()))))  ;
-		System.out.println("lacpPDU.getSrcAddress" + HexEncode.bytesFromHexString((new String ((lacpPDU.getSrcAddress().getValue()).toString()))))  ;
 		StringBuffer sb1 = new StringBuffer();
                 for (int i=0;i<b.length;i++) {
                         sb1.append(Integer.toHexString((int) b[i]));
                 }
-                System.out.println("Actual Srcaddress : " + sb1.toString());
 
-		System.out.println("lacpPDU.getLen ");
-		System.out.println("New lacpPDU.getLen " + hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())));
-		System.out.println("New lacpPDU.getLenType");
 		bytetoString(hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())));
-		//bb.put(hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())));
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())),2));
-		System.out.println("lacpPDU.getSubtype");
 		bb.put(convertStringtoByte((new String (new Integer((lacpPDU.getSubtype().getIntValue())).toString()))));
-		System.out.println("lacpPDU.getVersion ");
 		bb.put(convertStringtoByte((new String (new Integer((lacpPDU.getVersion().getIntValue())).toString()))));
-		System.out.println("actorInfo.getTlvType ");
 
 		ActorInfo actorInfo = lacpPDU.getActorInfo();
 		bb.put(convertStringtoByte((new String (new Integer((actorInfo.getTlvType().getIntValue())).toString()))));
-		System.out.println("actorInfo.getInfoLen ");
 		bb.put(convertStringtoByte((new String (Integer.toHexString(actorInfo.getInfoLen()).toString()))));
-		System.out.println("actorInfo.getSystemPriority ");
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(actorInfo.getSystemPriority())),2));
-		System.out.println("actorInfo.getSystemId " + actorInfo.getSystemId());
-//		bb.put(padExtraZeroes(hexStringToByteArray(macToString(actorInfo.getSystemId())),6));
 		bb.put(HexEncode.bytesFromHexString((new String ((actorInfo.getSystemId().getValue()).toString()))));
-		System.out.println("actorInfo.getKey " + actorInfo.getKey());
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(actorInfo.getKey())),2));
-		System.out.println("actorInfo.getPortPriority "+ actorInfo.getPortPriority());
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(actorInfo.getPortPriority())),2));
-		System.out.println("actorInfo.getPort " +actorInfo.getPort());
 		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(actorInfo.getPort()).toString()))),2));
-		System.out.println("actorInfo.getState ");
 		bb.put(hexStringToByteArray(Integer.toHexString(actorInfo.getState())));
-		System.out.println("actorInfo.getReserved ");
 		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(actorInfo.getReserved()).toString()))),2));
-		System.out.println("actorInfo.getReserved1 ");
 		bb.put(convertStringtoByte((new String (Integer.toHexString(actorInfo.getReserved1()).toString()))));
 
 		PartnerInfo partnerInfo = lacpPDU.getPartnerInfo();
-		System.out.println("partnerInfo.getTlvType ");
 		bb.put(convertStringtoByte((new String (new Integer((partnerInfo.getTlvType().getIntValue())).toString()))));
-		System.out.println("partnerInfo.getInfoLen ");
 		bb.put(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getInfoLen()).toString()))));
-		System.out.println("partnerInfo.getSystemPriority ");
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(partnerInfo.getSystemPriority()).toString()),2));
-		System.out.println("partnerInfo.getSystemID " );
-		//bb.put(padExtraZeroes(hexStringToByteArray(macToString(partnerInfo.getSystemId())),6));
 		bb.put(HexEncode.bytesFromHexString((new String ((partnerInfo.getSystemId().getValue()).toString()))));
-		System.out.println("partnerInfo.getKey ");
 		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getKey()).toString()))),2));
-		System.out.println("partnerInfo.getPortPriority ");
 		bb.put(padExtraZeroes(convertStringtoByte(new String (Integer.toHexString(partnerInfo.getPortPriority()).toString())),2));
-		System.out.println("partnerInfo.getPort ");
 		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getPort()).toString()))),2));
-		System.out.println("partnerInfo.getState ");
 		bb.put(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getState()).toString()))));
-		System.out.println("partnerInfo.getReserved ");
 		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getReserved()).toString()))),2));
-		System.out.println("partnerInfo.getReserved1 ");
 		bb.put(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getReserved1()).toString()))));
-		System.out.println("lacpPDU.getCollectorTlvType ");
 
 
 		bb.put(convertStringtoByte((new String (new Integer((lacpPDU.getCollectorTlvType().getIntValue())).toString()))));
-		System.out.println("lacpPDU.getCollectorInfoLen ");
 		bb.put(convertStringtoByte((new String (Integer.toHexString(lacpPDU.getCollectorInfoLen()).toString()))));
-		System.out.println("lacpPDU.getCollectorMaxDelay ");
 		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(lacpPDU.getCollectorMaxDelay()).toString()))),2));
-		System.out.println("lacpPDU.getCollectorReserved ");
 		bb.put(padExtraZeroes(convertStringtoByte((new String ((lacpPDU.getCollectorReserved()).toString()))),8));
-		System.out.println("lacpPDU.getCollectorReserved1 ");
 		bb.put(padExtraZeroes(convertStringtoByte((new String (Long.toHexString(lacpPDU.getCollectorReserved1()).toString()))),4));
-		System.out.println("lacpPDU.getTerminatorTlvType ");
 		bb.put(convertStringtoByte((new String (new Integer((lacpPDU.getTerminatorTlvType().getIntValue())).toString()))));
-		System.out.println("lacpPDU.getTerminatorInfoLen ");
 		bb.put(convertStringtoByte((new String (Integer.toHexString(lacpPDU.getTerminatorInfoLen()).toString()))));
-		System.out.println("getTerminatorReserved : " + lacpPDU.getTerminatorReserved());
 		bb.put(padExtraZeroes(convertStringtoByte((new String (lacpPDU.getTerminatorReserved()))),50));
-		System.out.println("lacpPDU.getFCS ");
 		bb.put(padExtraZeroes(convertStringtoByte((new String ((lacpPDU.getFCS()).toString()))),4));
 		
 		StringBuffer sb4 = new StringBuffer();
                 for (int i=0;i<bdata.length;i++) {
                         sb4.append(Integer.toHexString((int) bdata[i]));
                 }
-                System.out.println("Final Byte sb3 - " + sb4.toString());
 
 		return(bdata);
 	}
@@ -260,7 +195,6 @@ public class TxUtils {
 		NodeConnectorRef destNodeConnector = ingress;
 
 		if(destNodeConnector != null) {
-		 	//sendPacketOut(payload, srcConnectorRef, destNodeConnector);
 		 	sendPacketOut(payload, destNodeConnector,pServ);
 		} else {
 			log.debug("TxProcessor: desNodeConnector is NULL");
@@ -278,20 +212,21 @@ public class TxUtils {
 	public static void sendPacketOut(byte[] payload, NodeConnectorRef egress,
 				PacketProcessingService pServ) {
 
-			if(egress == null) return;
+			if(egress == null){
+				 return;
+			}
 			InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
-			TransmitPacketInput input = new TransmitPacketInputBuilder() //
-				.setPayload(payload) //
-				.setNode(new NodeRef(egressNodePath)) //
-				.setEgress(egress) //
-			//	.setIngress(ingress) //
+			TransmitPacketInput input = new TransmitPacketInputBuilder() 
+				.setPayload(payload) 
+				.setNode(new NodeRef(egressNodePath)) 
+				.setEgress(egress) 
 				.build();
 
 			if(pServ != null){
 				pServ.transmitPacket(input);
-				System.out.println("sucessfully sent the transmitPacket");
+				log.info("sucessfully sent the transmitPacket");
 			}else{
-				System.out.println("packetProcessingService is null");
+				log.warn("packetProcessingService is null");
 			}
 	}
 
@@ -299,6 +234,4 @@ public class TxUtils {
 	public static InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
 		return nodeChild.firstIdentifierOf(Node.class);
 	}
-				
-		
 }
