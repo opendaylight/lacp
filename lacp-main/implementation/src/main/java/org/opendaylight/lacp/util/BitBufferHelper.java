@@ -362,8 +362,9 @@ public class BitBufferHelper {
     int value = 0;
     for(int i = 0; i < length; i++) {
       value = array[i];
-      if(value < 0)
+      if(value < 0){
         value += 256;
+      }
       ret = ret
           | (long) ((long) value << ((length - i - 1) * NetUtils.NumBitsInAByte));
     }

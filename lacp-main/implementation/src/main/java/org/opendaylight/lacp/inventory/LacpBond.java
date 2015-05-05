@@ -327,8 +327,9 @@ public class LacpBond {
 		else {
 			if (systemIdMap.size() != 0) {
 				for (short value : systemIdMap.values()) {
-					if (value > systemId)
+					if (value > systemId){
 						systemId = value;
+					}
 				}
 			}
 			systemId ++;
@@ -409,8 +410,9 @@ public class LacpBond {
 	
 	LacpAggregator bondGetFreeAgg() {
 		
-    	if (aggregatorList == null || aggregatorList.size() == 0)
+    	if (aggregatorList == null || aggregatorList.size() == 0){
     		return null;
+	}
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.getNumOfPorts() == 0){
@@ -423,8 +425,9 @@ public class LacpBond {
 		
 	
     public LacpAggregator getActiveAgg(){
-    	if (aggregatorList == null || aggregatorList.size() == 0)
+    	if (aggregatorList == null || aggregatorList.size() == 0){
     		return null;
+	}
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.getIsActive() > 0){
@@ -439,8 +442,9 @@ public class LacpBond {
 		
     LacpAggregator findLacpAggByFitPort(LacpPort port) 
     {
-    	if (aggregatorList == null || aggregatorList.size() == 0)
+    	if (aggregatorList == null || aggregatorList.size() == 0){
     		return null;
+	}
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.isPortFitToAgg(port)) {
@@ -695,8 +699,9 @@ public class LacpBond {
 			HashSet<LacpPort> set = new HashSet<LacpPort>();
 			if (systemIdMap.containsKey(swId)) {
 				for (LacpPort node: slaveList) {
-					if (node.slaveGetSwId() == swId)
+					if (node.slaveGetSwId() == swId){
 						set.add(node);
+					}
 				}
 				for (LacpPort node: set) {
 					 this.bondDelSlave(swId, node.slaveGetPortId());
@@ -773,11 +778,14 @@ public class LacpBond {
 		short result = 0;
 		this.bondStateMachineLock();
 		try {
-		if (!systemIdMap.containsKey(swId))
+		if (!systemIdMap.containsKey(swId)){
 			return result;
-		for (LacpPort port : this.slaveList)
-			if (port.slaveGetSwId() == swId)
+		}
+		for (LacpPort port : this.slaveList){
+			if (port.slaveGetSwId() == swId){
 				result++;
+			}
+		}
 		return result;
 		} finally {
 			this.bondStateMachineUnlock();		
@@ -785,10 +793,12 @@ public class LacpBond {
 	}
 	
 	short getBondActiveAggId() {
-		if (getActiveAgg()!=null)
+		if (getActiveAgg()!=null){
 			return getActiveAgg().getAggId();
-		else 
+		}
+		else {
 			return 0;
+		}
 	}
     public void updateLacpAggregatorsDS ()
     {
@@ -915,6 +925,15 @@ public class LacpBond {
             lagGroup = lacpGroupTbl.lacpRemPort (lagGroup, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true);
         }
         lacpNodeRef.removeLacpPort(lacpPort.getNodeConnectorId(), false);
+        if (lacpPort.getPortOperStatus() == true)
+        {
+            log.debug("removing the port as lacp port and adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
+            lacpNodeRef.addNonLacpPort(lacpPort.getNodeConnectorId());
+        }
+        else
+        {
+            log.debug("removing the port as lacp port and not adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
+        }
         return true;
     }
     public LacpNodeExtn getLacpNode()

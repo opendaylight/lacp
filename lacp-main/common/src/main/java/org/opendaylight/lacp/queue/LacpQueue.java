@@ -38,7 +38,6 @@ public class LacpQueue<E> {
     public boolean remove(){
             E item;
             while ((item = list.poll()) != null) {
-                    System.out.println("Removed: " + item);
             }
             return true;
      }

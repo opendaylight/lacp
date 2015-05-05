@@ -41,6 +41,7 @@ public class LacpConst {
 	public static final short PORT_SELECTED=0x100;
 	public static final short PORT_MOVED=0x200;
 	public static final short PORT_DOWN=0x400;
+        public static final short PORT_AGG_RESELECT=0x800;
 
 	public static final byte LINK_SPEED_BITMASK_10MBPS =0x1;
 	public static final byte LINK_SPEED_BITMASK_100MBPS =0x2;

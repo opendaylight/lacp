@@ -124,7 +124,6 @@ public  class LacpTimerQueue {
             long size = 0;
 
             if(LacpTimerQueueMap.get(switchId) != null){
-                //System.out.println("The given switchId " + switchId + " is present in the LacpTimerqueueMap");
                 size = LacpTimerQueueMap.get(switchId).size();
             }
             return size;

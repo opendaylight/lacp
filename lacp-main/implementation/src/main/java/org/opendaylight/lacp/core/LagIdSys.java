@@ -53,29 +53,36 @@ public class LagIdSys implements Comparable<LagIdSys> {
 	@Override
 	public int compareTo(LagIdSys arg0) {
 		int val1, val2;
-		if (arg0 == null)
+		if (arg0 == null){
 			return -1;
-		if (this.sysPriority < arg0.sysPriority)
+		}
+		if (this.sysPriority < arg0.sysPriority){
 			return -1;
-		else if (this.sysPriority > arg0.sysPriority)
+		}
+		else if (this.sysPriority > arg0.sysPriority){
 			return 1;
-		if (arg0.sysMacAddress == null)
+		}
+		if (arg0.sysMacAddress == null){
 			return -1;
-		if (Arrays.equals(arg0.sysMacAddress,LacpConst.NULL_MAC_ADDRESS ))
+		}
+		if (Arrays.equals(arg0.sysMacAddress,LacpConst.NULL_MAC_ADDRESS )){
 			return -1;
-		if (Arrays.equals(this.sysMacAddress,LacpConst.NULL_MAC_ADDRESS ))
-			return 1;		
+		}
+		if (Arrays.equals(this.sysMacAddress,LacpConst.NULL_MAC_ADDRESS )){
+			return 1;	
+		}	
 		for (int i = 0; i < this.sysMacAddress.length; i++) {
 			/* byte f0 < 0 :  we need to compare integer value instead of byte */
 			val1 = this.sysMacAddress[i] & 0xff;
 			val2 = arg0.sysMacAddress[i] & 0xff;
-			if (val1 < val2)
+			if (val1 < val2){
 				return (-1);
-			else if (val1 > val2)
+			}
+			else if (val1 > val2){
 				return (1);
+			}
 		}
 		return 0;
 	}
 		
-	
 }

@@ -117,8 +117,9 @@ public class RSMThread implements Runnable
 
     private LacpBond findLacpBondByPartnerMacKey(byte[] sysId, short key) {
 
-	if (lacpList.size() == 0)
+	if (lacpList.size() == 0){
 		return null;
+	}
 
 	for (LacpBond bond: lacpList.values()) {
 		if (bond.isPartnerExist(sysId,key)) {
@@ -328,11 +329,13 @@ public class RSMThread implements Runnable
 			bond.bondUpdateLinkUpSlave(swId,portId,portFeatures);
 		}else{
 		    log.debug("handleLacpPortState - found lacpBond for port={},  send link down int bond={}", portId,bond.getBondId());
-		    bond.bondUpdateLinkDownSlave(swId,portId);
-            	    lacpNode.removeLacpPort(ncId, false);
-		
                     lacpPort = bond.getSlavePortObject(portId);
-
+                    if( lacpPort != null)
+                    {
+                        lacpPort.setPortOperStatus(false); 
+                        log.debug("in handleLacpPortState - setting timeout to true"); 
+                    }
+		    bond.bondUpdateLinkDownSlave(swId,portId);
                     if( lacpPort != null){
                         lacpPort.lacpPortCleanup();
                     }
@@ -419,8 +422,8 @@ public class RSMThread implements Runnable
         LacpPDUPortStatusContainer pduElem = null;
         TimerExpiryMessage tmrElem = null;
         long swId = lacpNode.getSwitchId();
-        while ((pduElem = pduQueue.dequeue(swId)) != null);
-        while ((tmrElem = timerQueue.dequeue(swId)) != null);
+        while ((pduElem = pduQueue.dequeue(swId)) != null){};
+        while ((tmrElem = timerQueue.dequeue(swId)) != null){};
         if (pduQueue.deleteLacpQueue(swId) == false)
         {
             log.warn("failed to delete the pdu queue for the node {}", lacpNode.getNodeId());
