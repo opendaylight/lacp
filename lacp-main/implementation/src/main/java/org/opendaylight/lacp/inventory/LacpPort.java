@@ -71,6 +71,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
  
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.AggRef;
 import org.opendaylight.lacp.queue.LacpTxQueue;
+import org.opendaylight.lacp.queue.LacpPortInfo;
 import org.opendaylight.lacp.Utils.*;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.lacp.core.LagId;
@@ -676,7 +677,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.activeSince = null;
 
 		bond.setSlaveCnt(getInstanceId());
-		setPortLock(new ReentrantLock());
+		setPortLock(new ReentrantLock(true));
 		
 		this.portPriority = port_priority;
 		this.setActorSystem(new byte[LacpConst.ETH_ADDR_LEN]);
@@ -1132,7 +1133,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	    return (short) (b >= 0 ? b : 256 + b);
 	}
 	
-	LacpPacketPdu updateLacpFromPortToLacpPacketPdu(){
+	public LacpPacketPdu updateLacpFromPortToLacpPacketPdu(){
 
 		this.slavePSMLock();
 
@@ -1220,11 +1221,11 @@ public class LacpPort implements Comparable<LacpPort> {
 		return obj.build();
 	}
 
-	int lacpduSend(LacpPacketPdu obj, LacpTxQueue.QueueType qType)
+	int lacpduSend(LacpTxQueue.QueueType qType)
 	{
 		log.debug("Entering lacpduSend for port={}", portId);
 		if (isInitialized) {
-			slaveSendBpdu(obj,qType);
+			slaveSendBpdu(qType);
 		}
 		log.debug("Exiting lacpduSend for port={}", portId);
 		return 0;
@@ -1443,17 +1444,18 @@ public class LacpPort implements Comparable<LacpPort> {
 		log.debug("Exiting portSystemPrioriyChange for port={}",portId);
 	}
 	
-	public int slaveSendBpdu(LacpPacketPdu bpdu, LacpTxQueue.QueueType qType) {
-		log.debug("Entering slaveSendBpdu for port={}",portId);
-		if (bpdu == null) return -1;
-		if (this.getLink() != LacpConst.BOND_LINK_UP){
+    public int slaveSendBpdu(LacpTxQueue.QueueType qType)
+    {
+        log.debug("Entering slaveSendBpdu for port={}",portId);
+        if (this.getLink() != LacpConst.BOND_LINK_UP)
+        {
 			log.warn("slaveSendBpdu did not put the LacpPacketPdu onto queue as port={} link is down ",portId);
 			return -1;
-		}
-		LacpTxQueue lacpTxQueue = LacpTxQueue.getLacpTxQueueInstance();
-		lacpTxQueue.enqueue(qType,bpdu);
-		log.debug("slaveSendBpdu sucessfully put the LacpPacketPdu onto queue for port={}",portId);
-		log.debug("Exiting slaveSendBpdu for port={}",portId);
+        }
+        LacpTxQueue lacpTxQueue = LacpTxQueue.getLacpTxQueueInstance();
+        LacpPortInfo portInfo = new LacpPortInfo(this.swId, this.portId);
+		lacpTxQueue.enqueue(qType, portInfo);
+		log.debug("slaveSendBpdu sucessfully put the portId onto queue for port={}",portId);
 		return 0;
 	}
 	
@@ -1694,7 +1696,6 @@ public class LacpPort implements Comparable<LacpPort> {
 				this.setStateMachineBitSet((short)(this.getStateMachineBitSet() & (~LacpConst.PORT_STANDBY)));
 				this.setActorPortAggregatorIdentifier((short)0);					
                                 this.setStateMachineBitSet((short)(this.getStateMachineBitSet() | LacpConst.PORT_AGG_RESELECT));
-log.debug ("removing the port from agg - 2");
 			}
 		}
 		slaveGetBond().setDirty(true);
@@ -1892,8 +1893,7 @@ log.debug ("removing the port from agg - 2");
 		// check if there is something to put on tx queue
 		if ((this.isNtt()) && ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED)>0)) {
 				log.debug("portTxStateMachine putting port={} on to tx queue",portId);
-				LacpPacketPdu obj = updateLacpFromPortToLacpPacketPdu();
-				lacpduSend(obj,qType);
+				lacpduSend(qType);
 				this.setNtt(false);
 		}
 		

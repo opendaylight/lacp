@@ -7,13 +7,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opendaylight.lacp.queue.LacpTxQueue;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPdu;
+//import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPdu;
+import org.opendaylight.lacp.queue.LacpPortInfo;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Mockito;
 
 public class LacpTxQueueTest {
         LacpTxQueue txInst = LacpTxQueue.getLacpTxQueueInstance();
-        LacpPacketPdu obj1, obj2, obj3, obj4;
+        LacpPortInfo obj1, obj2, obj3, obj4;
         
         @BeforeClass
         public static void setUpBeforeClass() throws Exception {
@@ -27,12 +28,12 @@ public class LacpTxQueueTest {
         public void setUp() throws Exception {
                 txInst.addLacpQueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE);
                 txInst.addLacpQueue(LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE);
-	        obj1 = Mockito.mock(LacpPacketPdu.class);
-        	obj2 = Mockito.mock(LacpPacketPdu.class);
-	        obj3 = Mockito.mock(LacpPacketPdu.class);
-        	obj4 = Mockito.mock(LacpPacketPdu.class);
-		txInst.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, (LacpPacketPdu) obj1);
-		txInst.enqueue(LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE, (LacpPacketPdu) obj1);
+	        obj1 = Mockito.mock(LacpPortInfo.class);
+        	obj2 = Mockito.mock(LacpPortInfo.class);
+	        obj3 = Mockito.mock(LacpPortInfo.class);
+        	obj4 = Mockito.mock(LacpPortInfo.class);
+		txInst.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, obj1);
+		txInst.enqueue(LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE, obj1);
         }
 
         @After
@@ -42,9 +43,9 @@ public class LacpTxQueueTest {
 
         @Test
         public void testLacpTxQueue() throws Exception {
-                txInst.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, (LacpPacketPdu) obj2);
-                txInst.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, (LacpPacketPdu) obj3);
-                txInst.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, (LacpPacketPdu) obj4);
+                txInst.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, obj2);
+                txInst.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, obj3);
+                txInst.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, obj4);
         }
 
         @Test
@@ -89,11 +90,11 @@ public class LacpTxQueueTest {
                 LacpTxQueue txInst1 = LacpTxQueue.getLacpTxQueueInstance();
                 txInst1.addLacpQueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE);
                 txInst1.addLacpQueue(LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE);
-                txInst1.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, (LacpPacketPdu) obj1);
-                txInst1.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, (LacpPacketPdu) obj2);
-                txInst1.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, (LacpPacketPdu) obj3);
-                txInst1.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, (LacpPacketPdu) obj4);
-		txInst1.enqueue(LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE, (LacpPacketPdu) obj4);
+                txInst1.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, obj1);
+                txInst1.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, obj2);
+                txInst1.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, obj3);
+                txInst1.enqueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE, obj4);
+		txInst1.enqueue(LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE, obj4);
 		assertTrue(txInst1.getLacpQueueSize(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE) != 0);
 		assertTrue(txInst1.getLacpQueueSize(LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE) != 0);
                 txInst1.deleteLacpQueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE);
