@@ -131,7 +131,7 @@ public class LacpNodeExtn
     public boolean addLacpPort (InstanceIdentifier<NodeConnector> portId, LacpPort lacpPort)
     {
         LacpPort lacpPortObj = this.lacpPortList.get(portId);
-        if ((lacpPortObj != null) && (lacpPortObj.equals(portId)))
+        if ((lacpPortObj != null) && (lacpPortObj.equals(lacpPort)))
         {
             return false;
         }
@@ -160,8 +160,12 @@ public class LacpNodeExtn
     }
     public LacpPort removeLacpPort (InstanceIdentifier<NodeConnector> portId, boolean hardReset)
     {
-        LacpPort lacpPort = lacpPortList.remove(portId);
-        //lacpPort.delete(true);
+        LacpPort lacpPortObj = this.lacpPortList.get(portId);
+        if ((lacpPortObj == null) || (!(lacpPortObj.getNodeConnectorId().equals(portId))))
+        {
+            return null;
+        }
+        LacpPort lacpPort = this.lacpPortList.remove(portId);
 
         if (hardReset == true)
         {
@@ -177,6 +181,11 @@ public class LacpNodeExtn
     public long getFlowId ()
     {
         return this.flowId;
+    }
+    public LacpPort getLacpPort (InstanceIdentifier<NodeConnector> portId)
+    {
+        LacpPort lacpPort = lacpPortList.get(portId);
+        return lacpPort;
     }
     public LacpPortType containsPort (InstanceIdentifier<NodeConnector> port)
     {

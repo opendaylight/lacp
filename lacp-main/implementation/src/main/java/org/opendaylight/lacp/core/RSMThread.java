@@ -482,4 +482,14 @@ public class RSMThread implements Runnable
 	}
 	return result;
     }
+    public LacpPort getLacpPortForPortId (short portId)
+    {
+        LacpPort port = null;
+        LacpBond bond = lacpList.get(portId);
+        if (bond != null)
+        {
+            port = bond.getSlavePortObject(portId);
+        }
+        return port;
+    }
 }

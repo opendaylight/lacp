@@ -14,6 +14,7 @@ import org.opendaylight.lacp.inventory.LacpNodeExtn;
 
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.lacp.queue.LacpTxQueue;
+import org.opendaylight.lacp.inventory.LacpPort;
 
 
 public class RSMManager
@@ -105,5 +106,16 @@ public class RSMManager
             lacpThreadMap.remove(lacpNode.getSwitchId());
         }
         return true;
+    }
+    public LacpPort getLacpPortFromBond (long switchId, short portId)
+    {
+        RSMThread nodeThread = null;
+        LacpPort lacpPort = null;
+        nodeThread = lacpThreadMap.get(switchId);
+        if (nodeThread != null)
+        {
+            return nodeThread.getLacpPortForPortId(portId);
+        }
+        return null;
     }
 }
