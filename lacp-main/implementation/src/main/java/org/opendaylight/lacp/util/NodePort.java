@@ -10,6 +10,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import com.google.common.base.Optional;
 import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
+import org.opendaylight.lacp.inventory.LacpPort;
 import org.opendaylight.lacp.util.LacpUtil;
 
 public class NodePort
@@ -19,6 +20,22 @@ public class NodePort
         short result = 0;
         if (portRef != null)
         {
+            InstanceIdentifier<NodeConnector> nodeConnectorInstanceId = (InstanceIdentifier<NodeConnector>)portRef.getValue();
+            InstanceIdentifier<Node> nodeId = (InstanceIdentifier<Node>) nodeConnectorInstanceId.firstIdentifierOf(Node.class);
+            long node = LacpUtil.getNodeSwitchId(nodeId);
+            LacpSystem lacpSystem = LacpSystem.getLacpSystem();
+            LacpNodeExtn lacpNode = lacpSystem.getLacpNode(node);
+            /* If the port is already available in the lacpPortList in the lacpNode,
+             *  return the port id, else obtain the portId from the flowCapableNC 
+             *  augmentation information */
+            if (lacpNode != null)
+            {
+                LacpPort port = lacpNode.getLacpPort(nodeConnectorInstanceId);
+                if (port != null)
+                {
+                    return port.slaveGetPortId();
+                }
+            }
             NodeConnector nc = readNodeConnector (portRef);
             if (nc != null)
             {
@@ -35,12 +52,7 @@ public class NodePort
         {
             InstanceIdentifier<NodeConnector> nodeConnectorInstanceId = (InstanceIdentifier<NodeConnector>)portRef.getValue();
             InstanceIdentifier<Node> nodeId = (InstanceIdentifier<Node>) nodeConnectorInstanceId.firstIdentifierOf(Node.class);
-            LacpSystem lacpSystem = LacpSystem.getLacpSystem();
-            LacpNodeExtn lacpNode = lacpSystem.getLacpNode(nodeId);
-            if (lacpNode != null)
-            {
-                result = lacpNode.getSwitchId();
-            }
+            result = LacpUtil.getNodeSwitchId(nodeId);
         }
         return result;
     }

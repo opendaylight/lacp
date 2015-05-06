@@ -26,6 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortState;
+import org.opendaylight.lacp.packethandler.TxProcessor;
+import org.opendaylight.lacp.queue.LacpTxQueue;
 
 public class LacpSystem
 {
@@ -166,5 +168,12 @@ public class LacpSystem
     {
         /* clear the node and nodeConnectors learnt */
         this.clearLacpNodes();
+
+        // clear the Tx Processor threads 
+        TxProcessor.resetLacpLoaded();
+        // clear the Tx queues
+        LacpTxQueue lacpTxQueue = LacpTxQueue.getLacpTxQueueInstance();
+        lacpTxQueue.deleteLacpQueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE);
+        lacpTxQueue.deleteLacpQueue(LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE);
     }
 }
