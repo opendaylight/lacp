@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class RxLacpDisabledState extends RxState {
 	
-	private static final Logger log = LoggerFactory.getLogger(RxLacpDisabledState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RxLacpDisabledState.class);
 	public RxLacpDisabledState(){
 		stateFlag = LacpConst.RX_STATES.RX_LACP_DISABLED;
 	}

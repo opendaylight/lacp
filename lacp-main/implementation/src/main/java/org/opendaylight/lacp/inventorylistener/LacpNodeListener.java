@@ -224,8 +224,8 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 if (ncId != null){
                         short port_id = NodePort.getPortId(new NodeConnectorRef(ncId));
                         long sw_id = NodePort.getSwitchId(new NodeConnectorRef(ncId));
-			//TODO Need to fix this- Rajesh
-//                        NodeConnector nc = (NodeConnector)InstanceIdentifier.keyOf(ncId);
+			//TODO Need to fix this
+                        //NodeConnector nc = (NodeConnector)InstanceIdentifier.keyOf(ncId);
                         int portFeaturesResult = 0;//LacpPortProperties.mapSpeedDuplexFromPortFeature(nc);
                         LacpPDUPortStatusContainer pduElem = null;
                         pduElem = new LacpPortStatus(sw_id,port_id,upDown,portFeaturesResult, ncId);

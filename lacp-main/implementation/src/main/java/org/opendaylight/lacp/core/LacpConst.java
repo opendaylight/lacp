@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class LacpConst {
 
-	private static final Logger log = LoggerFactory.getLogger(LacpConst.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LacpConst.class);
 	
 	/* Port State Definitions */
 	public static final byte PORT_STATE_LACP_ACTIVITY=0x1;
@@ -168,7 +168,7 @@ public class LacpConst {
 		longArrayBB.putLong(swId);
 		
 		System.arraycopy(longArray, 2, result, 0, 6);
-		log.debug("mac address={} is returned", result);
+		LOG.debug("mac address={} is returned", result);
 		return result;		
 	}
 	

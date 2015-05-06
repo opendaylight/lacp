@@ -2,7 +2,7 @@ package org.opendaylight.lacp.queue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 
 public  class LacpRxQueue {
-    private static final LacpQueue<PacketReceived> lacpRxQueueId = new LacpQueue<PacketReceived>();	
+    private static final LacpQueue<PacketReceived> LACP_RX_QUEUE_ID = new LacpQueue<PacketReceived>();	
 
     protected LacpRxQueue(){
     }
@@ -11,7 +11,7 @@ public  class LacpRxQueue {
      * The LacpTxQueue is a singleton class.
      */
     public static LacpQueue<PacketReceived> getLacpRxQueueId(){
-	return lacpRxQueueId;
+	return LACP_RX_QUEUE_ID;
     }
 
 }

@@ -16,11 +16,11 @@ import org.slf4j.LoggerFactory;
 
 public class MuxWaitingState  extends MuxState {
 
-	private static final Logger log = LoggerFactory.getLogger(MuxWaitingState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MuxWaitingState.class);
 	public MuxWaitingState(){
-		log.debug("Entering MuxWaitingState constructor");
+		LOG.debug("Entering MuxWaitingState constructor");
 		stateFlag = LacpConst.MUX_STATES.MUX_WAITING;
-		log.debug("Exiting MuxWaitingState constructor");
+		LOG.debug("Exiting MuxWaitingState constructor");
 	}
 	
 	public void executeStateAction(MuxContext obj, LacpPort portObjRef){
@@ -34,8 +34,8 @@ public class MuxWaitingState  extends MuxState {
 	}
 	
 	public void setStateFlag(LacpConst.MUX_STATES state){
-		log.debug("Entering MuxWaitingState setState");
+		LOG.debug("Entering MuxWaitingState setState");
 		stateFlag = state;
-		log.debug("Exiting MuxWaitingState setState");
+		LOG.debug("Exiting MuxWaitingState setState");
 	}
 }

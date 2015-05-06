@@ -35,7 +35,7 @@ import org.opendaylight.lacp.inventory.*;
 
 public class PduQueueHandler {
 
-	private final static Logger _logger = LoggerFactory.getLogger(PduQueueHandler.class);
+	private final static Logger LOG = LoggerFactory.getLogger(PduQueueHandler.class);
 
 	public void checkQueue(){
 
@@ -59,7 +59,7 @@ public class PduQueueHandler {
 			try {
 				Thread.sleep(100);
 			}catch( InterruptedException e ) {
-				_logger.debug("PduQueueHandler: Interrupted Exception ", e.getMessage());
+				LOG.debug("PduQueueHandler: Interrupted Exception ", e.getMessage());
 			}
 		}
 
@@ -259,7 +259,7 @@ public class PduQueueHandler {
 			bitOffset = bitOffset + 32;
 
 		}catch(BufferException  e) {
-			_logger.debug("Exception while decoding LACP PDU  packet", e.getMessage());
+			LOG.debug("Exception while decoding LACP PDU  packet", e.getMessage());
 		}
 
 		return(builder);

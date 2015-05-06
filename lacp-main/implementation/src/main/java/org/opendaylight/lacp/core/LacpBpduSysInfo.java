@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class LacpBpduSysInfo {
 
-	private static final Logger log = LoggerFactory.getLogger(LacpBpduSysInfo.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LacpBpduSysInfo.class);
 	private static final byte ETH_ADDR_LEN = 6;
 	private static final byte SYSTEMINFO_SIZE = 15; 
 	private int nodeSysPri;

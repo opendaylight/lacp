@@ -7,9 +7,9 @@ import org.opendaylight.lacp.timer.TimerExpiryMessage;
 
 public  class LacpTimerQueue {
 
-    private static final Map<Long, LacpQueue<TimerExpiryMessage>> LacpTimerQueueMap =
+    private static final Map<Long, LacpQueue<TimerExpiryMessage>> LACP_TIMER_QUEUE_MAP =
         new ConcurrentHashMap<Long,LacpQueue<TimerExpiryMessage>>();
-    private static final LacpTimerQueue instance = new LacpTimerQueue();
+    private static final LacpTimerQueue INSTANCE = new LacpTimerQueue();
 
     protected LacpTimerQueue(){
     }
@@ -18,7 +18,7 @@ public  class LacpTimerQueue {
      * The LacpTimerQueue is a singleton class.
      */
     public static LacpTimerQueue getLacpTimerQueueInstance(){
-        return instance;
+        return INSTANCE;
     }
 
     /*
@@ -28,7 +28,7 @@ public  class LacpTimerQueue {
 
         boolean result = false;
 
-        if(LacpTimerQueueMap.get(switchId) != null){
+        if(LACP_TIMER_QUEUE_MAP.get(switchId) != null){
             result = true;
         }
         return result;
@@ -40,15 +40,15 @@ public  class LacpTimerQueue {
      */  
     public boolean enqueue(long switchId, TimerExpiryMessage pdu){
         boolean result = false;
-        LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LacpTimerQueueMap.get(switchId);
+        LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LACP_TIMER_QUEUE_MAP.get(switchId);
 
         if(lacpTimerQueueId == null){
             lacpTimerQueueId = new LacpQueue<TimerExpiryMessage>();
-            LacpTimerQueueMap.put(switchId, lacpTimerQueueId);
+            LACP_TIMER_QUEUE_MAP.put(switchId, lacpTimerQueueId);
         }
 
-        synchronized(this.LacpTimerQueueMap.get(switchId)){
-            LacpTimerQueueMap.get(switchId).enqueue(pdu);
+        synchronized(this.LACP_TIMER_QUEUE_MAP.get(switchId)){
+            LACP_TIMER_QUEUE_MAP.get(switchId).enqueue(pdu);
             result = true;
         }	
 
@@ -60,11 +60,11 @@ public  class LacpTimerQueue {
      */  
     public TimerExpiryMessage dequeue(long switchId){
         TimerExpiryMessage obj = null;
-        LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LacpTimerQueueMap.get(switchId);
+        LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LACP_TIMER_QUEUE_MAP.get(switchId);
 
         if(lacpTimerQueueId != null){
-            synchronized(this.LacpTimerQueueMap.get(switchId)){
-                obj = LacpTimerQueueMap.get(switchId).dequeue();
+            synchronized(this.LACP_TIMER_QUEUE_MAP.get(switchId)){
+                obj = LACP_TIMER_QUEUE_MAP.get(switchId).dequeue();
             }
         }
         return obj;
@@ -75,11 +75,11 @@ public  class LacpTimerQueue {
          */ 	
         public boolean addLacpQueue(long switchId){
             boolean result = true;
-            LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LacpTimerQueueMap.get(switchId);
+            LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LACP_TIMER_QUEUE_MAP.get(switchId);
 
             if(lacpTimerQueueId == null){
                 lacpTimerQueueId = new LacpQueue<TimerExpiryMessage>();
-                LacpTimerQueueMap.put(switchId, lacpTimerQueueId);
+                LACP_TIMER_QUEUE_MAP.put(switchId, lacpTimerQueueId);
             }
             return result;
         }
@@ -93,9 +93,9 @@ public  class LacpTimerQueue {
             boolean result = false;
 
             if(isLacpQueuePresent(switchId)){
-                synchronized(this.LacpTimerQueueMap.get(switchId)){
-                    LacpTimerQueueMap.get(switchId).remove();
-                    LacpTimerQueueMap.remove(switchId);
+                synchronized(this.LACP_TIMER_QUEUE_MAP.get(switchId)){
+                    LACP_TIMER_QUEUE_MAP.get(switchId).remove();
+                    LACP_TIMER_QUEUE_MAP.remove(switchId);
 
                     result  = true;
                 }
@@ -106,11 +106,11 @@ public  class LacpTimerQueue {
 
        public TimerExpiryMessage read(long switchId){
         TimerExpiryMessage obj = null;
-        LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LacpTimerQueueMap.get(switchId);
+        LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LACP_TIMER_QUEUE_MAP.get(switchId);
 
         if(lacpTimerQueueId != null){
-            synchronized(this.LacpTimerQueueMap.get(switchId)){
-                obj = LacpTimerQueueMap.get(switchId).read();
+            synchronized(this.LACP_TIMER_QUEUE_MAP.get(switchId)){
+                obj = LACP_TIMER_QUEUE_MAP.get(switchId).read();
             }
         }
         return obj;
@@ -123,8 +123,8 @@ public  class LacpTimerQueue {
 
             long size = 0;
 
-            if(LacpTimerQueueMap.get(switchId) != null){
-                size = LacpTimerQueueMap.get(switchId).size();
+            if(LACP_TIMER_QUEUE_MAP.get(switchId) != null){
+                size = LACP_TIMER_QUEUE_MAP.get(switchId).size();
             }
             return size;
         }

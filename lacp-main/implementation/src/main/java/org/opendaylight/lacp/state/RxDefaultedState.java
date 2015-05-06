@@ -20,7 +20,7 @@ import org.opendaylight.lacp.inventory.LacpPort.PortParams;
 
 public class RxDefaultedState extends RxState {
 	
-	private static final Logger log = LoggerFactory.getLogger(RxDefaultedState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RxDefaultedState.class);
 	public RxDefaultedState(){
 		stateFlag = LacpConst.RX_STATES.RX_DEFAULTED;
 	}
@@ -56,7 +56,7 @@ public class RxDefaultedState extends RxState {
 			(admin.getPortState() & LacpConst.PORT_STATE_AGGREGATION)!= 
 			(oper.getPortState() & LacpConst.PORT_STATE_AGGREGATION)) {
 			portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & ~LacpConst.PORT_SELECTED));
-			log.info("RxDefaultedState updateDefaultSelected, setting the port={} to UNSELECTED", portObjRef.slaveGetPortId());
+			LOG.info("RxDefaultedState updateDefaultSelected, setting the port={} to UNSELECTED", portObjRef.slaveGetPortId());
 		}
 	}
 

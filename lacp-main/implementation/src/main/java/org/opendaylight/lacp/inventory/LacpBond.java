@@ -60,7 +60,7 @@ public class LacpBond {
 	private static int UniqueId = 1;	
 	private int bondInstanceId;
 
-	private static final Logger log = LoggerFactory.getLogger(LacpBond.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LacpBond.class);
 	private int slaveCnt;  /* default 1 slave port per bond */
 	private List<LacpPort> slaveList;
 	private LinkedHashMap<Short, LacpPort> portSlaveMap;
@@ -247,7 +247,7 @@ public class LacpBond {
 	
 	private LacpBond(int sys_priority,short key, LacpNodeExtn lacpNode) 
 	{
-		log.debug("LacpBond is created with sys priority ={} and key={}",sys_priority,key); 
+		LOG.debug("LacpBond is created with sys priority ={} and key={}",sys_priority,key); 
 
 		bondInstanceId = UniqueId++;
 		this.bondLock = new ReentrantLock();
@@ -345,7 +345,7 @@ public class LacpBond {
 			slave.slaveSetLacpPortEnabled(this.isLacpEnabled);
 		}
 
-		log.info(
+		LOG.info(
 				"Port[Port ID = " + portId +  
 				"] from SW= " +HexEncode.longToHexString(swId) +"  is added into LACP Bond Key=" + this.adminKey +
 				" with Virutal Mac=" + HexEncode.bytesToHexString(virtualSysMacAddr));
@@ -385,7 +385,7 @@ public class LacpBond {
 				slave.slavePSMUnlock();
 			}
 			slave = null;
-			log.info(
+			LOG.info(
 					"Port[Port ID = {} ] from SW={} is removed from LACP Bond Key={} with Virutal Mac={} at {}",
 					new Object[] { HexEncode.longToHexString((long)portId),
 							HexEncode.longToHexString(swId),
@@ -407,7 +407,7 @@ public class LacpBond {
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.getNumOfPorts() == 0){
-			log.debug("bondGetFreeAgg found free aggregator"); 
+			LOG.debug("bondGetFreeAgg found free aggregator"); 
     			return agg;
 		}
     	}
@@ -422,7 +422,7 @@ public class LacpBond {
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.getIsActive() > 0){
-			log.debug("getActiveAgg - Found active agg"); 
+			LOG.debug("getActiveAgg - Found active agg"); 
     			return agg;
 		}
     		
@@ -439,7 +439,7 @@ public class LacpBond {
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.isPortFitToAgg(port)) {
-			log.debug("findLacpAggByFitPort - found aggregator for port={}", port.slaveGetPortId());
+			LOG.debug("findLacpAggByFitPort - found aggregator for port={}", port.slaveGetPortId());
 			 return agg;
 		}
 	}
@@ -529,20 +529,20 @@ public class LacpBond {
     			if (!(((active.aggGetActorOperAggKey()==0) && (best.aggGetActorOperAggKey()>0)))) {
     				best = null;
     				active.setIsActive((short)1);
-				log.debug("bondAggSelectionLogic - active agg not null, setting the aggregator to active"); 
+				LOG.debug("bondAggSelectionLogic - active agg not null, setting the aggregator to active"); 
     			}
     		} else if (active == null) {
     			active = best;
     			best = null;
     			active.setIsActive((short)1);
-			log.debug("bondAggSelectionLogic - active agg is null, setting the active=best aggregator to active"); 
+			LOG.debug("bondAggSelectionLogic - active agg is null, setting the active=best aggregator to active"); 
     		}
     	}
 
     	if (best!=null && (best == active)) {
     		best = null;
     		active.setIsActive((short)1);
-		log.debug("bondAggSelectionLogic - active == best, setting the aggregator to active"); 
+		LOG.debug("bondAggSelectionLogic - active == best, setting the aggregator to active"); 
 
     	}
 
@@ -553,10 +553,10 @@ public class LacpBond {
     		}
     		best.setIsActive((short)1);
     		active = getActiveAgg();
-		log.debug("bondAggSelectionLogic - best!=null, setting the aggregator to active"); 
+		LOG.debug("bondAggSelectionLogic - best!=null, setting the aggregator to active"); 
     	}  	
     	if (orig != active) {
-    		log.info(
+    		LOG.info(
     				"Aggregator Reselection : Old Aggregator ID = {}, New Aggregator Id={} with Status[{}] and Number of Members={} at {}",
     				new Object[] { orig == null? "NULL":HexEncode.longToHexString((long)orig.getAggId()), 
     						active == null? "NULL" : HexEncode.longToHexString((long)active.getAggId()),
@@ -599,7 +599,7 @@ public class LacpBond {
 	public boolean isPartnerExist(byte[] sysId, short key) {
 		for (LacpPort slave:slaveList) {
 			if (slave.portPartnerOperGetKey() == key && Arrays.equals(sysId, slave.portPartnerOperGetSystem())){
-				log.debug("isPartnerExist - returning true"); 
+				LOG.debug("isPartnerExist - returning true"); 
 				return true;
 			}
 		}
@@ -638,7 +638,7 @@ public class LacpBond {
 				int result = currentFeatures;
 				int speed = (result >> LacpConst.DUPLEX_KEY_BITS);
 				byte duplex = (byte) (result & LacpConst.DUPLEX_KEY_BITS);
-				log.debug("bondUpdateLinkUpSlave : currentFeatures={}, speed={}",
+				LOG.debug("bondUpdateLinkUpSlave : currentFeatures={}, speed={}",
 						String.format("%x", currentFeatures), String.format("%x", speed));
 				LacpPort slave = portSlaveMap.get(portId);
 				slave.slavePSMLock();
@@ -649,11 +649,11 @@ public class LacpBond {
 				} finally {
 					slave.slavePSMUnlock();
 				}
-				log.info("LACP Port [ PortId={}, Virtual={} ] in SW={} Link Up at {}",
+				LOG.info("LACP Port [ PortId={}, Virtual={} ] in SW={} Link Up at {}",
 						HexEncode.longToHexString((long)portId),
 						HexEncode.longToHexString(swId), new Date());
 			} else {
-				log.debug("bondUpdateLinkUpSlave:Port is 0");
+				LOG.debug("bondUpdateLinkUpSlave:Port is 0");
 			}
 		} finally {
 			this.bondStateMachineUnlock();
@@ -671,7 +671,7 @@ public class LacpBond {
 					slave.slaveSetSpeed((byte)0);
 					slave.slaveSetDuplex((byte)0);
 					slave.slaveHandleLinkChange(LacpConst.BOND_LINK_DOWN);
-					log.info("LACP Port [ PortId={} ] in SW={} Link Down at {}",
+					LOG.info("LACP Port [ PortId={} ] in SW={} Link Down at {}",
 						HexEncode.longToHexString((long)portId), 
 						HexEncode.longToHexString(swId), new Date());
 				} finally {
@@ -710,11 +710,11 @@ public class LacpBond {
 			LacpPort slave = portSlaveMap.get(portId);
 			if (slave != null &&  slave.getPortAggregator()!=null)
 			{
-				log.debug("bondGetAggId - returning AggId= {}",slave.getPortAggregator().getAggId()); 
+				LOG.debug("bondGetAggId - returning AggId= {}",slave.getPortAggregator().getAggId()); 
 				return (slave.getPortAggregator().getAggId());
 			}
 			else{
-				log.debug("bondGetAggId - returning AggId= {} as slave is null",0); 
+				LOG.debug("bondGetAggId - returning AggId= {} as slave is null",0); 
 				return 0;
 			}
 		}
@@ -799,7 +799,7 @@ public class LacpBond {
         final WriteTransaction write = dataService.newWriteOnlyTransaction();
         // TODO fill partner agg mac
 
-        log.debug ("entering updateLacpAggregators for bond {} ", bondInstanceId);
+        LOG.debug ("entering updateLacpAggregators for bond {} ", bondInstanceId);
         LacpAggregator lacpAgg = getActiveAgg();
 
         MacAddress mac = new MacAddress(HexEncode.bytesToHexStringFormat(lacpAgg.getAggMacAddress()));
@@ -815,18 +815,18 @@ public class LacpBond {
         lacpAggBuilder.setPartnerSystemPriority(lacpAgg.getPartnerSystemPriority());
         ListOfLagPortsBuilder lagPortBuilder = new ListOfLagPortsBuilder();
         List<ListOfLagPorts> lagPortList = new ArrayList<ListOfLagPorts>();
-        log.debug ("updating agg port list");
+        LOG.debug ("updating agg port list");
         for(LacpPort lacpPortTmp : activePortList)
         {
             ncRef = new NodeConnectorRef (lacpPortTmp.getNodeConnectorId());
             lagPortBuilder.setLacpPortRef(ncRef);
             lagPortList.add(lagPortBuilder.build());
-            log.debug ("update agg ds {} for port {} ", bondInstanceId, ncRef);
+            LOG.debug ("update agg ds {} for port {} ", bondInstanceId, ncRef);
         }
         lacpAggBuilder.setListOfLagPorts(lagPortList);
         LacpAggregators lacpAggs = lacpAggBuilder.build();
         
-        log.debug ("writing the add ds");
+        LOG.debug ("writing the add ds");
         write.merge(LogicalDatastoreType.OPERATIONAL, aggInstId, lacpAggs, true);
         final CheckedFuture result = write.submit();
         Futures.addCallback(result, new FutureCallback()
@@ -834,22 +834,22 @@ public class LacpBond {
             @Override
             public void onSuccess(Object o)
             {
-                log.info("LacpAggregators updation write success for txt {}", write.getIdentifier());
+                LOG.info("LacpAggregators updation write success for txt {}", write.getIdentifier());
             }
             @Override
             public void onFailure(Throwable throwable)
             {
-                log.error("LacpAggregators updation write failed for tx {}", write.getIdentifier(), throwable.getCause());
+                LOG.error("LacpAggregators updation write failed for tx {}", write.getIdentifier(), throwable.getCause());
             }
         });
-        log.debug ("exiting updateLacpAggregators");
+        LOG.debug ("exiting updateLacpAggregators");
     }
     public void deleteLacpAggregatorDS ()
     {
         DataBroker dataService = LacpUtil.getDataBrokerService();
         final WriteTransaction write = dataService.newWriteOnlyTransaction();
 
-        log.debug ("deleting the agg ds for bond {}", bondInstanceId);
+        LOG.debug ("deleting the agg ds for bond {}", bondInstanceId);
         write.delete(LogicalDatastoreType.OPERATIONAL, aggInstId);
         final CheckedFuture result = write.submit();
         Futures.addCallback(result, new FutureCallback()
@@ -857,36 +857,36 @@ public class LacpBond {
             @Override
             public void onSuccess(Object o)
             {
-                log.info("LacpAggregators deletion write success for txt {}", write.getIdentifier());
+                LOG.info("LacpAggregators deletion write success for txt {}", write.getIdentifier());
             }
             @Override
             public void onFailure(Throwable throwable)
             {
-                log.error("LacpAggregators deletion write failed for tx {}", write.getIdentifier(), throwable.getCause());
+                LOG.error("LacpAggregators deletion write failed for tx {}", write.getIdentifier(), throwable.getCause());
             }
         });
     }
     public boolean addActivePort (LacpPort lacpPort)
     {
-        log.debug ("entring addActivePort");
+        LOG.debug ("entring addActivePort");
         if (activePortList.contains (lacpPort))
         {
-            log.debug ("port {} is already present. returning false ", lacpPort.getNodeConnectorId());
+            LOG.debug ("port {} is already present. returning false ", lacpPort.getNodeConnectorId());
             return false;
         }
-        log.debug ("adding port {} to bond{} ", lacpPort.getNodeConnectorId(), aggInstId);
+        LOG.debug ("adding port {} to bond{} ", lacpPort.getNodeConnectorId(), aggInstId);
         activePortList.add (lacpPort);
         updateLacpAggregatorsDS();
         if (activePortList.size() <= 1)
         {
-            log.debug ("creating the logical port and adding lag group ");
+            LOG.debug ("creating the logical port and adding lag group ");
             LacpLogPort.createLogicalPort(this);
             lagGroup = lacpGroupTbl.lacpAddGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
             lacpNodeRef.addLacpAggregator(this);
         }
         else
         {
-            log.debug ("setting NCRef and adding port to lag group");
+            LOG.debug ("setting NCRef and adding port to lag group");
             lacpPort.setLogicalNCRef(logNodeConnRef);
             lagGroup = lacpGroupTbl.lacpAddPort(true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), lagGroup);
         }
@@ -894,10 +894,10 @@ public class LacpBond {
     }
     public boolean removeActivePort (LacpPort lacpPort)
     {
-        log.debug ("in removeActivePort");
+        LOG.debug ("in removeActivePort");
         if (!(activePortList.contains (lacpPort)))
         {
-            log.debug ("port {} is not present. returning false ", lacpPort.getNodeConnectorId());
+            LOG.debug ("port {} is not present. returning false ", lacpPort.getNodeConnectorId());
             return false;
         }
         lacpPort.resetLacpParams();
@@ -918,12 +918,12 @@ public class LacpBond {
         lacpNodeRef.removeLacpPort(lacpPort.getNodeConnectorId(), false);
         if (lacpPort.getPortOperStatus() == true)
         {
-            log.debug("removing the port as lacp port and adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
+            LOG.debug("removing the port as lacp port and adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
             lacpNodeRef.addNonLacpPort(lacpPort.getNodeConnectorId());
         }
         else
         {
-            log.debug("removing the port as lacp port and not adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
+            LOG.debug("removing the port as lacp port and not adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
         }
         return true;
     }

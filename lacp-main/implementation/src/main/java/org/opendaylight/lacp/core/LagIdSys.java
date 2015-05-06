@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 public class LagIdSys implements Comparable<LagIdSys> {
 
-	private static final Logger log = LoggerFactory.getLogger(LagIdSys.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LagIdSys.class);
 	final int sysPriority;
 	final byte[] sysMacAddress;
 	

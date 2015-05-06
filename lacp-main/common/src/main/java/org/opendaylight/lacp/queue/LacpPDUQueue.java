@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public  class LacpPDUQueue {
 
-    private static final Map<Long, LacpDeque<LacpPDUPortStatusContainer>> LacpPDUQueueMap =
+    private static final Map<Long, LacpDeque<LacpPDUPortStatusContainer>> LACP_PDU_QUEUE_MAP =
         new ConcurrentHashMap<Long,LacpDeque<LacpPDUPortStatusContainer>>();
-    private static final LacpPDUQueue instance = new LacpPDUQueue();
+    private static final LacpPDUQueue INSTANCE = new LacpPDUQueue();
 
     protected LacpPDUQueue(){
     }
@@ -16,7 +16,7 @@ public  class LacpPDUQueue {
      * The LacpPDUqueue is a singleton class.
      */	
     public static LacpPDUQueue getLacpPDUQueueInstance(){
-        return instance;
+        return INSTANCE;
     }
 
     /*
@@ -25,7 +25,7 @@ public  class LacpPDUQueue {
     public boolean isLacpQueuePresent(long switchId){
         boolean result = false;
 
-        if(LacpPDUQueueMap.get(switchId) != null){
+        if(LACP_PDU_QUEUE_MAP.get(switchId) != null){
             result = true;
         }
         return result;
@@ -39,8 +39,8 @@ public  class LacpPDUQueue {
         boolean result = false;
         LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId;
 
-        synchronized(this.LacpPDUQueueMap.get(switchId)){
-            LacpPDUQueueMap.get(switchId).enqueue(pdu);
+        synchronized(this.LACP_PDU_QUEUE_MAP.get(switchId)){
+            LACP_PDU_QUEUE_MAP.get(switchId).enqueue(pdu);
             result = true;
         }
 
@@ -53,11 +53,11 @@ public  class LacpPDUQueue {
      */ 	
     public LacpPDUPortStatusContainer dequeue(Long switchId){
         LacpPDUPortStatusContainer obj = null;
-        LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId = LacpPDUQueueMap.get(switchId);
+        LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId = LACP_PDU_QUEUE_MAP.get(switchId);
 
         if(lacpPDUQueueId != null){
-            synchronized(this.LacpPDUQueueMap.get(switchId)){
-                obj = LacpPDUQueueMap.get(switchId).dequeue();
+            synchronized(this.LACP_PDU_QUEUE_MAP.get(switchId)){
+                obj = LACP_PDU_QUEUE_MAP.get(switchId).dequeue();
             }
         }
         return obj;
@@ -66,11 +66,11 @@ public  class LacpPDUQueue {
     //Adds a new PDU queue	
     public boolean addLacpQueue(long switchId){
         boolean result = true;
-        LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId = LacpPDUQueueMap.get(switchId);
+        LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId = LACP_PDU_QUEUE_MAP.get(switchId);
 
         if(lacpPDUQueueId == null){
             lacpPDUQueueId = new LacpDeque<LacpPDUPortStatusContainer>();
-            LacpPDUQueueMap.put(switchId, lacpPDUQueueId);
+            LACP_PDU_QUEUE_MAP.put(switchId, lacpPDUQueueId);
         }
         return result;
     }
@@ -83,10 +83,10 @@ public  class LacpPDUQueue {
     public boolean deleteLacpQueue(long switchId){
         boolean result = false;
 
-        if(LacpPDUQueueMap.get(switchId) != null){
-            synchronized(this.LacpPDUQueueMap.get(switchId)){
-                LacpPDUQueueMap.get(switchId).remove();
-                LacpPDUQueueMap.remove(switchId);
+        if(LACP_PDU_QUEUE_MAP.get(switchId) != null){
+            synchronized(this.LACP_PDU_QUEUE_MAP.get(switchId)){
+                LACP_PDU_QUEUE_MAP.get(switchId).remove();
+                LACP_PDU_QUEUE_MAP.remove(switchId);
                 result  = true;
             }
         }
@@ -101,8 +101,8 @@ public  class LacpPDUQueue {
         boolean result = false;
         LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId;
 
-        synchronized(this.LacpPDUQueueMap.get(switchId)){
-            LacpPDUQueueMap.get(switchId).addFirst(pdu);
+        synchronized(this.LACP_PDU_QUEUE_MAP.get(switchId)){
+            LACP_PDU_QUEUE_MAP.get(switchId).addFirst(pdu);
             result = true;
         }
 
@@ -111,11 +111,11 @@ public  class LacpPDUQueue {
 
     public LacpPDUPortStatusContainer read(Long switchId){
         LacpPDUPortStatusContainer obj = null;
-        LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId = LacpPDUQueueMap.get(switchId);
+        LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId = LACP_PDU_QUEUE_MAP.get(switchId);
 
         if(lacpPDUQueueId != null){
-            synchronized(this.LacpPDUQueueMap.get(switchId)){
-                obj = LacpPDUQueueMap.get(switchId).read();
+            synchronized(this.LACP_PDU_QUEUE_MAP.get(switchId)){
+                obj = LACP_PDU_QUEUE_MAP.get(switchId).read();
             }
         }
         return obj;	
@@ -126,8 +126,8 @@ public  class LacpPDUQueue {
 
         long size = 0;
 
-        if(LacpPDUQueueMap.get(switchId) != null){
-            size = LacpPDUQueueMap.get(switchId).size();
+        if(LACP_PDU_QUEUE_MAP.get(switchId) != null){
+            size = LACP_PDU_QUEUE_MAP.get(switchId).size();
         }
         return size;
     }

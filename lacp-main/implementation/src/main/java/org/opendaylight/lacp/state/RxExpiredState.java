@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RxExpiredState extends RxState {
-	private static final Logger log = LoggerFactory.getLogger(RxExpiredState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RxExpiredState.class);
 	public RxExpiredState(){
 		stateFlag = LacpConst.RX_STATES.RX_EXPIRED;
 	}

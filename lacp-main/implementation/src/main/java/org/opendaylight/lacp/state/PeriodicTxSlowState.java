@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class PeriodicTxSlowState extends PeriodicTxState {
 	
-	private static final Logger log = LoggerFactory.getLogger(PeriodicTxSlowState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PeriodicTxSlowState.class);
 	public PeriodicTxSlowState(){
 		stateFlag = LacpConst.PERIODIC_STATES.SLOW_PERIODIC;
 	}

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class MuxCollectingDistributingState  extends MuxState {
-	private static final Logger log = LoggerFactory.getLogger(MuxCollectingDistributingState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MuxCollectingDistributingState.class);
 	
 	public MuxCollectingDistributingState(){
 		stateFlag = LacpConst.MUX_STATES.MUX_COLLECTING_DISTRIBUTING;
@@ -39,7 +39,7 @@ public class MuxCollectingDistributingState  extends MuxState {
 				| LacpConst.PORT_STATE_DISTRIBUTING));
 	try {
 
-		log.info(
+		LOG.info(
 			"Port[{}] moves to the collect & dist state to aggregator [ID={}, STATUS={}]",
 			 String.format("%04x",portObjRef.slaveGetPortId()),
 			 String.format("%04x", portObjRef.getPortAggregator().getAggId()),
@@ -48,8 +48,8 @@ public class MuxCollectingDistributingState  extends MuxState {
 			portObjRef.enableCollectingDistributing(portObjRef.slaveGetPortId(),portObjRef.getPortAggregator());
 
 		}catch (Exception e) {
-			log.error("MuxCollectingDistributingState bad lacp aggr");
-			log.error(e.getMessage());
+			LOG.error("MuxCollectingDistributingState bad lacp aggr");
+			LOG.error(e.getMessage());
 		}
 		portObjRef.setNtt(true);
 	}

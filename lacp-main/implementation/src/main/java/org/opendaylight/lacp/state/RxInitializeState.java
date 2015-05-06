@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class RxInitializeState extends RxState {
 	
-	private static final Logger log = LoggerFactory.getLogger(RxInitializeState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RxInitializeState.class);
 	
 	public RxInitializeState(){
 		stateFlag = LacpConst.RX_STATES.RX_INITIALIZE;
@@ -35,7 +35,7 @@ public class RxInitializeState extends RxState {
 		stateFlag = LacpConst.RX_STATES.RX_INITIALIZE;
 		if (!portObjRef.isLacpEnabled()){
 			portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & (~LacpConst.PORT_LACP_ENABLED)));
-			log.debug("RxInitializeState setting lacp enabled to FALSE for port{}", portObjRef.slaveGetPortId());
+			LOG.debug("RxInitializeState setting lacp enabled to FALSE for port{}", portObjRef.slaveGetPortId());
 		}
 		else{
 			portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() | LacpConst.PORT_LACP_ENABLED));

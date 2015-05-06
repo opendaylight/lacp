@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class PeriodicTxNoPeriodicState extends PeriodicTxState {
 
-	private static final Logger log = LoggerFactory.getLogger(PeriodicTxNoPeriodicState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PeriodicTxNoPeriodicState.class);
 	
 	public PeriodicTxNoPeriodicState(){
 		stateFlag = LacpConst.PERIODIC_STATES.NO_PERIODIC;

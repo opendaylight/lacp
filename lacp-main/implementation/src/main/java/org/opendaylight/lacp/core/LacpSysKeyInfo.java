@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 //import org.openflow.util.HexString;
 
 public class LacpSysKeyInfo {
-	private static final Logger log = LoggerFactory.getLogger(LacpSysKeyInfo.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LacpSysKeyInfo.class);
 	byte[] systemId;
 	short lacpKey;
 	

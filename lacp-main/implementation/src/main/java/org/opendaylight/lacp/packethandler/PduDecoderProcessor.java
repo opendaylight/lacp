@@ -17,12 +17,12 @@ import org.opendaylight.lacp.Utils.*;
 
 public class PduDecoderProcessor implements Runnable {
 
-	private final static Logger log = LoggerFactory.getLogger(PduDecoderProcessor.class);
+	private final static Logger LOG = LoggerFactory.getLogger(PduDecoderProcessor.class);
 	private static boolean IsLacploaded=true;
 	@Override
 	public void run() {
 		boolean IsnewNode=false;
-		log.info("Spawned PDU Decoder Thread");
+		LOG.info("Spawned PDU Decoder Thread");
 
 		PduQueueHandler qh = new PduQueueHandler();
 		// Check the Raw Packet Queue for any Incoming LACP PDU to be processed

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class RxState {
 	
-	private static final Logger log = LoggerFactory.getLogger(RxState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RxState.class);
 	protected LacpConst.RX_STATES stateFlag;
 	
 	RxState(){

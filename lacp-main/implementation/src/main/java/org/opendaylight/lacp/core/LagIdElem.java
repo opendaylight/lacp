@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class LagIdElem implements Comparable<LagIdElem> {
 
-	private static final Logger log = LoggerFactory.getLogger(LagIdElem.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LagIdElem.class);
 	final LagIdSys system;   // System MAC + Priority
 	final short  	 key;   // Operational Key
 	final LagIdPort port;  // Port Parameter Number + Priority	

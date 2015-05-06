@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class PeriodicTxPeriodicState extends PeriodicTxState {
 	
-	private static final Logger log = LoggerFactory.getLogger(PeriodicTxPeriodicState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PeriodicTxPeriodicState.class);
 
 	public PeriodicTxPeriodicState(){
 		stateFlag = LacpConst.PERIODIC_STATES.PERIODIC_TX;
@@ -26,7 +26,7 @@ public class PeriodicTxPeriodicState extends PeriodicTxState {
 	public void executeStateAction(PeriodicTxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
 		//NTT = TRUE
 		stateFlag = LacpConst.PERIODIC_STATES.PERIODIC_TX;
-		log.debug("Entering PeriodicTxPeriodicState executeStateAction, setting ntt to true for port={}", portObjRef.slaveGetPortId());
+		LOG.debug("Entering PeriodicTxPeriodicState executeStateAction, setting ntt to true for port={}", portObjRef.slaveGetPortId());
 		if(!portObjRef.getPeriodicWhileTimer().isExpired()){
 			portObjRef.getPeriodicWhileTimer().cancel();
 		}

@@ -35,7 +35,7 @@ import org.opendaylight.lacp.queue.*;
 
 public class TxUtils {
 
-	private final static Logger log = LoggerFactory.getLogger(TxProcessor.class);
+	private final static Logger LOG = LoggerFactory.getLogger(TxProcessor.class);
 
 	public static String macToString(String srcstr) {
 
@@ -185,7 +185,7 @@ public class TxUtils {
 		if(destNodeConnector != null) {
 		 	sendPacketOut(payload, destNodeConnector,pServ);
 		} else {
-			log.debug("TxProcessor: desNodeConnector is NULL");
+			LOG.debug("TxProcessor: desNodeConnector is NULL");
 		}
 	}
 
@@ -212,9 +212,9 @@ public class TxUtils {
 
 			if(pServ != null){
 				pServ.transmitPacket(input);
-				log.info("sucessfully sent the transmitPacket");
+				LOG.info("sucessfully sent the transmitPacket");
 			}else{
-				log.warn("packetProcessingService is null");
+				LOG.warn("packetProcessingService is null");
 			}
 	}
 

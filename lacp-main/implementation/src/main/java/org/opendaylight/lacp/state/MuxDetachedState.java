@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class MuxDetachedState  extends MuxState {
 
-	private static final Logger log = LoggerFactory.getLogger(MuxDetachedState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MuxDetachedState.class);
 	
 	public MuxDetachedState(){
 		stateFlag = LacpConst.MUX_STATES.MUX_DETACHED;
@@ -46,15 +46,15 @@ public class MuxDetachedState  extends MuxState {
 				& ~LacpConst.PORT_STATE_DISTRIBUTING));
 			portObjRef.setNtt(true);
 			
-			log.info(
+			LOG.info(
 				"Port[{}] moves to detached from aggregator [ID={}, STATUS={}]",
 				 String.format("%04x",portObjRef.slaveGetPortId()),
 					String.format("%04x", portObjRef.getPortAggregator().getAggId()),
 					(portObjRef.getPortAggregator().getIsActive() > 0 ? "Active" : "Ready"));
 			
 		} catch (Exception e) {
-			log.error("MuxDetachedState bad lacp aggr");
-			log.error(e.getMessage());
+			LOG.error("MuxDetachedState bad lacp aggr");
+			LOG.error(e.getMessage());
 		}
 	}
 

@@ -16,11 +16,11 @@ import org.slf4j.LoggerFactory;
 
 public class MuxAttachedState extends MuxState {
 
-	private static final Logger log = LoggerFactory.getLogger(MuxAttachedState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MuxAttachedState.class);
 	public MuxAttachedState(){
-		log.debug("Entering MuxAttachedState constructor");
+		LOG.debug("Entering MuxAttachedState constructor");
 		stateFlag = LacpConst.MUX_STATES.MUX_ATTACHED;
-		log.debug("Exiting MuxAttachedState constructor");
+		LOG.debug("Exiting MuxAttachedState constructor");
 	}
 	
 	public void executeStateAction(MuxContext obj, LacpPort portObjRef){
@@ -35,7 +35,7 @@ public class MuxAttachedState extends MuxState {
  	*/
 		
 		stateFlag = LacpConst.MUX_STATES.MUX_ATTACHED;
-		log.debug("MuxAttachedState-executeStateAction Entry");
+		LOG.debug("MuxAttachedState-executeStateAction Entry");
 		portObjRef.attachBondToAgg();
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState() | LacpConst.PORT_STATE_SYNCHRONIZATION));
 		try {
@@ -46,16 +46,16 @@ public class MuxAttachedState extends MuxState {
 			portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 										& ~LacpConst.PORT_STATE_DISTRIBUTING));
 
-  			log.info("Port[{}] moves to the attached state to aggregator [ID={}, STATUS={}]",
+  			LOG.info("Port[{}] moves to the attached state to aggregator [ID={}, STATUS={}]",
   								String.format("%04x",portObjRef.slaveGetPortId()),
   								String.format("%04x", portObjRef.getPortAggregator().getAggId()),
   								(portObjRef.getPortAggregator().getIsActive() > 0 ? "Active" : "Ready"));
 		} catch (Exception e) {
-			log.error("MuxAttachedState bad lacp aggr");
-			log.error(e.getMessage());
+			LOG.error("MuxAttachedState bad lacp aggr");
+			LOG.error(e.getMessage());
 		}
 		portObjRef.setNtt(true);
-		log.debug("MuxAttachedState-executeStateAction Exit");
+		LOG.debug("MuxAttachedState-executeStateAction Exit");
 	}
 
 	public LacpConst.MUX_STATES getStateFlag(){
@@ -63,9 +63,9 @@ public class MuxAttachedState extends MuxState {
 	}
 	
 	public void setStateFlag(LacpConst.MUX_STATES state){
-		log.debug("MuxAttachedState-setStateFlag Entry");
+		LOG.debug("MuxAttachedState-setStateFlag Entry");
 		stateFlag = state;
-		log.debug("MuxAttachedState-setStateFlag Exit");
+		LOG.debug("MuxAttachedState-setStateFlag Exit");
 		
 	}
 }

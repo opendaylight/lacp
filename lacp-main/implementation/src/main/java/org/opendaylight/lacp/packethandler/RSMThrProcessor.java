@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 
 public class RSMThrProcessor implements Runnable {
 
-	private final static Logger log = LoggerFactory.getLogger(RSMThrProcessor.class);
+	private final static Logger LOG = LoggerFactory.getLogger(RSMThrProcessor.class);
 	private final AtomicLong txNum = new AtomicLong();
 
 	public String getNewTransactionId() {
@@ -33,8 +33,8 @@ public class RSMThrProcessor implements Runnable {
 	@Override
 	public void run() {
 		boolean IsNodeActive=true;
-		log.info("Spawned RSMThrProcessor Thread");
-		log.info("Spawned RSMThrProcessor Thread");
+		LOG.info("Spawned RSMThrProcessor Thread");
+		LOG.info("Spawned RSMThrProcessor Thread");
 		while (IsNodeActive)
 		{
 			//Dequeue

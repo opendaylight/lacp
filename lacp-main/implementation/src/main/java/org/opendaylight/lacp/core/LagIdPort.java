@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class LagIdPort implements Comparable<LagIdPort> {
 	final int portPriority;
 	final short portNumber;
-	private static final Logger log = LoggerFactory.getLogger(LagIdPort.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LagIdPort.class);
 	
 	
 	public LagIdPort(int port_priority, short port_number) {

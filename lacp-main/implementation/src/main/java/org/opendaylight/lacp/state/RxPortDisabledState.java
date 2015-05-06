@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RxPortDisabledState extends RxState {
-	private static final Logger log = LoggerFactory.getLogger(RxPortDisabledState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RxPortDisabledState.class);
 	public RxPortDisabledState(){
 		stateFlag = LacpConst.RX_STATES.RX_PORT_DISABLED;
 	}

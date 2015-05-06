@@ -19,7 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector; 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortFeatures; 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortState;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.CommonPort.PortNumber;
 import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -41,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public class LacpPortProperties {
 
 
-    private static final Logger log = LoggerFactory.getLogger(LacpPortProperties.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LacpPortProperties.class);
 
     public static NodeConnector getNodeConnector(DataBroker dataService, NodeConnectorRef nodeConnectorRef)
     {
@@ -50,7 +49,7 @@ public class LacpPortProperties {
     public static NodeConnector getNodeConnector(DataBroker dataService, InstanceIdentifier<NodeConnector> ncId)
     {
 	NodeConnector nc = null;
-	log.debug("getNodeConnector - Entry");
+	LOG.debug("getNodeConnector - Entry");
 
 
 	ReadOnlyTransaction readTransaction = dataService.newReadOnlyTransaction();
@@ -62,38 +61,34 @@ public class LacpPortProperties {
           		nc = (NodeConnector) dataObjectOptional.get();
 		}
         }catch(Exception e) {
-        	log.error("Error reading node connector {}", ncId);
+        	LOG.error("Error reading node connector {}", ncId);
         	readTransaction.close();
         	throw new RuntimeException("Error reading from operational store, node connector : " + ncId, e);
         }
         readTransaction.close();
 	if(nc != null){
-		log.debug("getNodeConnector - nodeconnector ref obtained sucessfully");
+		LOG.debug("getNodeConnector - nodeconnector ref obtained sucessfully");
 	}else{
-		log.error("getNodeConnector - nodeconnector ref cannot be obtained");
+		LOG.error("getNodeConnector - nodeconnector ref cannot be obtained");
 	}
-	log.debug("getNodeConnector - Exit");
+	LOG.debug("getNodeConnector - Exit");
         return nc;
 
     }
     public static long getPortNumber(NodeConnector portRef){
-	log.debug("getPortNumber - Entry");
+	LOG.debug("getPortNumber - Entry");
 	long lPort = 0;
 	if(portRef != null){
 		FlowCapableNodeConnector flowConnector = portRef.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
-		/*
-        	PortNumber number = flowConnector.getPortNumber();
-		lPort = number.getUint32();
-		*/
 		lPort = flowConnector.getPortNumber().getUint32();
-		log.debug("getPortNumber - port number obtained from nodeconnector ref is={}",lPort);
+		LOG.debug("getPortNumber - port number obtained from nodeconnector ref is={}",lPort);
 	}
-	log.debug("getPortNumber - Exit");
+	LOG.debug("getPortNumber - Exit");
 	return lPort;
     }
 
      public static PortState getPortState(NodeConnector portRef){
-	log.debug("getPortState - Entry");
+	LOG.debug("getPortState - Entry");
 	FlowCapableNodeConnector flowCapNodeConn = portRef.getAugmentation(FlowCapableNodeConnector.class);
 	PortState ps = flowCapNodeConn.getState();
 	if(ps != null){
@@ -101,66 +96,65 @@ public class LacpPortProperties {
 		boolean isLive = ps.isLive();
 		boolean isLinkDown = ps.isLinkDown();
 	}
-	log.debug("getPortState - Exit");
+	LOG.debug("getPortState - Exit");
 	return ps;
      }
 
      public static int mapSpeedDuplexFromPortFeature(NodeConnector portRef){
-	log.debug("mapSpeedDuplexFromPortFeature- Entry");
+	LOG.debug("mapSpeedDuplexFromPortFeature- Entry");
 
 	 int result = 0;
 	 if(portRef != null){
          	FlowCapableNodeConnector flowCapNodeConn = portRef.getAugmentation(FlowCapableNodeConnector.class);
-		//PortFeatures portFeatures = flowCapNodeConn.getAdvertisedFeatures(); 
 		PortFeatures portFeatures = flowCapNodeConn.getCurrentFeature(); 
 	 	result = resolveBW (portFeatures);
-	 	log.debug("mapSpeedDuplexFromPortFeature- result={}",result);
+	 	LOG.debug("mapSpeedDuplexFromPortFeature- result={}",result);
 	 } 
-	 log.debug("mapSpeedDuplexFromPortFeature- Exit");
+	 LOG.debug("mapSpeedDuplexFromPortFeature- Exit");
 	 return result;
      }
 
      private static int resolveBW(PortFeatures portFeatures) { 
 
-	 log.debug("resolveBW - Entry");
+	 LOG.debug("resolveBW - Entry");
 	 int result = 0;
 
          if (portFeatures.isOneTbFd()) { 
 		//USING HUNDERED GB BITMASK - CORRECT LATER
 		result = (LacpConst.LINK_SPEED_BITMASK_100000MBPS << LacpConst.DUPLEX_KEY_BITS) | LacpConst.DUPLEX_KEY_BITS; 
-	 	log.debug("resolveBW - isOneTbFd macth");
+	 	LOG.debug("resolveBW - isOneTbFd macth");
          } else if (portFeatures.isHundredGbFd()) { 
 		result = (LacpConst.LINK_SPEED_BITMASK_100000MBPS << LacpConst.DUPLEX_KEY_BITS) | LacpConst.DUPLEX_KEY_BITS; 
-	 	log.debug("resolveBW - isHundredGbFd macth");
+	 	LOG.debug("resolveBW - isHundredGbFd macth");
          } else if (portFeatures.isFortyGbFd()) {
 		result = (LacpConst.LINK_SPEED_BITMASK_40000MBPS << LacpConst.DUPLEX_KEY_BITS) | LacpConst.DUPLEX_KEY_BITS; 
-	 	log.debug("resolveBW - isFortyGbFd macth");
+	 	LOG.debug("resolveBW - isFortyGbFd macth");
          } else if (portFeatures.isTenGbFd()) {
 		result = (LacpConst.LINK_SPEED_BITMASK_10000MBPS << LacpConst.DUPLEX_KEY_BITS) | LacpConst.DUPLEX_KEY_BITS; 
-	 	log.debug("resolveBW - isTenGbFd macth");
+	 	LOG.debug("resolveBW - isTenGbFd macth");
          } else if (portFeatures.isOneGbHd()) { 
 		result = (LacpConst.LINK_SPEED_BITMASK_1000MBPS << LacpConst.DUPLEX_KEY_BITS) & LacpConst.SPEED_KEY_BITS;
-	 	log.debug("resolveBW - isOneGbHd macth");
+	 	LOG.debug("resolveBW - isOneGbHd macth");
 	 } else if(portFeatures.isOneGbFd()){
 		 result = (LacpConst.LINK_SPEED_BITMASK_1000MBPS << LacpConst.DUPLEX_KEY_BITS) | LacpConst.DUPLEX_KEY_BITS;
-	 	log.debug("resolveBW - isOneGbFd macth");
+	 	LOG.debug("resolveBW - isOneGbFd macth");
          } else if (portFeatures.isHundredMbHd()) { 
 		result = (LacpConst.LINK_SPEED_BITMASK_100MBPS << LacpConst.DUPLEX_KEY_BITS) & LacpConst.SPEED_KEY_BITS;
-	 	log.debug("resolveBW - isHundredMbHd macth");
+	 	LOG.debug("resolveBW - isHundredMbHd macth");
 	 } else if ( portFeatures.isHundredMbFd()){
 		result = (LacpConst.LINK_SPEED_BITMASK_100MBPS << LacpConst.DUPLEX_KEY_BITS) | LacpConst.DUPLEX_KEY_BITS;
-	 	log.debug("resolveBW - isHundredMbFd macth");
+	 	LOG.debug("resolveBW - isHundredMbFd macth");
          } else if (portFeatures.isTenMbHd()) { 
-	 	log.debug("resolveBW - isTenMbHd macth");
+	 	LOG.debug("resolveBW - isTenMbHd macth");
 		 result = (LacpConst.LINK_SPEED_BITMASK_10MBPS << LacpConst.DUPLEX_KEY_BITS) & LacpConst.SPEED_KEY_BITS;
          } else if (portFeatures.isTenMbFd()){
 		result = (LacpConst.LINK_SPEED_BITMASK_10MBPS << LacpConst.DUPLEX_KEY_BITS) | LacpConst.DUPLEX_KEY_BITS;
-	 	log.debug("resolveBW - isTenMbFd macth");
+	 	LOG.debug("resolveBW - isTenMbFd macth");
          } else { 
-	 	log.error("resolveBW - no bandwidth macth");
+	 	LOG.error("resolveBW - no bandwidth macth");
              return 0; 
          } 
-	 log.debug("resolveBW - Exit");
+	 LOG.debug("resolveBW - Exit");
 	 return result;
      } 
 }

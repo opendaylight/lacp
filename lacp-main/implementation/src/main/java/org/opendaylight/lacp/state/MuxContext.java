@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MuxContext {
-	private static final Logger log = LoggerFactory.getLogger(MuxContext.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MuxContext.class);
 	private MuxState muxState;
 		
 

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class PeriodicTxState {
 	
-	private static final Logger log = LoggerFactory.getLogger(PeriodicTxState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PeriodicTxState.class);
 	protected LacpConst.PERIODIC_STATES stateFlag;
 	
 	public PeriodicTxState(){
