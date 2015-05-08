@@ -689,7 +689,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.portLock = portLock;
 	}
 
-	private LacpPort(long swId, short portId, LacpBond bond, int port_priority, LacpBpduInfo bpduInfo) {
+	private LacpPort(long swId, short portId, LacpBond bond, int portPriority, LacpBpduInfo bpduInfo) {
 
 		LOG.debug("Entering LacpPort constructor for switchid={} port={}",portId, swId);
 
@@ -709,7 +709,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		bond.setSlaveCnt(getInstanceId());
 		setPortLock(new ReentrantLock(true));
 		
-		this.portPriority = port_priority;
+		this.portPriority = portPriority;
 		this.setActorSystem(new byte[LacpConst.ETH_ADDR_LEN]);
 		this.partnerAdmin = new PortParams();
 		this.partnerOper = new PortParams();		
@@ -1031,9 +1031,9 @@ public class LacpPort implements Comparable<LacpPort> {
                It will be updated when the LOG.calNCRef for the port is assigned. */
 	}
 
-	public static  LacpPort newInstance(long swId, short portId, LacpBond bond, int port_priority,LacpBpduInfo bpduInfo) {
-		LOG.debug("Entering/Exiting LacpPort newInstance() method for sw={} port={} priority={}",swId,portId,port_priority);
-		return new LacpPort(swId, portId, bond, port_priority,bpduInfo);
+	public static  LacpPort newInstance(long swId, short portId, LacpBond bond, int portPri,LacpBpduInfo bpduInfo) {
+		LOG.debug("Entering/Exiting LacpPort newInstance() method for sw={} port={} priority={}",swId,portId,portPri);
+		return new LacpPort(swId, portId, bond, portPri,bpduInfo);
 	}
 	
 	public void attachBondToAgg() {
@@ -1044,7 +1044,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		
 	}
 	
-	public void lacpInitPort(int lacp_fast)
+	public void lacpInitPort(int lacpFast)
 	{
 		LOG.debug("Entering lacpInitPort for port={}",portId);
 		this.setActorPortNumber(this.portId);
@@ -1071,7 +1071,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		if (this.isLacpEnabled()){
 			this.setStateMachineBitSet((short)(this.getStateMachineBitSet() | LacpConst.PORT_LACP_ENABLED));
 		}
-		if (lacp_fast > 0){
+		if (lacpFast > 0){
 			this.setActorOperPortState((byte)(this.getActorOperPortState()
 					| LacpConst.PORT_STATE_LACP_TIMEOUT));
 		}
@@ -1294,7 +1294,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	void lacpDisablePort() 
 	{	 
 		LOG.debug("Entering lacpDisablePort for port={}",portId);
-		 boolean select_new_active_agg = false;
+		 boolean selectNewActiveAgg = false;
 
 		 if (!isInitialized){
 			 return;
@@ -1306,10 +1306,10 @@ public class LacpPort implements Comparable<LacpPort> {
 
 		 if (aggregator != null && aggregator.aggHasPort(this)) {
 			 if (aggregator.getNumOfPorts() == 1){
-				 select_new_active_agg = aggregator.getIsActive() > 0 ? true :  false;
+				 selectNewActiveAgg = aggregator.getIsActive() > 0 ? true :  false;
 			 }
 			 aggregator.rmPortFromAgg(this);
-			 if (select_new_active_agg){ 
+			 if (selectNewActiveAgg){ 
 				 bond.bondAggSelectionLogic();
 			 }
 			 
@@ -1384,7 +1384,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		return ret;
 	}	
 	
-	public void slaveUpdateLacpRate(int lacp_fast) {
+	public void slaveUpdateLacpRate(int lacpFast) {
 		
 		LOG.debug("Entering slaveUpdateLacpRate for port={}",portId);
 		if ( !isInitialized){
@@ -1394,7 +1394,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		slavePSMLock();
 		try {
 
-			if (lacp_fast>0){
+			if (lacpFast>0){
 				portSetActorOperPortState((byte)(portGetActorOperPortState() | LacpConst.PORT_STATE_LACP_TIMEOUT));
 				LOG.debug("setting actor oper state to PORT_STATE_LACP_TIMEOUT");
 			}	
@@ -1917,24 +1917,24 @@ public class LacpPort implements Comparable<LacpPort> {
 		LOG.debug("Exiting portHandleLinkChange for port={}", portId);
 	}
 	
-	void portAssignSlave(byte[] sys_mac_addr, int lacp_fast, int sys_priority, int port_priority, short admin_key) {
+	void portAssignSlave(byte[] sysMacAddr, int lacpFast, int sysPri, int portPri, short adminKey) {
 		
 		LOG.debug("Entering portAssignSlave for port={}",portId);
-		lacpInitPort(lacp_fast);
+		lacpInitPort(lacpFast);
 		this.isInitialized = true;
 		
 		setActorPortNumber(portId);
-		setPortAdminPortKey(admin_key);
+		setPortAdminPortKey(adminKey);
 		actorOperPortKey = getActorAdminPortKey();
-		this.setActorSystemPriority(sys_priority);
-		this.setActorPortPriority(port_priority);
+		this.setActorSystemPriority(sysPri);
+		this.setActorPortPriority(portPri);
 
 		if (!this.isLacpEnabled()) {
 			setStateMachineBitSet((short)(getStateMachineBitSet() & ~LacpConst.PORT_LACP_ENABLED));
 			LOG.debug("portAssignSlave - setting port={} to PORT_LACP_ENABLED FALSE",portId);
 		}
 		
-		setActorSystem(Arrays.copyOf(sys_mac_addr, LacpConst.ETH_ADDR_LEN));
+		setActorSystem(Arrays.copyOf(sysMacAddr, LacpConst.ETH_ADDR_LEN));
 		portSetLagId();
 		LOG.debug("Exiting portAssignSlave for port={}",portId);
 	}

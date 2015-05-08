@@ -32,14 +32,14 @@ public class RSMThrProcessor implements Runnable {
 
 	@Override
 	public void run() {
-		boolean IsNodeActive=true;
+		boolean isNodeActive=true;
 		LOG.info("Spawned RSMThrProcessor Thread");
 		LOG.info("Spawned RSMThrProcessor Thread");
-		while (IsNodeActive)
+		while (isNodeActive)
 		{
 			//Dequeue
-			//TODO : Add condition to un-set IsNodeActive flag
-			IsNodeActive=false;
+			//TODO : Add condition to un-set isNodeActive flag
+			isNodeActive=false;
 		}
 	}
 }

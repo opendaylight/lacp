@@ -18,10 +18,10 @@ public class LagIdSys implements Comparable<LagIdSys> {
 	final int sysPriority;
 	final byte[] sysMacAddress;
 	
-	public LagIdSys(int sys_priority, byte[] sys_mac) {
+	public LagIdSys(int sysPri, byte[] sysMac) {
 		super();
-		this.sysPriority = sys_priority;
-		this.sysMacAddress = Arrays.copyOf(sys_mac, LacpConst.ETH_ADDR_LEN);;
+		this.sysPriority = sysPri;
+		this.sysMacAddress = Arrays.copyOf(sysMac, LacpConst.ETH_ADDR_LEN);;
 	}
 
 	public LagIdSys(LagIdSys arg0) {

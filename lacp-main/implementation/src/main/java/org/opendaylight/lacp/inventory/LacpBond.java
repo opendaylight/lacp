@@ -240,9 +240,9 @@ public class LacpBond {
 		return new LacpBond(0x0000ffff,key, lacpNode);
 	}
 
-	public static LacpBond newInstance(int sys_priority,short key, LacpNodeExtn lacpNode) {
+	public static LacpBond newInstance(int sysPri,short key, LacpNodeExtn lacpNode) {
 		
-		return new LacpBond(sys_priority,key, lacpNode);
+		return new LacpBond(sysPri,key, lacpNode);
 	}
 	
 	private LacpBond(int sys_priority,short key, LacpNodeExtn lacpNode) 
@@ -293,8 +293,8 @@ public class LacpBond {
 		return sysPriority;
 	}
 
-	public void bondSetSysPriority(int sys_priority) {
-		this.sysPriority = sys_priority;
+	public void bondSetSysPriority(int sysPri) {
+		this.sysPriority = sysPri;
 
 	}
 
@@ -303,7 +303,7 @@ public class LacpBond {
 		
 	}
 	
-	public void bondAddSlave(long swId, short portId, int port_priority,LacpBpduInfo bpduInfo) {
+	public void bondAddSlave(long swId, short portId, int portPri,LacpBpduInfo bpduInfo) {
 
 		byte[] macAddr;
 
@@ -332,7 +332,7 @@ public class LacpBond {
 			this.virtualSysMacAddr[0] |= 0x02;			
 		}
 		
-		LacpPort slave = LacpPort.newInstance((long)swId,portId, this, port_priority, bpduInfo);
+		LacpPort slave = LacpPort.newInstance((long)swId,portId, this, portPri, bpduInfo);
 
 		portSlaveMap.put(portId, slave);
 		slaveList.add(slave);

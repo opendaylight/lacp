@@ -32,8 +32,8 @@ public class PduQueueHandler {
 
     public void checkQueue()
     {
-        boolean IsnewNode = false;
-        boolean HasPktArrvd = false;
+        boolean isNewNode = false;
+        boolean hasPktArrvd = false;
         PacketReceived packetReceived = null;
         // Get the Node specific PDU Queue Instance
         LacpPDUQueue lacpPduQ = LacpPDUQueue.getLacpPDUQueueInstance();
@@ -43,11 +43,11 @@ public class PduQueueHandler {
         LacpQueue <PacketReceived> lacpRxQ = LacpRxQueue.getLacpRxQueueId();
 
         // Dequeue LACP Packet from RAW Packet Queue.
-        while (!HasPktArrvd)
+        while (!hasPktArrvd)
         {
             packetReceived = lacpRxQ.dequeue();
             if (packetReceived != null)  {
-                HasPktArrvd = true;
+                hasPktArrvd = true;
                 break;
             }
             try {
@@ -59,10 +59,10 @@ public class PduQueueHandler {
 
         // Check if this is the first LACP PDU received for the Node.
         long sid = NodePort.getSwitchId(packetReceived.getIngress());
-        IsnewNode = !(lacpPduQ.isLacpQueuePresent(sid));
+        isNewNode = !(lacpPduQ.isLacpQueuePresent(sid));
         LOG.debug ("received the packet in pdu decoder. queue present {} for switch {} ", lacpPduQ.isLacpQueuePresent(sid), sid);
 
-        if (IsnewNode)
+        if (isNewNode)
         {
             LOG.debug ("within if to create RSM thread");
             RSMManager instance = RSMManager.getRSMManagerInstance();

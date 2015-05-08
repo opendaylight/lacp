@@ -13,16 +13,19 @@ import org.slf4j.LoggerFactory;
 public class LagIdElem implements Comparable<LagIdElem> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(LagIdElem.class);
-	final LagIdSys system;   // System MAC + Priority
-	final short  	 key;   // Operational Key
-	final LagIdPort port;  // Port Parameter Number + Priority	
+	// System MAC + Priority
+	final LagIdSys system;   
+	// Operational Key
+	final short  	 key;   
+	// Port Parameter Number + Priority	
+	final LagIdPort port;  
 	
 	
-	public LagIdElem(int sys_priority, byte[] sys_mac, short key, int port_priority, short port_number) {
+	public LagIdElem(int sysPri, byte[] sysMac, short key, int portPri, short portNumber) {
 		super();
-		this.system = new LagIdSys(sys_priority, sys_mac);
+		this.system = new LagIdSys(sysPri, sysMac);
 		this.key = key;
-		this.port = new LagIdPort(port_priority, port_number);
+		this.port = new LagIdPort(portPri, portNumber);
 	}
 	
 	public LagIdElem(LagIdSys system, short key, LagIdPort port) {

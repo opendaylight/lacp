@@ -35,7 +35,7 @@ public class TxProcessor implements Runnable
     @Override
     public void run() 
     {
-        boolean IsQueueRdy=true;
+        boolean isQueueRdy=true;
         LacpPortInfo lacpPortId = null;
         LacpTxQueue  lacpTxQueue = null;
         LacpPort lacpPort = null;
@@ -46,9 +46,9 @@ public class TxProcessor implements Runnable
 
         while (isLacpLoaded) 
         {
-            IsQueueRdy=true;
+            isQueueRdy=true;
 
-            while (IsQueueRdy)
+            while (isQueueRdy)
             {
                 lacpPort = null;
                 lacpPortId = lacpTxQueue.dequeue(queueId);
@@ -73,7 +73,7 @@ public class TxProcessor implements Runnable
                 }
                 else
                 {
-                    IsQueueRdy=false;
+                    isQueueRdy=false;
                     try
                     {
                         Thread.sleep(200);

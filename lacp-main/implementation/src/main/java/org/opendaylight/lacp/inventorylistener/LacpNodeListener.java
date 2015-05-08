@@ -223,16 +223,16 @@ public class LacpNodeListener implements OpendaylightInventoryListener
 
                 boolean result = false;
                 if (ncId != null){
-                        short port_id = NodePort.getPortId(new NodeConnectorRef(ncId));
-                        long sw_id = NodePort.getSwitchId(new NodeConnectorRef(ncId));
+                        short portId = NodePort.getPortId(new NodeConnectorRef(ncId));
+                        long swId = NodePort.getSwitchId(new NodeConnectorRef(ncId));
 			//TODO Need to fix this
                         //NodeConnector nc = (NodeConnector)InstanceIdentifier.keyOf(ncId);
                         int portFeaturesResult = 0;//LacpPortProperties.mapSpeedDuplexFromPortFeature(nc);
                         LacpPDUPortStatusContainer pduElem = null;
-                        pduElem = new LacpPortStatus(sw_id,port_id,upDown,portFeaturesResult, ncId);
+                        pduElem = new LacpPortStatus(swId,portId,upDown,portFeaturesResult, ncId);
                         LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
-                        if((pduQueue!= null) && !(pduQueue.enqueue(sw_id,pduElem))){
-                                LOG.debug("Failed to enque port status object for port={}",port_id);
+                        if((pduQueue!= null) && !(pduQueue.enqueue(swId,pduElem))){
+                                LOG.debug("Failed to enque port status object for port={}",portId);
                                 result = false;
                         }
                         result = true;

@@ -309,10 +309,10 @@ public class NetUtils {
    * @param MACAddress
    * @return
    */
-  public static boolean isBroadcastMACAddr(byte[] MACAddress) {
-    if(MACAddress.length == MACAddrLengthInBytes) {
+  public static boolean isBroadcastMACAddr(byte[] macAddress) {
+    if(macAddress.length == MACAddrLengthInBytes) {
       for(int i = 0; i < 6; i++) {
-        if(MACAddress[i] != BroadcastMACAddr[i]) {
+        if(macAddress[i] != BroadcastMACAddr[i]) {
           return false;
         }
       }
@@ -329,9 +329,9 @@ public class NetUtils {
    * @param MACAddress
    * @return
    */
-  public static boolean isUnicastMACAddr(byte[] MACAddress) {
-    if(MACAddress.length == MACAddrLengthInBytes) {
-      return (MACAddress[0] & 1) == 0;
+  public static boolean isUnicastMACAddr(byte[] macAddress) {
+    if(macAddress.length == MACAddrLengthInBytes) {
+      return (macAddress[0] & 1) == 0;
     }
     return false;
   }
@@ -344,9 +344,9 @@ public class NetUtils {
    * @param MACAddress
    * @return
    */
-  public static boolean isMulticastMACAddr(byte[] MACAddress) {
-    if(MACAddress.length == MACAddrLengthInBytes && !isBroadcastMACAddr(MACAddress)) {
-      return (MACAddress[0] & 1) != 0;
+  public static boolean isMulticastMACAddr(byte[] macAddress) {
+    if(macAddress.length == MACAddrLengthInBytes && !isBroadcastMACAddr(macAddress)) {
+      return (macAddress[0] & 1) != 0;
     }
     return false;
   }

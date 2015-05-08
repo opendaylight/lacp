@@ -16,10 +16,10 @@ public class LagIdPort implements Comparable<LagIdPort> {
 	private static final Logger LOG = LoggerFactory.getLogger(LagIdPort.class);
 	
 	
-	public LagIdPort(int port_priority, short port_number) {
+	public LagIdPort(int portPri, short portNum) {
 		super();
-		this.portPriority = port_priority;
-		this.portNumber = port_number;
+		this.portPriority = portPri;
+		this.portNumber = portNum;
 	}
 
 	public LagIdPort(LagIdPort arg0) {

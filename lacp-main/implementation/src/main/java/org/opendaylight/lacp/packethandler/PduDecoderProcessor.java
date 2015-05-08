@@ -21,7 +21,7 @@ public class PduDecoderProcessor implements Runnable {
 	private static boolean IsLacploaded=true;
 	@Override
 	public void run() {
-		boolean IsnewNode=false;
+		boolean isNewNode=false;
 		LOG.info("Spawned PDU Decoder Thread");
 
 		PduQueueHandler qh = new PduQueueHandler();

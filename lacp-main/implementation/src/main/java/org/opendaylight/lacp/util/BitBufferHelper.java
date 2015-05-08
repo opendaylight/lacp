@@ -619,8 +619,8 @@ public class BitBufferHelper {
     int startByteOffset = startOffset / NetUtils.NumBitsInAByte;
     int extraOffsetBits = startOffset % NetUtils.NumBitsInAByte;
     int extranumBits = numBits % NetUtils.NumBitsInAByte;
-    int RestBits = numBits % NetUtils.NumBitsInAByte;
-    int InputMSBbits = 0, InputLSBbits = 0;
+    int restBits = numBits % NetUtils.NumBitsInAByte;
+    int inputMSBbits = 0, inputLSBbits = 0;
     int i;
 
     if(numBits == 0) {
@@ -639,46 +639,46 @@ public class BitBufferHelper {
     } else {
       for(i = 0; i < numBytes; i++) {
         if(i != 0)
-          InputLSBbits = (inputdata[i - 1] & getLSBMask(extraOffsetBits));
-        InputMSBbits = (byte) (inputdata[i] & (getMSBMask(NetUtils.NumBitsInAByte
+          inputLSBbits = (inputdata[i - 1] & getLSBMask(extraOffsetBits));
+        inputMSBbits = (byte) (inputdata[i] & (getMSBMask(NetUtils.NumBitsInAByte
             - extraOffsetBits)));
-        InputMSBbits = (InputMSBbits >= 0) ? InputMSBbits
-            : InputMSBbits + 256;
+        inputMSBbits = (inputMSBbits >= 0) ? inputMSBbits
+            : inputMSBbits + 256;
         data[startByteOffset + i] = (byte) (data[startByteOffset + i]
-            | (InputLSBbits << (NetUtils.NumBitsInAByte - extraOffsetBits)) | (InputMSBbits >> extraOffsetBits));
-        InputMSBbits = InputLSBbits = 0;
+            | (inputLSBbits << (NetUtils.NumBitsInAByte - extraOffsetBits)) | (inputMSBbits >> extraOffsetBits));
+        inputMSBbits = inputLSBbits = 0;
       }
-      if(RestBits < (NetUtils.NumBitsInAByte - extraOffsetBits)) {
+      if(restBits < (NetUtils.NumBitsInAByte - extraOffsetBits)) {
         if(numBytes != 0)
-          InputLSBbits = (inputdata[i - 1] & getLSBMask(extraOffsetBits));
-        InputMSBbits = (byte) (inputdata[i] & (getMSBMask(RestBits)));
-        InputMSBbits = (InputMSBbits >= 0) ? InputMSBbits
-            : InputMSBbits + 256;
+          inputLSBbits = (inputdata[i - 1] & getLSBMask(extraOffsetBits));
+        inputMSBbits = (byte) (inputdata[i] & (getMSBMask(restBits)));
+        inputMSBbits = (inputMSBbits >= 0) ? inputMSBbits
+            : inputMSBbits + 256;
         data[startByteOffset + i] = (byte) ((data[startByteOffset + i])
-            | (InputLSBbits << (NetUtils.NumBitsInAByte - extraOffsetBits)) | (InputMSBbits >> extraOffsetBits));
-      } else if(RestBits == (NetUtils.NumBitsInAByte - extraOffsetBits)) {
+            | (inputLSBbits << (NetUtils.NumBitsInAByte - extraOffsetBits)) | (inputMSBbits >> extraOffsetBits));
+      } else if(restBits == (NetUtils.NumBitsInAByte - extraOffsetBits)) {
         if(numBytes != 0)
-          InputLSBbits = (inputdata[i - 1] & getLSBMask(extraOffsetBits));
-        InputMSBbits = (byte) (inputdata[i] & (getMSBMask(NetUtils.NumBitsInAByte
+          inputLSBbits = (inputdata[i - 1] & getLSBMask(extraOffsetBits));
+        inputMSBbits = (byte) (inputdata[i] & (getMSBMask(NetUtils.NumBitsInAByte
             - extraOffsetBits)));
-        InputMSBbits = (InputMSBbits >= 0) ? InputMSBbits
-            : InputMSBbits + 256;
+        inputMSBbits = (inputMSBbits >= 0) ? inputMSBbits
+            : inputMSBbits + 256;
         data[startByteOffset + i] = (byte) (data[startByteOffset + i]
-            | (InputLSBbits << (NetUtils.NumBitsInAByte - extraOffsetBits)) | (InputMSBbits >> extraOffsetBits));
+            | (inputLSBbits << (NetUtils.NumBitsInAByte - extraOffsetBits)) | (inputMSBbits >> extraOffsetBits));
       } else {
         if(numBytes != 0)
-          InputLSBbits = (inputdata[i - 1] & getLSBMask(extraOffsetBits));
-        InputMSBbits = (byte) (inputdata[i] & (getMSBMask(NetUtils.NumBitsInAByte
+          inputLSBbits = (inputdata[i - 1] & getLSBMask(extraOffsetBits));
+        inputMSBbits = (byte) (inputdata[i] & (getMSBMask(NetUtils.NumBitsInAByte
             - extraOffsetBits)));
-        InputMSBbits = (InputMSBbits >= 0) ? InputMSBbits
-            : InputMSBbits + 256;
+        inputMSBbits = (inputMSBbits >= 0) ? inputMSBbits
+            : inputMSBbits + 256;
         data[startByteOffset + i] = (byte) (data[startByteOffset + i]
-            | (InputLSBbits << (NetUtils.NumBitsInAByte - extraOffsetBits)) | (InputMSBbits >> extraOffsetBits));
+            | (inputLSBbits << (NetUtils.NumBitsInAByte - extraOffsetBits)) | (inputMSBbits >> extraOffsetBits));
 
-        InputLSBbits = (inputdata[i] & (getLSBMask(RestBits
-            - (NetUtils.NumBitsInAByte - extraOffsetBits)) << (NetUtils.NumBitsInAByte - RestBits)));
+        inputLSBbits = (inputdata[i] & (getLSBMask(restBits
+            - (NetUtils.NumBitsInAByte - extraOffsetBits)) << (NetUtils.NumBitsInAByte - restBits)));
         data[startByteOffset + i + 1] = (byte) (data[startByteOffset
-            + i + 1] | (InputLSBbits << (NetUtils.NumBitsInAByte - extraOffsetBits)));
+            + i + 1] | (inputLSBbits << (NetUtils.NumBitsInAByte - extraOffsetBits)));
       }
     }
   }
