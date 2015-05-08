@@ -41,13 +41,16 @@ public class LacpPacketHandler implements PacketProcessingListener {
     @Override
     public void onPacketReceived (PacketReceived packetReceived)
     {
+        boolean result = false;
         if (packetReceived == null)
         {
+            LOG.debug("receiving null packet. returning without any processing");
             return;
         }
         byte[] data = packetReceived.getPayload();
         if (data.length <= 0)
         {
+            LOG.debug ("received packet with invalid length {}", data.length);
             return;
         }
         try
@@ -60,7 +63,8 @@ public class LacpPacketHandler implements PacketProcessingListener {
                 /* receive packets only on external ports */
                 if (verifyExternalPort(packetReceived.getIngress()) == true)
                 {
-                    rawQueueId.enqueue(packetReceived);
+                    result = rawQueueId.enqueue(packetReceived);
+                    LOG.debug ("enqueue  packet to the packetReceived queue, result - {} size {}", result, rawQueueId.size());
                 }
                 else
                 {

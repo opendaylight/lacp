@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortState;
 import org.opendaylight.lacp.packethandler.TxProcessor;
 import org.opendaylight.lacp.queue.LacpTxQueue;
+import org.opendaylight.lacp.packethandler.PduDecoderProcessor;
 
 public class LacpSystem
 {
@@ -175,5 +176,7 @@ public class LacpSystem
         LacpTxQueue lacpTxQueue = LacpTxQueue.getLacpTxQueueInstance();
         lacpTxQueue.deleteLacpQueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE);
         lacpTxQueue.deleteLacpQueue(LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE);
+        // clear the pdu decoder thread
+        PduDecoderProcessor.setLacploaded(false);
     }
 }

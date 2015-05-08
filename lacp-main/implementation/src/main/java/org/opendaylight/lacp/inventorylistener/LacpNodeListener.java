@@ -135,6 +135,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 return;
             }
             lacpSystem.addLacpNode(nodeId, lacpNode);
+            LOG.debug ("added node for nodeId {}", nodeId);
             }
         }
 

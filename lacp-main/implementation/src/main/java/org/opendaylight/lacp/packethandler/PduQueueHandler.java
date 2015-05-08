@@ -10,16 +10,10 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-
-
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
-
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPdu;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPduBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.SubTypeOption;
@@ -27,81 +21,75 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.Versi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.TlvTypeOption;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.*;
 import org.opendaylight.lacp.Utils.*;
-
 import org.opendaylight.lacp.queue.*;
 import org.opendaylight.lacp.core.*;
 import org.opendaylight.lacp.inventory.*;
-
 
 public class PduQueueHandler {
 
 	private final static Logger LOG = LoggerFactory.getLogger(PduQueueHandler.class);
 
-	public void checkQueue(){
-
-	   boolean IsnewNode = false;
-	   boolean HasPktArrvd = false;
-	   PacketReceived packetReceived = null;
-		// Get the Node specific PDU Queue Instance
-		LacpPDUQueue lacpPduQ = LacpPDUQueue.getLacpPDUQueueInstance();
-
-
-		// Get the RAW Packet Queue Instance
- 		LacpQueue <PacketReceived> lacpRxQ = LacpRxQueue.getLacpRxQueueId();
-
-		// Dequeue LACP Packet from RAW Packet Queue.
-		while (!HasPktArrvd)
-		{
-			packetReceived = lacpRxQ.dequeue();
-			if (packetReceived != null)  {
-				HasPktArrvd = true;
-			}
-			try {
-				Thread.sleep(100);
-			}catch( InterruptedException e ) {
-				LOG.debug("PduQueueHandler: Interrupted Exception ", e.getMessage());
-			}
-		}
-
-		// Decode the received Packet.
-		LacpPacketPduBuilder builder = decodeLacp(packetReceived);
+    public void checkQueue()
+    {
+        boolean IsnewNode = false;
+        boolean HasPktArrvd = false;
+        PacketReceived packetReceived = null;
+        // Get the Node specific PDU Queue Instance
+        LacpPDUQueue lacpPduQ = LacpPDUQueue.getLacpPDUQueueInstance();
 
 
-		LacpPacketPdu lacpPacketPdu = builder.build();
-		ActorInfo actorInfo = builder.getActorInfo();
-		long sid = NodePort.getSwitchId(builder.getIngressPort());
-		// Check if this is the first LACP PDU received for the Node.
-		IsnewNode = !(lacpPduQ.isLacpQueuePresent(sid));
+        // Get the RAW Packet Queue Instance
+        LacpQueue <PacketReceived> lacpRxQ = LacpRxQueue.getLacpRxQueueId();
 
-		if (IsnewNode)
-                {
-                      	RSMManager instance = RSMManager.getRSMManagerInstance();
-			LacpSystem lacpSystem = LacpSystem.getLacpSystem();
-			LacpNodeExtn lacpNodeExtn = lacpSystem.getLacpNode(sid);
-                       	instance.createRSM(lacpNodeExtn);
+        // Dequeue LACP Packet from RAW Packet Queue.
+        while (!HasPktArrvd)
+        {
+            packetReceived = lacpRxQ.dequeue();
+            if (packetReceived != null)  {
+                HasPktArrvd = true;
+                break;
+            }
+            try {
+                Thread.sleep(100);
+            }catch( InterruptedException e ) {
+                LOG.debug("PduQueueHandler: Interrupted Exception ", e.getMessage());
+            }
+        }
 
-                }
-		// Enqueue the decoded LACP Packet to LACP Packet PDU Queue
-		LacpBpduInfo lacpBpduInfo = new LacpBpduInfo(lacpPacketPdu);
-		lacpPduQ.enqueue(sid, lacpBpduInfo);
-	   
+        // Check if this is the first LACP PDU received for the Node.
+        long sid = NodePort.getSwitchId(packetReceived.getIngress());
+        IsnewNode = !(lacpPduQ.isLacpQueuePresent(sid));
+        LOG.debug ("received the packet in pdu decoder. queue present {} for switch {} ", lacpPduQ.isLacpQueuePresent(sid), sid);
 
-	   return;
+        if (IsnewNode)
+        {
+            LOG.debug ("within if to create RSM thread");
+            RSMManager instance = RSMManager.getRSMManagerInstance();
+            LacpSystem lacpSystem = LacpSystem.getLacpSystem();
+            LacpNodeExtn lacpNodeExtn = lacpSystem.getLacpNode(sid);
+            if (lacpNodeExtn == null)
+            {
+                LOG.debug ("LacpNode for node id {} is yet to be created. Drop the packets and return", sid);
+                return;
+            }
+            LOG.debug ("calling createRSM");
+            instance.createRSM(lacpNodeExtn);
+            LOG.debug ("created RSM thread for node {} ", sid);
+        }
 
-	}
-			
+        // Decode the received Packet.
+        LacpPacketPduBuilder builder = decodeLacp(packetReceived);
 
-	// Delete the LACP Packet PDU Queue when the node is deleted.
-	public boolean deleteQueue(long switchId) {
-		boolean Isdeleted = false;
+        LacpPacketPdu lacpPacketPdu = builder.build();
+        ActorInfo actorInfo = builder.getActorInfo();
 
-		LacpPDUQueue lacpPduQ = LacpPDUQueue.getLacpPDUQueueInstance();
-		Isdeleted = lacpPduQ.deleteLacpQueue(switchId);
-		return(Isdeleted);
+        // Enqueue the decoded LACP Packet to LACP Packet PDU Queue
+        LacpBpduInfo lacpBpduInfo = new LacpBpduInfo(lacpPacketPdu);
+        lacpPduQ.enqueue(sid, lacpBpduInfo);
+        return;
+    }
 
-	}
-
-	public static String macToString(String srcstr) {
+    public static String macToString(String srcstr) {
 
                 if(srcstr == null) {
                         return "null";
@@ -116,153 +104,153 @@ public class PduQueueHandler {
         }
 
 
-	public static String bytesToString(byte[] bytes) {
+    public static String bytesToString(byte[] bytes) {
 
-    		if(bytes == null) {
-      			return "null";
-    		}
+            if(bytes == null) {
+                  return "null";
+            }
 
-    		String ret = "";
-    		StringBuffer buf = new StringBuffer();
-		for(int i = 0; i < bytes.length; i++) {
-      			short u8byte = (short) (bytes[i] & 0xff);
-      			String tmp = Integer.toHexString(u8byte);
-      			if(tmp.length() == 1) {
-        			buf.append("0");
-      			}
-      			buf.append(tmp);
-    	   	}
-		ret = buf.toString();
-		return ret;
-	}
+            String ret = "";
+            StringBuffer buf = new StringBuffer();
+        for(int i = 0; i < bytes.length; i++) {
+                  short u8byte = (short) (bytes[i] & 0xff);
+                  String tmp = Integer.toHexString(u8byte);
+                  if(tmp.length() == 1) {
+                    buf.append("0");
+                  }
+                  buf.append(tmp);
+               }
+        ret = buf.toString();
+        return ret;
+    }
 
         public  LacpPacketPduBuilder decodeLacp(PacketReceived packetReceived) {
 
 
-		int bitOffset = 0;
-		byte[] data = packetReceived.getPayload();
+        int bitOffset = 0;
+        byte[] data = packetReceived.getPayload();
 
-		LacpPacketPduBuilder builder = new LacpPacketPduBuilder();
-		ActorInfoBuilder actorbuilder = new ActorInfoBuilder();
-		PartnerInfoBuilder partnerbuilder = new PartnerInfoBuilder();
-		try {
+        LacpPacketPduBuilder builder = new LacpPacketPduBuilder();
+        ActorInfoBuilder actorbuilder = new ActorInfoBuilder();
+        PartnerInfoBuilder partnerbuilder = new PartnerInfoBuilder();
+        try {
 
-			builder.setIngressPort(packetReceived.getIngress());
-			builder.setDestAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
-			bitOffset = bitOffset + 48;
-
-
-			builder.setSrcAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
-			bitOffset = bitOffset + 48;
-
-			builder.setLenType(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
-
-			builder.setSubtype(SubTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-			bitOffset = bitOffset + 8;
-
-			builder.setVersion(VersionValue.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-			bitOffset = bitOffset + 8;
+            builder.setIngressPort(packetReceived.getIngress());
+            builder.setDestAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
+            bitOffset = bitOffset + 48;
 
 
-			actorbuilder.setTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-			bitOffset = bitOffset + 8;
+            builder.setSrcAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
+            bitOffset = bitOffset + 48;
 
-			actorbuilder.setInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-			bitOffset = bitOffset + 8;
+            builder.setLenType(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
 
-			actorbuilder.setSystemPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
+            builder.setSubtype(SubTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
+            bitOffset = bitOffset + 8;
 
-			actorbuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
-			bitOffset = bitOffset + 48;
-
-			actorbuilder.setKey(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
-
-			actorbuilder.setPortPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
-
-			actorbuilder.setPort(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
-
-			actorbuilder.setState(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-			bitOffset = bitOffset + 8;
-
-			actorbuilder.setReserved(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
-
-			actorbuilder.setReserved1(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-			bitOffset = bitOffset + 8;
-
-			builder.setActorInfo(actorbuilder.build());
-
-			partnerbuilder.setTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-			bitOffset = bitOffset + 8;
-
-			partnerbuilder.setInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-			bitOffset = bitOffset + 8;
-
-			partnerbuilder.setSystemPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
-
-			partnerbuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
-			bitOffset = bitOffset + 48;
+            builder.setVersion(VersionValue.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
+            bitOffset = bitOffset + 8;
 
 
-			partnerbuilder.setKey(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
+            actorbuilder.setTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
+            bitOffset = bitOffset + 8;
 
-			partnerbuilder.setPortPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
+            actorbuilder.setInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+            bitOffset = bitOffset + 8;
 
-			partnerbuilder.setPort(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
+            actorbuilder.setSystemPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
 
-			partnerbuilder.setState(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-			bitOffset = bitOffset + 8;
+            actorbuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
+            bitOffset = bitOffset + 48;
 
-			partnerbuilder.setReserved(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
+            actorbuilder.setKey(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
 
-			partnerbuilder.setReserved1(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-			bitOffset = bitOffset + 8;
+            actorbuilder.setPortPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
 
-			builder.setPartnerInfo(partnerbuilder.build());
+            actorbuilder.setPort(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
 
-			builder.setCollectorTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-			bitOffset = bitOffset + 8;
+            actorbuilder.setState(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+            bitOffset = bitOffset + 8;
 
-			builder.setCollectorInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-			bitOffset = bitOffset + 8;
+            actorbuilder.setReserved(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
 
-			builder.setCollectorMaxDelay(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
+            actorbuilder.setReserved1(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+            bitOffset = bitOffset + 8;
 
-			BigInteger bi = new BigInteger(BitBufferHelper.getBits(data, bitOffset, 32));
-			builder.setCollectorReserved(bi);
-			bitOffset = bitOffset + 32;
+            builder.setActorInfo(actorbuilder.build());
 
-			builder.setCollectorReserved1(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 16)));
-			bitOffset = bitOffset + 16;
+            partnerbuilder.setTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
+            bitOffset = bitOffset + 8;
 
-			builder.setTerminatorTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-			bitOffset = bitOffset + 8;
+            partnerbuilder.setInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+            bitOffset = bitOffset + 8;
 
-			builder.setTerminatorInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-			bitOffset = bitOffset + 8;
+            partnerbuilder.setSystemPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
 
-			builder.setTerminatorReserved(bytesToString(BitBufferHelper.getBits(data, bitOffset, 400)));
-			bitOffset = bitOffset + 400;
+            partnerbuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
+            bitOffset = bitOffset + 48;
 
-			builder.setFCS(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 32)));
-			bitOffset = bitOffset + 32;
 
-		}catch(BufferException  e) {
-			LOG.debug("Exception while decoding LACP PDU  packet", e.getMessage());
-		}
+            partnerbuilder.setKey(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
 
-		return(builder);
-	}
-					
+            partnerbuilder.setPortPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
+
+            partnerbuilder.setPort(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
+
+            partnerbuilder.setState(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+            bitOffset = bitOffset + 8;
+
+            partnerbuilder.setReserved(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
+
+            partnerbuilder.setReserved1(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+            bitOffset = bitOffset + 8;
+
+            builder.setPartnerInfo(partnerbuilder.build());
+
+            builder.setCollectorTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
+            bitOffset = bitOffset + 8;
+
+            builder.setCollectorInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+            bitOffset = bitOffset + 8;
+
+            builder.setCollectorMaxDelay(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
+
+            BigInteger bi = new BigInteger(BitBufferHelper.getBits(data, bitOffset, 32));
+            builder.setCollectorReserved(bi);
+            bitOffset = bitOffset + 32;
+
+            builder.setCollectorReserved1(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 16)));
+            bitOffset = bitOffset + 16;
+
+            builder.setTerminatorTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
+            bitOffset = bitOffset + 8;
+
+            builder.setTerminatorInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
+            bitOffset = bitOffset + 8;
+
+            builder.setTerminatorReserved(bytesToString(BitBufferHelper.getBits(data, bitOffset, 400)));
+            bitOffset = bitOffset + 400;
+
+            builder.setFCS(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 32)));
+            bitOffset = bitOffset + 32;
+
+        }catch(BufferException  e) {
+            LOG.debug("Exception while decoding LACP PDU  packet", e.getMessage());
+        }
+
+        return(builder);
+    }
+
 }

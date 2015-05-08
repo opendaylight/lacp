@@ -727,7 +727,6 @@ public class LacpPort implements Comparable<LacpPort> {
                lacpNCBuilder.setActorPortNumber(this.actorPortNumber);
                lacpNCBuilder.setPeriodicTime(LacpUtil.DEF_PERIODIC_TIME);
                lacpNCBuilder.setLacpAggRef(new AggRef(bond.getLacpAggInstId()));
-               updateNCLacpInfo();
                LacpSystem lacpSystem = LacpSystem.getLacpSystem();
                LacpNodeExtn lacpNode = lacpSystem.getLacpNode(swId);
                if (lacpNode == null)

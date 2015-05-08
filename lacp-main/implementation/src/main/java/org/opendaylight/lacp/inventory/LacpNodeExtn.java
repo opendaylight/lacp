@@ -80,7 +80,6 @@ public class LacpNodeExtn
         nonLacpPortList = new ArrayList<InstanceIdentifier<NodeConnector>>();
         lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
         deleteStatus = false;
-        rsmStatus = false;
         LACPFLOW.programLacpFlow(nodeInstId, this);
         lacpBuilder.setNonLagGroupid(groupId);
         lagList = new Hashtable<Integer,LacpBond>();
@@ -265,18 +264,7 @@ public class LacpNodeExtn
             updateLacpNodeDS(nodeInstId);
         }
         lacpBuilder = null;
-        rsmStatus = false;
     }    
-    public boolean createRSM ()
-    {
-        RSMManager rsmManager = RSMManager.getRSMManagerInstance();
-        rsmStatus = rsmManager.createRSM(this);
-        if (rsmStatus == false)
-        {
-            LOG.warn ("Unable to start the RSM thread for the node {}", nodeInstId);
-        }
-        return rsmStatus;
-    }
     public void updateLacpNodeDS (InstanceIdentifier nodeId)
     {
         final WriteTransaction write = dataService.newWriteOnlyTransaction();
@@ -374,10 +362,6 @@ public class LacpNodeExtn
     public InstanceIdentifier getNodeId ()
     {
         return nodeInstId;
-    }
-    public boolean getRSMCreationStatus ()
-    {
-        return rsmStatus;
     }
     public void setLacpNodeDeleteStatus (boolean delStatus)
     {

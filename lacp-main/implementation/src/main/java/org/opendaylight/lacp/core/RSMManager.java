@@ -60,6 +60,7 @@ public class RSMManager
     public boolean createRSM(LacpNodeExtn lacpNode)
     {
         //hash for lacpNode. currently one thread per node.
+        log.debug ("entering createRSM ");
         RSMThread nodeThread = null;
         nodeThread = lacpThreadMap.get(lacpNode.getSwitchId());
         if (nodeThread != null)
@@ -74,10 +75,12 @@ public class RSMManager
             log.warn("RSMThread object cannot be assigned for the node {}", lacpNode.getNodeId());
             return false;
         }
+        log.debug ("created the thread and set the node");
         synchronized(RSMManager.class)
         {
             lacpThreadMap.put(lacpNode.getSwitchId(), nodeThread);
             nodeThread.startRSM();
+            log.debug ("started RSM thread for switch {}", lacpNode.getSwitchId());
         }
         return true;
     }

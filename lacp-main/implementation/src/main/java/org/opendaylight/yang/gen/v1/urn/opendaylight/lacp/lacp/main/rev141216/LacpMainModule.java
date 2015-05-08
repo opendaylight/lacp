@@ -95,6 +95,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         LacpPacketHandler.setDataBrokerService(dataService);
         lacpPacketHandler.updateQueueId(LacpRxQueue.getLacpRxQueueId());
         packetListener = notificationService.registerNotificationListener(lacpPacketHandler);
+        LOG.debug ("started the packethandler to receive lacp pdus");
 
 
 	PacketProcessingService packetProcessingService =
@@ -127,6 +128,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
             {
                 extPortListener.close();
             }
+            LOG.info("closed the listeners for lacp. Clearing the cached info.");
             /* clean up the nodes and nodeconnectors learnt by lacp */
             lacpSystem.clearResources();
             return;
