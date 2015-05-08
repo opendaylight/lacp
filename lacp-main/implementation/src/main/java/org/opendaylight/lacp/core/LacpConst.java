@@ -93,6 +93,17 @@ public class LacpConst {
 	
 	public static final int RX_HANDLER_DROPPED= 1;
 	public static final int RX_HANDLER_CONSUMED = 0;
+
+	public static final int PORT_PRIORITY = (int)0x000000ff;
+	public static final int SYSTEM_PRIORITY = (int) 0x0000ffff;
+	public static final short PORT_ID_MAX = (short) 0xffff;
+
+	public static final int RESERVED = 0;
+        public static final int LEN_TYPE = 34825;
+        public static final short ACTOR_INFO_LEN = 20;
+        public static final short PARTNER_INFO_LEN = 20;
+        public static final short COLLECTOR_INFO_LEN = 16;
+        public static final short TERMINATOR_INFO_LEN = 0;
 	
     /* LACP Bond Parameter */
 	

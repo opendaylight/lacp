@@ -28,6 +28,7 @@ import org.opendaylight.lacp.inventory.*;
 public class PduQueueHandler {
 
 	private final static Logger LOG = LoggerFactory.getLogger(PduQueueHandler.class);
+	private final int SLEEP_TIME = 100;
 
     public void checkQueue()
     {
@@ -50,9 +51,9 @@ public class PduQueueHandler {
                 break;
             }
             try {
-                Thread.sleep(100);
+                Thread.sleep(SLEEP_TIME);
             }catch( InterruptedException e ) {
-                LOG.debug("PduQueueHandler: Interrupted Exception ", e.getMessage());
+                LOG.error("PduQueueHandler: Interrupted Exception ", e.toString());
             }
         }
 
@@ -96,7 +97,8 @@ public class PduQueueHandler {
                 }
 
                 StringBuffer buf = new StringBuffer();
-                for(int i = 0; i < srcstr.length(); i=i+3) {
+		int index = 3;
+                for(int i = 0; i < srcstr.length(); i=i+index) {
                         buf.append(srcstr.charAt(i));
                         buf.append(srcstr.charAt(i+1));
                 }
@@ -112,8 +114,9 @@ public class PduQueueHandler {
 
             String ret = "";
             StringBuffer buf = new StringBuffer();
+	    byte byteMask = (byte) 0xff;
         for(int i = 0; i < bytes.length; i++) {
-                  short u8byte = (short) (bytes[i] & 0xff);
+                  short u8byte = (short) (bytes[i] & byteMask);
                   String tmp = Integer.toHexString(u8byte);
                   if(tmp.length() == 1) {
                     buf.append("0");
@@ -128,6 +131,11 @@ public class PduQueueHandler {
 
 
         int bitOffset = 0;
+	int offsetLenEight = 8;
+	int offsetLenSixteen = 16;
+	int offsetLenThirtyTwo = 32; 
+	int offsetLenFortyEight = 48; 
+	int offsetLenFourHundred = 400; 
         byte[] data = packetReceived.getPayload();
 
         LacpPacketPduBuilder builder = new LacpPacketPduBuilder();
@@ -136,118 +144,118 @@ public class PduQueueHandler {
         try {
 
             builder.setIngressPort(packetReceived.getIngress());
-            builder.setDestAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
-            bitOffset = bitOffset + 48;
+            builder.setDestAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, offsetLenFortyEight))));
+            bitOffset = bitOffset + offsetLenFortyEight;
 
 
-            builder.setSrcAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
-            bitOffset = bitOffset + 48;
+            builder.setSrcAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, offsetLenFortyEight))));
+            bitOffset = bitOffset + offsetLenFortyEight;
 
-            builder.setLenType(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            builder.setLenType(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            builder.setSubtype(SubTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-            bitOffset = bitOffset + 8;
+            builder.setSubtype(SubTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenEight))));
+            bitOffset = bitOffset + offsetLenEight;
 
-            builder.setVersion(VersionValue.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-            bitOffset = bitOffset + 8;
+            builder.setVersion(VersionValue.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenEight))));
+            bitOffset = bitOffset + offsetLenEight;
 
 
-            actorbuilder.setTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-            bitOffset = bitOffset + 8;
+            actorbuilder.setTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenEight))));
+            bitOffset = bitOffset + offsetLenEight;
 
-            actorbuilder.setInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
+            actorbuilder.setInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, offsetLenEight)));
+            bitOffset = bitOffset + offsetLenEight;
 
-            actorbuilder.setSystemPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            actorbuilder.setSystemPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            actorbuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
-            bitOffset = bitOffset + 48;
+            actorbuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, offsetLenFortyEight))));
+            bitOffset = bitOffset + offsetLenFortyEight;
 
-            actorbuilder.setKey(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            actorbuilder.setKey(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            actorbuilder.setPortPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            actorbuilder.setPortPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            actorbuilder.setPort(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            actorbuilder.setPort(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            actorbuilder.setState(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
+            actorbuilder.setState(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, offsetLenEight)));
+            bitOffset = bitOffset + offsetLenEight;
 
-            actorbuilder.setReserved(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            actorbuilder.setReserved(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            actorbuilder.setReserved1(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
+            actorbuilder.setReserved1(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, offsetLenEight)));
+            bitOffset = bitOffset + offsetLenEight;
 
             builder.setActorInfo(actorbuilder.build());
 
-            partnerbuilder.setTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-            bitOffset = bitOffset + 8;
+            partnerbuilder.setTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenEight))));
+            bitOffset = bitOffset + offsetLenEight;
 
-            partnerbuilder.setInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
+            partnerbuilder.setInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, offsetLenEight)));
+            bitOffset = bitOffset + offsetLenEight;
 
-            partnerbuilder.setSystemPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            partnerbuilder.setSystemPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            partnerbuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, 48))));
-            bitOffset = bitOffset + 48;
+            partnerbuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, offsetLenFortyEight))));
+            bitOffset = bitOffset + offsetLenFortyEight;
 
 
-            partnerbuilder.setKey(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            partnerbuilder.setKey(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            partnerbuilder.setPortPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            partnerbuilder.setPortPriority(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            partnerbuilder.setPort(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            partnerbuilder.setPort(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            partnerbuilder.setState(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
+            partnerbuilder.setState(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, offsetLenEight)));
+            bitOffset = bitOffset + offsetLenEight;
 
-            partnerbuilder.setReserved(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            partnerbuilder.setReserved(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            partnerbuilder.setReserved1(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
+            partnerbuilder.setReserved1(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, offsetLenEight)));
+            bitOffset = bitOffset + offsetLenEight;
 
             builder.setPartnerInfo(partnerbuilder.build());
 
-            builder.setCollectorTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-            bitOffset = bitOffset + 8;
+            builder.setCollectorTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenEight))));
+            bitOffset = bitOffset + offsetLenEight;
 
-            builder.setCollectorInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
+            builder.setCollectorInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, offsetLenEight)));
+            bitOffset = bitOffset + offsetLenEight;
 
-            builder.setCollectorMaxDelay(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            builder.setCollectorMaxDelay(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            BigInteger bi = new BigInteger(BitBufferHelper.getBits(data, bitOffset, 32));
+            BigInteger bi = new BigInteger(BitBufferHelper.getBits(data, bitOffset, offsetLenThirtyTwo));
             builder.setCollectorReserved(bi);
-            bitOffset = bitOffset + 32;
+            bitOffset = bitOffset + offsetLenThirtyTwo;
 
-            builder.setCollectorReserved1(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
+            builder.setCollectorReserved1(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, offsetLenSixteen)));
+            bitOffset = bitOffset + offsetLenSixteen;
 
-            builder.setTerminatorTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 8))));
-            bitOffset = bitOffset + 8;
+            builder.setTerminatorTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenEight))));
+            bitOffset = bitOffset + offsetLenEight;
 
-            builder.setTerminatorInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
+            builder.setTerminatorInfoLen(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, offsetLenEight)));
+            bitOffset = bitOffset + offsetLenEight;
 
-            builder.setTerminatorReserved(bytesToString(BitBufferHelper.getBits(data, bitOffset, 400)));
-            bitOffset = bitOffset + 400;
+            builder.setTerminatorReserved(bytesToString(BitBufferHelper.getBits(data, bitOffset, offsetLenFourHundred)));
+            bitOffset = bitOffset + offsetLenFourHundred;
 
-            builder.setFCS(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 32)));
-            bitOffset = bitOffset + 32;
+            builder.setFCS(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, offsetLenThirtyTwo)));
+            bitOffset = bitOffset + offsetLenThirtyTwo;
 
         }catch(BufferException  e) {
-            LOG.debug("Exception while decoding LACP PDU  packet", e.getMessage());
+            LOG.error("Exception while decoding LACP PDU  packet", e.toString());
         }
 
         return(builder);
