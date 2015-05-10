@@ -8,9 +8,6 @@
 
 package org.opendaylight.lacp.state;
 
-
-import org.opendaylight.lacp.core.LacpConst;
-import org.opendaylight.lacp.inventory.LacpPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -18,8 +18,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import java.util.Random;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.math.BigInteger;
 
 public class LacpUtil

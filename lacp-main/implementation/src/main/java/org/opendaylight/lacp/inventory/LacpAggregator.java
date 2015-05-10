@@ -16,12 +16,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPdu;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPduBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.ActorInfo;
 import org.opendaylight.lacp.core.LacpConst;
 import org.opendaylight.lacp.core.LagId;
-import org.opendaylight.lacp.queue.LacpTxQueue;
 import org.opendaylight.lacp.inventory.LacpPort;
 
 

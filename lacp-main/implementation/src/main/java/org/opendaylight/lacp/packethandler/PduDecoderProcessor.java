@@ -8,9 +8,6 @@ package org.opendaylight.lacp.packethandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import  java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.lacp.Utils.*;
 
 

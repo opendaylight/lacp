@@ -9,7 +9,6 @@
 package org.opendaylight.lacp.core;
 
 import java.util.Date;
-import java.util.Arrays;
  
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPdu;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.ActorInfo;
@@ -19,12 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.lacp.Utils.*;
-import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.lacp.queue.*;
-
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.math.BigInteger;
 
 
 public class LacpBpduInfo implements LacpPDUPortStatusContainer {

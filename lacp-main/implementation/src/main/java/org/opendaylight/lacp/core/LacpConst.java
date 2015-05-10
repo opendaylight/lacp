@@ -11,7 +11,6 @@ package org.opendaylight.lacp.core;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.util.Date;
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

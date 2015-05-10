@@ -9,11 +9,9 @@ package org.opendaylight.lacp.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 
 import java.util.concurrent.ConcurrentHashMap;
-import org.opendaylight.lacp.queue.LacpTxQueue;
 import org.opendaylight.lacp.inventory.LacpPort;
 
 

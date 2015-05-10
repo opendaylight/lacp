@@ -7,9 +7,6 @@
 package org.opendaylight.lacp.packethandler;
 
 import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

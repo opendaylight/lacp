@@ -22,7 +22,6 @@ import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.inventory.LacpPort;
 import org.opendaylight.lacp.inventory.LacpLogPort;
 import org.opendaylight.lacp.packethandler.LacpPacketHandler;
-import org.opendaylight.lacp.packethandler.TxUtils;
 import org.opendaylight.lacp.flow.LacpFlow;
 import org.opendaylight.lacp.queue.LacpRxQueue;
 import org.opendaylight.lacp.queue.LacpTxQueue;
