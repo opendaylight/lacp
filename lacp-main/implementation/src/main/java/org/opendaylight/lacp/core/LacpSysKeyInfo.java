@@ -13,7 +13,6 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import org.openflow.util.HexString;
 
 public class LacpSysKeyInfo {
 	private static final Logger LOG = LoggerFactory.getLogger(LacpSysKeyInfo.class);
@@ -59,6 +58,7 @@ public class LacpSysKeyInfo {
 	}
 	@Override
 	public boolean equals(Object obj) {
+		LOG.debug("Entering/Exiting LacpSysKeyInfo equals method");
 		if (this == obj){
 			return true;
 		}

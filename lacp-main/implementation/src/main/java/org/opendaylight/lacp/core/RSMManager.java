@@ -19,7 +19,7 @@ import org.opendaylight.lacp.inventory.LacpPort;
 
 public class RSMManager
 {
-    private static final Logger log = LoggerFactory.getLogger(RSMManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RSMManager.class);
     private static final ConcurrentHashMap<Long, RSMThread> lacpThreadMap = new ConcurrentHashMap<Long, RSMThread>();
     final private static int midSysPriority = 0x8000;
     private static int globalLacpkey = 1;
@@ -60,27 +60,27 @@ public class RSMManager
     public boolean createRSM(LacpNodeExtn lacpNode)
     {
         //hash for lacpNode. currently one thread per node.
-        log.debug ("entering createRSM ");
+        LOG.debug ("entering createRSM ");
         RSMThread nodeThread = null;
         nodeThread = lacpThreadMap.get(lacpNode.getSwitchId());
         if (nodeThread != null)
         {
-            log.warn("RSMThread object is already created for node {}", lacpNode.getNodeId());
+            LOG.warn("RSMThread object is already created for node {}", lacpNode.getNodeId());
             return false;
         }
 
         nodeThread = new RSMThread();
         if (nodeThread.setLacpNode(lacpNode) == false)
         {
-            log.warn("RSMThread object cannot be assigned for the node {}", lacpNode.getNodeId());
+            LOG.warn("RSMThread object cannot be assigned for the node {}", lacpNode.getNodeId());
             return false;
         }
-        log.debug ("created the thread and set the node");
+        LOG.debug ("created the thread and set the node");
         synchronized(RSMManager.class)
         {
             lacpThreadMap.put(lacpNode.getSwitchId(), nodeThread);
             nodeThread.startRSM();
-            log.debug ("started RSM thread for switch {}", lacpNode.getSwitchId());
+            LOG.debug ("started RSM thread for switch {}", lacpNode.getSwitchId());
         }
         return true;
     }

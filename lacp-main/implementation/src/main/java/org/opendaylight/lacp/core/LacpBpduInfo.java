@@ -29,7 +29,7 @@ import java.math.BigInteger;
 
 public class LacpBpduInfo implements LacpPDUPortStatusContainer {
 	
-	private static final Logger log = LoggerFactory.getLogger(LacpBpduInfo.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LacpBpduInfo.class);
 	static final int LACP_BPDU_TYPE= 0;
 	static final int LACP_MARK_REQUEST = 1;
 	static final int LACP_MARK_RESPONSE = 2;
@@ -73,7 +73,7 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
 	public LacpBpduInfo(LacpPacketPdu pktPdu){
 		nodeConnRef = pktPdu.getIngressPort();
 		if(nodeConnRef == null){
-			log.error("LacpBpduInfo constructor, nodeConnRef is null");
+			LOG.error("LacpBpduInfo constructor, nodeConnRef is null");
 		}
 		this.swId=NodePort.getSwitchId(nodeConnRef);
 		this.portId=NodePort.getPortId(nodeConnRef);
@@ -82,7 +82,7 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
 		setPartnerInfoFromPkt(pktPdu.getPartnerInfo());
 		this.setCollectorMaxDelay((pktPdu.getCollectorMaxDelay()).shortValue());
 		receivedDate = new Date();
-		log.info("In LacpBpduInfo constructor -  after converting LacpPacketPdu to LacpBpduInfo the values are = {}", this.toString());
+		LOG.info("In LacpBpduInfo constructor -  after converting LacpPacketPdu to LacpBpduInfo the values are = {}", this.toString());
 
         }
 
@@ -199,10 +199,12 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
         if (!this.partnerSystemInfo.equals(other.partnerSystemInfo)){
         	return false;
 	}
-        if (this.collectorMaxDelay != other.collectorMaxDelay)
+        if (this.collectorMaxDelay != other.collectorMaxDelay){
         	return false;
-        if (!this.receivedDate.equals(other.receivedDate))
+	}
+        if (!this.receivedDate.equals(other.receivedDate)){
         	return false;
+	}
         return true;	
 	}
 

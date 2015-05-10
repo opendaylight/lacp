@@ -452,7 +452,9 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		short portNumber;
 		int count = 0;
 		
-		if (port == null) return false;
+		if (port == null){
+			 return false;
+		}
 		portNumber = port.getActorPortNumber();
 		for (LacpPort entry : this.getLagPortList()) {
 			if ((portNumber & 0xf000) == (entry.getActorPortNumber() & 0xf000)) {
@@ -469,7 +471,9 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 	
 	
 	public boolean canMoveToSelList(LacpPort port) {
-		if (port == null)  return false;
+		if (port == null){
+		  return false;
+		}
 		if ((port.getStateMachineBitSet() & LacpConst.PORT_STANDBY) == 0){
 			LOG.debug("canMoveToSelList returned false, PORT_STANDBY is false");
 			return false;

@@ -22,10 +22,12 @@ public class PeriodicTxSlowState extends PeriodicTxState {
 		stateFlag = LacpConst.PERIODIC_STATES.SLOW_PERIODIC;
 	}
 	public void executeStateAction(PeriodicTxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
+		LOG.debug("Entering PeriodicTxSlowState executeStateAction");
 		//Start periodic_timer (slow_periodic_time)
 		stateFlag = LacpConst.PERIODIC_STATES.SLOW_PERIODIC;
 		portObjRef.setPeriodicWhileTimer(LacpConst.SLOW_PERIODIC_TIME);
 		obj.setState(this);
+		LOG.debug("Exiting PeriodicTxSlowState executeStateAction");
 	}
 	
 	public LacpConst.PERIODIC_STATES getStateFlag(){

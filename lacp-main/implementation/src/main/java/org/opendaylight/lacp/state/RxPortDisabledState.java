@@ -20,11 +20,13 @@ public class RxPortDisabledState extends RxState {
 		stateFlag = LacpConst.RX_STATES.RX_PORT_DISABLED;
 	}
 	public void executeStateAction(RxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
+		LOG.debug("Entering RxPortDisabledState executeStateAction method");
 		//Partner_Oper_Port_State.Synchronization = FALSE
 		stateFlag = LacpConst.RX_STATES.RX_PORT_DISABLED;
 		portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & ~LacpConst.PORT_MATCHED));
 		portObjRef.getPartnerOper().setPortState((short)((portObjRef.getPartnerOper().getPortState()) & (~LacpConst.PORT_STATE_SYNCHRONIZATION )));
 		obj.setState(this);
+		LOG.debug("Exiting RxPortDisabledState executeStateAction method");
 	}
 	
 	public LacpConst.RX_STATES getStateFlag(){

@@ -20,7 +20,9 @@ public class RxState {
 	protected LacpConst.RX_STATES stateFlag;
 	
 	RxState(){
+		LOG.debug("Entering RxState constructor");
 		setStateFlag(LacpConst.RX_STATES.RX_DUMMY);
+		LOG.debug("Exiting RxState constructor");
 	}
 	
 	public LacpConst.RX_STATES getStateFlag(){

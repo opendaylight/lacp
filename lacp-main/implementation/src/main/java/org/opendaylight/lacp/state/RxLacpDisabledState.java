@@ -29,6 +29,7 @@ public class RxLacpDisabledState extends RxState {
 		4. Actor_Oper_Port_State.Expired = FALSE
 		*/
 		
+		LOG.debug("Entering RxLacpDisabledState executeStateAction");
 		stateFlag = LacpConst.RX_STATES.RX_LACP_DISABLED;
 		portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & ~LacpConst.PORT_SELECTED));
 		recordDefault(portObjRef);
@@ -37,6 +38,7 @@ public class RxLacpDisabledState extends RxState {
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 				& ~LacpConst.PORT_STATE_EXPIRED));
 		obj.setState(this);
+		LOG.debug("Exiting RxLacpDisabledState executeStateAction");
 	}
 
 	public LacpConst.RX_STATES getStateFlag(){

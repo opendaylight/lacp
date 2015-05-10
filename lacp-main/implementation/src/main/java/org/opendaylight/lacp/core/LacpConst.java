@@ -111,20 +111,6 @@ public class LacpConst {
 		BOND_STABLE,
 		BOND_BANDWIDTH,
 		BOND_COUNT;
-
-	/*
-		public static BOND_TYPE getBondType(int id){
-			if(id==BOND_STABLE.ordinal())
-				return BOND_STABLE;
-			else if(id==BOND_BANDWIDTH.ordinal())
-				return BOND_STABLE;
-			else if(id==BOND_COUNT.ordinal())
-				return BOND_STABLE;
-			else
-				return null;
-		}
-	*/
-		
 	}
 	
 	
@@ -193,19 +179,21 @@ public class LacpConst {
 	}
 	
 	static public String lacpMacString(byte[] content) {
-		if (content!=null)
-		return (String.format("%2x:%2x:%2x:%2x:%2x:%2x", content[0],content[1],content[2],content[3],
+		if (content!=null){
+			return (String.format("%2x:%2x:%2x:%2x:%2x:%2x", content[0],content[1],content[2],content[3],
 				content[4],content[5]));
-		else
+		}
+		else{
 			return ("No MAC");
-		
+		}
 	}
 	
 	static public String getStringUpTime(Date activeSince) {
 		
 		long uptime;
-		if (activeSince == null) 
+		if (activeSince == null) {
 			uptime = 0;
+		}
 		else {			
 			uptime = ((new Date()).getTime() -  activeSince.getTime());
 		}

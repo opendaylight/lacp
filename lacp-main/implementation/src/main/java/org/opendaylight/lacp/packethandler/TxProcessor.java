@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpP
 public class TxProcessor implements Runnable
 {
     private LacpTxQueue.QueueType  queueId;
-    private final static Logger log = LoggerFactory.getLogger(TxProcessor.class);
+    private final static Logger LOG = LoggerFactory.getLogger(TxProcessor.class);
     PacketProcessingService pktProcessService;
     private static boolean isLacpLoaded = true;
 
@@ -40,7 +40,7 @@ public class TxProcessor implements Runnable
         LacpTxQueue  lacpTxQueue = null;
         LacpPort lacpPort = null;
         byte[] payload ;
-        log.info("Spawned TxProcessor Thread");
+        LOG.info("Spawned TxProcessor Thread");
 
         lacpTxQueue = LacpTxQueue.getLacpTxQueueInstance();
 
@@ -54,21 +54,21 @@ public class TxProcessor implements Runnable
                 lacpPortId = lacpTxQueue.dequeue(queueId);
                 if (lacpPortId != null)
                 {
-                    log.debug("LACP TxProcessor queueId is = {}  and  lacpPort is = {}",queueId, lacpPortId.getPortId());
+                    LOG.debug("LACP TxProcessor queueId is = {}  and  lacpPort is = {}",queueId, lacpPortId.getPortId());
                     RSMManager rsmManager = RSMManager.getRSMManagerInstance();
                     lacpPort = rsmManager.getLacpPortFromBond(lacpPortId.getSwitchId(), (short) lacpPortId.getPortId());
                     if (lacpPort == null)
                     {
-                        log.debug ("Unable to obtain the Lacp port object cannot be retrieved for port {} in node {}", lacpPortId.getPortId(), lacpPortId.getSwitchId());
+                        LOG.debug ("Unable to obtain the Lacp port object cannot be retrieved for port {} in node {}", lacpPortId.getPortId(), lacpPortId.getSwitchId());
                         continue;
                     }
                     else
                     {
-                        log.debug ("Generating LacpPacketPdu for the port {}", lacpPortId.getPortId());
+                        LOG.debug ("Generating LacpPacketPdu for the port {}", lacpPortId.getPortId());
                         LacpPacketPdu pdu = lacpPort.updateLacpFromPortToLacpPacketPdu();
                         payload = TxUtils.convertLacpPdutoByte(pdu);
                         TxUtils.dispatchPacket(payload, pdu.getIngressPort(), pdu.getSrcAddress(), pdu.getDestAddress(), pktProcessService);
-                        log.debug ("dispatched the packet out for port {}", lacpPortId.getPortId());
+                        LOG.debug ("dispatched the packet out for port {}", lacpPortId.getPortId());
                     }
                 }
                 else
@@ -80,7 +80,7 @@ public class TxProcessor implements Runnable
                     }
                     catch (InterruptedException e)
                     {
-                        log.debug("TxProcessor: InterruptedException", e.getMessage());
+                        LOG.debug("TxProcessor: InterruptedException", e.getMessage());
                     }
                 }
             }

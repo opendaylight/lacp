@@ -47,6 +47,7 @@ public class LagIdElem implements Comparable<LagIdElem> {
 	/* Comparison with data except port information */
 	
 	public int compareToPartial(LagIdElem arg0) {
+		LOG.debug("Entering/Exiting LagIdElem compareToPartial method");
 		int val1,val2;
 		int result = this.system.compareTo(arg0.system);
 		if (result < 0){

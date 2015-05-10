@@ -11,11 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RxContext {
-	private static final Logger log = LoggerFactory.getLogger(RxContext.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RxContext.class);
 	private RxState rxState;
 			
 	public RxContext(){
+		LOG.debug("Entering RxContext constructor");
 		this.rxState = new RxState();
+		LOG.debug("Exiting RxContext constructor");
 	}
 	
 	public void	setState(RxState stateObj){

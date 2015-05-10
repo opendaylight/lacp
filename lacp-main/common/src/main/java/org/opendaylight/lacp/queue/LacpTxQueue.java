@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import org.opendaylight.lacp.queue.LacpPortInfo;
 
 public  class LacpTxQueue {
-    private static final ArrayList<LacpQueue<LacpPortInfo>>  LacpTxQueueArr = 
+    private static final ArrayList<LacpQueue<LacpPortInfo>>  LACP_TX_QUEUE_ARR = 
         new ArrayList<LacpQueue<LacpPortInfo>>();					
-    private static final LacpTxQueue instance = new LacpTxQueue();
+    private static final LacpTxQueue INSTANCE = new LacpTxQueue();
 
     public static enum QueueType
     {
@@ -19,10 +19,10 @@ public  class LacpTxQueue {
     {
         //LACP_TX_NTT_QUEUE
         LacpQueue<LacpPortInfo> lacpQ = new LacpQueue<LacpPortInfo>();
-        LacpTxQueueArr.add(lacpQ);
+        LACP_TX_QUEUE_ARR.add(lacpQ);
         //LACP_TX_PERIODIC_QUEUE
         lacpQ = new LacpQueue<LacpPortInfo>();
-        LacpTxQueueArr.add(lacpQ);
+        LACP_TX_QUEUE_ARR.add(lacpQ);
     }
 
     /*
@@ -30,7 +30,7 @@ public  class LacpTxQueue {
      */  
     public static LacpTxQueue getLacpTxQueueInstance()
     {
-        return instance;
+        return INSTANCE;
     }
 
     private int getQueueId(QueueType queueType)
@@ -59,8 +59,8 @@ public  class LacpTxQueue {
     {
         boolean result = false;
 
-        if((!LacpTxQueueArr.isEmpty()) && 
-                LacpTxQueueArr.get(getQueueId(queueType)) != null){
+        if((!LACP_TX_QUEUE_ARR.isEmpty()) && 
+                LACP_TX_QUEUE_ARR.get(getQueueId(queueType)) != null){
             result = true;
         }           
         return result;
@@ -77,9 +77,9 @@ public  class LacpTxQueue {
         int queueId = getQueueId(queueType);
         if(isLacpQueuePresent(queueType))
         {
-            synchronized(LacpTxQueueArr.get(queueId))
+            synchronized(LACP_TX_QUEUE_ARR.get(queueId))
             {
-                LacpTxQueueArr.get(queueId).enqueue(lacpPort);
+                LACP_TX_QUEUE_ARR.get(queueId).enqueue(lacpPort);
                 result = true;
             }
         }
@@ -93,13 +93,13 @@ public  class LacpTxQueue {
     {
         LacpPortInfo obj = null;
         int queueId = getQueueId(queueType);
-        LacpQueue<LacpPortInfo> lacpTxQueue = LacpTxQueueArr.get(queueId);
+        LacpQueue<LacpPortInfo> lacpTxQueue = LACP_TX_QUEUE_ARR.get(queueId);
 
         if(lacpTxQueue != null)
         {
-            synchronized(LacpTxQueueArr.get(queueId))
+            synchronized(LACP_TX_QUEUE_ARR.get(queueId))
             {
-                obj = LacpTxQueueArr.get(queueId).dequeue();
+                obj = LACP_TX_QUEUE_ARR.get(queueId).dequeue();
             }
         }
         return obj;
@@ -112,7 +112,7 @@ public  class LacpTxQueue {
         boolean result = true;
         LacpQueue<LacpPortInfo> lacpTxQueue = new LacpQueue<LacpPortInfo>();
 
-        LacpTxQueueArr.add(getQueueId(queueType), lacpTxQueue);
+        LACP_TX_QUEUE_ARR.add(getQueueId(queueType), lacpTxQueue);
         return result;
     }
 
@@ -125,9 +125,9 @@ public  class LacpTxQueue {
         boolean result = false;
 
         if(isLacpQueuePresent(queueType)){
-            synchronized(LacpTxQueueArr.get(getQueueId(queueType))){
-                LacpTxQueueArr.get(getQueueId(queueType)).remove();
-                LacpTxQueueArr.remove(getQueueId(queueType));
+            synchronized(LACP_TX_QUEUE_ARR.get(getQueueId(queueType))){
+                LACP_TX_QUEUE_ARR.get(getQueueId(queueType)).remove();
+                LACP_TX_QUEUE_ARR.remove(getQueueId(queueType));
                 result = true;
             }
         }
@@ -143,8 +143,8 @@ public  class LacpTxQueue {
 
         long size = 0;
 
-        if(LacpTxQueueArr.get(getQueueId(queueType)) != null){
-            size = LacpTxQueueArr.get(getQueueId(queueType)).size();
+        if(LACP_TX_QUEUE_ARR.get(getQueueId(queueType)) != null){
+            size = LACP_TX_QUEUE_ARR.get(getQueueId(queueType)).size();
         }
         return size;
     }

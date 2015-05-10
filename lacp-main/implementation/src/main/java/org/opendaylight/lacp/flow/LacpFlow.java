@@ -122,7 +122,7 @@ public class LacpFlow
         }
         catch (InterruptedException | ExecutionException | TimeoutException e)
         {
-            LOG.debug("received interrupt in lacp flow programming " + e.getMessage());
+            LOG.error("received interrupt in lacp flow programming " + e.toString());
         }
     }
 
@@ -191,7 +191,7 @@ public class LacpFlow
         }
         catch (InterruptedException | ExecutionException | TimeoutException e)
         {
-            LOG.debug("received interrupt in lacp flow removal " + e.getMessage());
+            LOG.error("received interrupt in lacp flow removal " + e.toString());
         }
     }
 }

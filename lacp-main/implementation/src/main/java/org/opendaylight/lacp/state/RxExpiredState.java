@@ -28,6 +28,7 @@ public class RxExpiredState extends RxState {
 		*/
 		
 
+		LOG.debug("Entering RxExpiredState executeStateAction");
 		stateFlag = LacpConst.RX_STATES.RX_EXPIRED;
 		portObjRef.getPartnerOper().setPortState((short)(portObjRef.getPartnerOper().getPortState() & ~LacpConst.PORT_STATE_SYNCHRONIZATION));
 		portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & ~LacpConst.PORT_MATCHED));
@@ -37,6 +38,7 @@ public class RxExpiredState extends RxState {
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 				| LacpConst.PORT_STATE_EXPIRED));
 		obj.setState(this);
+		LOG.debug("Exiting RxExpiredState executeStateAction");
 	}
 	
 	public LacpConst.RX_STATES getStateFlag(){

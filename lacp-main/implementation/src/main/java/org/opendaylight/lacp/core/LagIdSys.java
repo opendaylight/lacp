@@ -38,6 +38,7 @@ public class LagIdSys implements Comparable<LagIdSys> {
 
 	public boolean isNeighborFound() {
 		if (Arrays.equals(this.sysMacAddress,LacpConst.NULL_MAC_ADDRESS )){
+			LOG.warn("Neighbour not found");
 			return false;
 		}
 		return true;

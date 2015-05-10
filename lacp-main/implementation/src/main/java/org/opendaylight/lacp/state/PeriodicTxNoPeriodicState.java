@@ -27,11 +27,13 @@ public class PeriodicTxNoPeriodicState extends PeriodicTxState {
 
 		//Stop periodic_timer	
 		
+		LOG.debug("Entering PeriodicTxNoPeriodicState executeStateAction");
 		stateFlag = LacpConst.PERIODIC_STATES.NO_PERIODIC;
 		obj.setState(this);
 		//UCT to fast-periodic
 		obj.setState(portObjRef.periodicTxFastState);
 		obj.getState().executeStateAction(obj, portObjRef,pdu);
+		LOG.debug("Exiting PeriodicTxNoPeriodicState executeStateAction");
 	}
 	
 	public LacpConst.PERIODIC_STATES getStateFlag(){

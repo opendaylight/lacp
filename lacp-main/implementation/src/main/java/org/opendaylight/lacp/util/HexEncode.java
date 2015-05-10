@@ -6,7 +6,6 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-//package org.opendaylight.l2switch.packethandler.decoders.utils;
 package org.opendaylight.lacp.Utils;
 
 

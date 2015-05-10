@@ -16,7 +16,9 @@ public class MuxContext {
 		
 
 	public MuxContext(){
+		LOG.debug("Entering MuxContext constructor");
 		this.muxState = new MuxState();
+		LOG.debug("Exiting MuxContext constructor");
 	}
 	
 	public void	setState(MuxState stateObj){

@@ -53,8 +53,7 @@ public class MuxDetachedState  extends MuxState {
 					(portObjRef.getPortAggregator().getIsActive() > 0 ? "Active" : "Ready"));
 			
 		} catch (Exception e) {
-			LOG.error("MuxDetachedState bad lacp aggr");
-			LOG.error(e.getMessage());
+			LOG.error("MuxDetachedState bad lacp aggr" + e.toString());
 		}
 	}
 

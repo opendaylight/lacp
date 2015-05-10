@@ -22,7 +22,7 @@ import org.opendaylight.lacp.Utils.*;
 
 public class RxCurrentState extends RxState {
 
-	private static final Logger log = LoggerFactory.getLogger(RxCurrentState.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RxCurrentState.class);
 	
 	public RxCurrentState(){
 		stateFlag = LacpConst.RX_STATES.RX_CURRENT;
@@ -45,7 +45,7 @@ public class RxCurrentState extends RxState {
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 				& ~LacpConst.PORT_STATE_EXPIRED));
 		obj.setState(this);
-		log.debug("Exiting RxCurrentState executeStateAction method");
+		LOG.debug("Exiting RxCurrentState executeStateAction method");
 	}
 	
 	void updateSelected(LacpPort portObjRef,LacpBpduInfo lacpdu)
@@ -62,7 +62,7 @@ public class RxCurrentState extends RxState {
 									(partner.getPortState() & LacpConst.PORT_STATE_AGGREGATION)) {			
 				
 				portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & ~LacpConst.PORT_SELECTED));
-				log.info("RxCurrentState updateSelected one or more values do not match, selected is set to UNSELECTED for port={}",portObjRef.slaveGetPortId());
+				LOG.info("RxCurrentState updateSelected one or more values do not match, selected is set to UNSELECTED for port={}",portObjRef.slaveGetPortId());
 			}
 		}
 	}
@@ -85,7 +85,7 @@ public class RxCurrentState extends RxState {
 						(portObjRef.getActorOperPortState() & LacpConst.PORT_STATE_AGGREGATION))) 
 				{
 					portObjRef.setNtt(true);
-					log.info("RxCurrentState updateNTT one or more values do not match, settting ntt to true for port={}",portObjRef.slaveGetPortId());
+					LOG.info("RxCurrentState updateNTT one or more values do not match, settting ntt to true for port={}",portObjRef.slaveGetPortId());
 				}
 			
 		}
@@ -111,11 +111,11 @@ public class RxCurrentState extends RxState {
 					&& ((lacpdu.getActorSystemInfo().getNodePortState() & LacpConst.PORT_STATE_SYNCHRONIZATION)>0)){
 				
 				partner.setPortState((short)(partner.getPortState() | LacpConst.PORT_STATE_SYNCHRONIZATION));
-				log.info("Setting partner SYNC to true for port={}",portObjRef.slaveGetPortId());
+				LOG.info("Setting partner SYNC to true for port={}",portObjRef.slaveGetPortId());
 			}
 			else{
 				partner.setPortState((short)(partner.getPortState() & ~LacpConst.PORT_STATE_SYNCHRONIZATION));
-				log.info("Setting partner SYNC to false for port={}",portObjRef.slaveGetPortId());
+				LOG.info("Setting partner SYNC to false for port={}",portObjRef.slaveGetPortId());
 			}
 		}
 	}
@@ -132,11 +132,11 @@ public class RxCurrentState extends RxState {
 			((lacpdu.getActorSystemInfo().getNodePortState() & LacpConst.PORT_STATE_AGGREGATION) == 0)
 				) {
 			portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() | LacpConst.PORT_MATCHED));
-			log.info("RxCurrentState chooseMatched Moving port id={} state to MATCHED",portObjRef.slaveGetPortId());
+			LOG.info("RxCurrentState chooseMatched Moving port id={} state to MATCHED",portObjRef.slaveGetPortId());
 		} else {
 			portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & ~LacpConst.PORT_MATCHED));
 			
-				log.info(
+				LOG.info(
 						"Matched BPDU Mismatch [Port={},POPRI={},ADDR={},SYSPRI={},KEY={},STATE={}], MY [Port={},POPRI={},ADDR={},SYSPRI={},KEY={},STATE={}]",
 						new Object[] { String.format("%04x",lacpdu.getPartnerSystemInfo().getNodePortNum()),
 								String.format("%04x",lacpdu.getPartnerSystemInfo().getNodePortPriority()),

@@ -61,6 +61,7 @@ public class LacpBpduSysInfo {
 	}		
 
 	public byte[] serialize() {
+		LOG.debug("Entering LacpBpduSysInfo serialize method");
 		byte[] data = new byte[SYSTEMINFO_SIZE];
 		ByteBuffer bb = ByteBuffer.wrap(data);
 		bb.putInt(this.nodeSysPri);
@@ -69,6 +70,7 @@ public class LacpBpduSysInfo {
 		bb.putInt(this.nodePortPri);
 		bb.putShort(this.nodePortNum);
 		bb.put(this.nodePortState);
+		LOG.debug("Exiting LacpBpduSysInfo serialize method");
 		return data;
 	}
 		
@@ -134,26 +136,34 @@ public class LacpBpduSysInfo {
 	@Override
 	public boolean equals(Object obj) {
 
-	        if (this == obj)
+	        if (this == obj){
 	            return true;
-	        if (!super.equals(obj))
+		}
+	        if (!super.equals(obj)){
 	            return false;
-	        if (!(obj instanceof LacpBpduSysInfo))
+		}
+	        if (!(obj instanceof LacpBpduSysInfo)){
 	            return false;
+		}
 	        LacpBpduSysInfo other = (LacpBpduSysInfo) obj;
-	        if (this.nodeSysPri != other.nodeSysPri)
+	        if (this.nodeSysPri != other.nodeSysPri){
 	        	return false;
-	        if (this.nodeKey != other.nodeKey)
+		}
+	        if (this.nodeKey != other.nodeKey){
 	        	return false;
-	        if (this.nodePortPri != other.nodePortPri)
+		}
+	        if (this.nodePortPri != other.nodePortPri){
 	        	return false;
-	        if (this.nodePortNum != other.nodePortNum)
+		}
+	        if (this.nodePortNum != other.nodePortNum){
 	        	return false;
-	        if (this.nodePortState != other.nodePortState)
+		}
+	        if (this.nodePortState != other.nodePortState){
 	        	return false;
-
-	        if (!Arrays.equals(this.nodeSysAddr, other.nodeSysAddr))
+		}
+	        if (!Arrays.equals(this.nodeSysAddr, other.nodeSysAddr)){
 	        	return false;
+		}
 	        return true;				
 	}
 

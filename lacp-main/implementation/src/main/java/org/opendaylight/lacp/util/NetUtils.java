@@ -6,7 +6,6 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-//package org.opendaylight.l2switch.packethandler.decoders.utils;
 package org.opendaylight.lacp.Utils;
 
 
@@ -26,7 +25,7 @@ import java.util.regex.Pattern;
  * networking data structures
  */
 public class NetUtils {
-  protected static final Logger logger = LoggerFactory.getLogger(NetUtils.class);
+  protected static final Logger LOG = LoggerFactory.getLogger(NetUtils.class);
   /**
    * Constant holding the number of bits in a byte
    */
@@ -122,7 +121,7 @@ public class NetUtils {
     try {
       ip = InetAddress.getByAddress(NetUtils.intToByteArray4(address));
     } catch(UnknownHostException e) {
-      logger.error("", e);
+      LOG.error("", e);
     }
     return ip;
   }
@@ -161,7 +160,7 @@ public class NetUtils {
     try {
       return InetAddress.getByAddress(address);
     } catch(UnknownHostException e) {
-      logger.error("", e);
+      LOG.error("", e);
     }
     return null;
   }
@@ -230,6 +229,7 @@ public class NetUtils {
     try {
       return InetAddress.getByAddress(sn);
     } catch(UnknownHostException e) {
+      LOG.error("Exception received in getSubnetPrefix", e.toString());
       return null;
     }
   }
@@ -378,7 +378,7 @@ public class NetUtils {
     try {
       address = InetAddress.getByName(addressString);
     } catch(UnknownHostException e) {
-      logger.error("", e);
+      LOG.error("", e);
     }
     return address;
   }
@@ -491,6 +491,7 @@ public class NetUtils {
       return (v6) ? InetAddress.getByName("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff") : InetAddress
           .getByName("255.255.255.255");
     } catch(UnknownHostException e) {
+      LOG.error("Exception received in gethighestIP", e.toString());
       return null;
     }
   }

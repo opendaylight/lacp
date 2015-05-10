@@ -20,7 +20,9 @@ public class MuxState {
 	protected LacpConst.MUX_STATES stateFlag;
 	
 	MuxState(){
+		LOG.debug("Entering MuxState constructor");
 		setStateFlag(LacpConst.MUX_STATES.MUX_DUMMY);
+		LOG.debug("Exiting MuxState constructor");
 	}
 	
 	public LacpConst.MUX_STATES getStateFlag(){

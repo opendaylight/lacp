@@ -76,7 +76,6 @@ import com.google.common.base.Optional;
 public class LacpGroupTbl
 {
     private static final Logger LOG = LoggerFactory.getLogger(LacpGroupTbl.class);
-    private final ExecutorService lacpService = Executors.newCachedThreadPool();
     private SalGroupService salGroupService;
     private DataBroker dataService;
     private final AtomicLong txNum = new AtomicLong();
@@ -201,7 +200,7 @@ public class LacpGroupTbl
          }
          catch (InterruptedException | ExecutionException | TimeoutException e)
          {
-             	LOG.error("received interrupt " + e.getMessage());
+             	LOG.error("received interrupt " + e.toString());
          }
 
         return null;
@@ -213,8 +212,9 @@ public class LacpGroupTbl
     public Group lacpAddPort(boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef, 
 			   Group  origGroup) {
 
-        if (nodeConnectorRef == null)
+        if (nodeConnectorRef == null){
             return null;
+	}
 	if (origGroup == null)
         {
 		LOG.warn("lacpAddPort: origGroup is NULL"); 
@@ -490,7 +490,7 @@ public class LacpGroupTbl
          }
          catch (InterruptedException | ExecutionException | TimeoutException e)
          {
-             	LOG.error("received interrupt " + e.getMessage());
+             	LOG.error("received interrupt " + e.toString());
          }
 
 	LOG.debug("updateGroup:returning "+isGroupUpdated);
@@ -500,8 +500,9 @@ public class LacpGroupTbl
 
     public void lacpRemGroup(Boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef, GroupId  groupId)
     {
-        if (nodeConnectorRef == null)
+        if (nodeConnectorRef == null){
             return;
+	}
         LOG.info("LACP: lacpRemGroup ", nodeConnectorRef);
 	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue();
 
@@ -588,7 +589,7 @@ public class LacpGroupTbl
          }
          catch (InterruptedException | ExecutionException | TimeoutException e)
          {
-             	LOG.error("received interrupt " + e.getMessage());
+             	LOG.error("received interrupt " + e.toString());
          }
 
          return(isGroupRemoved);

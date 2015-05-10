@@ -1,11 +1,5 @@
 package org.opendaylight.lacp.timer;
 
-/*
- * import java.text.DateFormat;
- * import java.text.SimpleDateFormat;
- * import java.util.Date;
- * */
-
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
 import org.opendaylight.lacp.queue.LacpTimerQueue;

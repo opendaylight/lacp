@@ -92,7 +92,6 @@ public class LacpPort implements Comparable<LacpPort> {
 	private byte actorAdminPortState;
 	private byte actorOperPortState;
 	private boolean isLacpEnabled;
-  	private LacpGroupTbl groupTbl;	
 
 	private static int id = 1;
 	private short lacpPortId;
@@ -114,7 +113,6 @@ public class LacpPort implements Comparable<LacpPort> {
 	protected LacpBond bond;
 	private LacpAggregator portAggregator;
 	private LacpBpduInfo portTxLacpdu;
-	private LacpPacketPdu portTxLacpPacketPdu;
     
 	private short stateMachineBitSet;   
 	
@@ -157,7 +155,6 @@ public class LacpPort implements Comparable<LacpPort> {
     
         private static final Logger LOG = LoggerFactory.getLogger(LacpPort.class);
 	private LacpNodeConnectorBuilder lacpNCBuilder;
-	private LacpAggregator lacpAggRef;
 	private InstanceIdentifier ncId;
 	private static DataBroker dataService;
         private boolean operUpStatus; // to inform lag port timeout status to state machine

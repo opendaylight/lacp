@@ -313,8 +313,9 @@ public class LacpBond {
 		bondStateMachineLock();
 		try {
 			setDirty(true);
-		if (this.systemIdMap.containsKey(swId))
+		if (this.systemIdMap.containsKey(swId)){
 			systemId = systemIdMap.get(swId);
+		}
 		else {
 			if (systemIdMap.size() != 0) {
 				for (short value : systemIdMap.values()) {

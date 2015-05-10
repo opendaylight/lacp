@@ -38,6 +38,7 @@ public class LagIdPort implements Comparable<LagIdPort> {
 
 	@Override
 	public int compareTo(LagIdPort arg0) {
+		LOG.debug("Entering/Exiting LagIdPort compareTo method");
 		int val1, val2;
 		if (arg0 == null){
 			return -1;
