@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryListener;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +76,7 @@ import com.google.common.base.Optional;
 public class LacpGroupTbl
 {
     private static final Logger LOG = LoggerFactory.getLogger(LacpGroupTbl.class);
+    private final ExecutorService lacpService = Executors.newCachedThreadPool();
     private SalGroupService salGroupService;
     private DataBroker dataService;
     private final AtomicLong txNum = new AtomicLong();
@@ -90,14 +92,15 @@ public class LacpGroupTbl
                 return "RSM-" + txNum.getAndIncrement();
     }
 
-    public Group lacpAddGroup(Boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef,
+    //public void lacpAddGroup(Boolean IsUnicastGrp, NodeConnectorRef nodeConnectorref,
+    public Group lacpAddGroup(Boolean IsUnicastGrp, NodeConnectorRef nodeConnectorref,
 			     GroupId groupId)
     {
-        if (nodeConnectorRef == null){
+        if (nodeConnectorref == null){
             return null;
 	}
-        LOG.info("LACP: lacpAddGroup ", nodeConnectorRef);
-	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue();
+        LOG.info("LACP: lacpAddGroup ", nodeConnectorref);
+	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorref.getValue();
 
         NodeConnectorId ncId = InstanceIdentifier.keyOf(ncInstId).getId();
 
@@ -121,10 +124,12 @@ public class LacpGroupTbl
     }
 
 
-    private Group addGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId, 
+    //private boolean addGroup(boolean IsUnicastGrp, NodeRef nodeRef, NodeId nodeId, 
+    private Group addGroup(boolean IsUnicastGrp, NodeRef nodeRef, NodeId nodeId, 
 			     NodeConnectorId ncId, GroupId groupId) {
 
-        boolean isGroupAdded = true;
+        boolean isGroupAdded = true, retry=false;
+	int trials=0 ;
 
 	NodeKey nodeKey = new NodeKey(nodeId);
 
@@ -137,7 +142,7 @@ public class LacpGroupTbl
 
          AddGroupInputBuilder groupBuilder = new AddGroupInputBuilder();
 
-         if (isUnicastGrp == true)
+         if (IsUnicastGrp == true)
          {
                  groupBuilder.setGroupType(GroupTypes.GroupSelect);
          } else {
@@ -175,32 +180,47 @@ public class LacpGroupTbl
         groupBuilder.setBuckets(bucketBuilder.build());
 
 
-        try {
-             	Future<RpcResult<AddGroupOutput>>  result = salGroupService.addGroup(groupBuilder.build());
-               	if (result.get (5, TimeUnit.SECONDS).isSuccessful () == true)
-               	{
-                  	LOG.info ("LACP: Group Additon Succeeded.");
-                   	LOG.info("LACP: Group Additon Succeeded.");
-                   	isGroupAdded = true;
-			GroupBuilder retgrp = new GroupBuilder();
-			retgrp.setGroupType(groupBuilder.getGroupType());
-			retgrp.setGroupId(groupBuilder.getGroupId());
-			retgrp.setGroupName(groupBuilder.getGroupName());
-			retgrp.setContainerName(groupBuilder.getContainerName());
-			retgrp.setBarrier(groupBuilder.isBarrier());
-			retgrp.setBuckets(groupBuilder.getBuckets());
-			return retgrp.build();
-               	}
-               	else {
-                   	LOG.error("LACP: Group Additon Failed.");
-                    	isGroupAdded = false;
-			return null;
-               	}
-         }
-         catch (InterruptedException | ExecutionException | TimeoutException e)
-         {
-             	LOG.error("received interrupt " + e.toString());
-         }
+
+	do {
+		if ( retry == true )
+		{
+			try {
+                		Thread.sleep(1000);
+            		}catch( InterruptedException e ) {
+                		LOG.info("addGroup: Interrupted Exception ", e.getMessage());
+            		}
+
+		}
+        	try {
+             		Future<RpcResult<AddGroupOutput>>  result = salGroupService.addGroup(groupBuilder.build());
+               		if (result.get (5, TimeUnit.SECONDS).isSuccessful () == true)
+               		{
+                  		LOG.info ("LACP: Group Additon Succeeded.");
+                   		isGroupAdded = true;
+	 			trials++;
+				GroupBuilder retgrp = new GroupBuilder();
+				retgrp.setGroupType(groupBuilder.getGroupType());
+				retgrp.setGroupId(groupBuilder.getGroupId());
+				retgrp.setGroupName(groupBuilder.getGroupName());
+				retgrp.setContainerName(groupBuilder.getContainerName());
+				retgrp.setBarrier(groupBuilder.isBarrier());
+				retgrp.setBuckets(groupBuilder.getBuckets());
+				return retgrp.build();
+               		}	
+               		else {
+                   		LOG.error("LACP: Group Additon Failed.");
+                    		isGroupAdded = false;
+	 			trials++;
+				return null;
+               		}
+        	}	
+         	catch (InterruptedException | ExecutionException | TimeoutException e)
+         	{
+             		LOG.error("received interrupt " + e.getMessage());
+			retry =true;
+	 		trials++;
+         	}
+	} while( trials<5 && (isGroupAdded==false || retry )) ;
 
         return null;
 
@@ -208,20 +228,19 @@ public class LacpGroupTbl
 
 
 
-    public Group lacpAddPort(boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef, 
+    public Group lacpAddPort(boolean IsUnicastGrp, NodeConnectorRef nodeConnectorref, 
 			   Group  origGroup) {
 
-        if (nodeConnectorRef == null){
+        if (nodeConnectorref == null)
             return null;
-	}
 	if (origGroup == null)
         {
 		LOG.warn("lacpAddPort: origGroup is NULL"); 
                 return null;
         }
-        LOG.info("LACP: lacpAddPort ", nodeConnectorRef);
+        LOG.info("LACP: lacpAddPort ", nodeConnectorref);
 	GroupId groupId = origGroup.getGroupId();
-	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue();
+	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorref.getValue();
 
         NodeConnectorId ncId = InstanceIdentifier.keyOf(ncInstId).getId();
 
@@ -247,7 +266,7 @@ public class LacpGroupTbl
 	LOG.info("lacpAddPort: lacpGid ", lacpGId);
 	LOG.info("lacpAddPort:  key " , groupkey);
 
-	Group updGroup = populateGroup(isUnicastGrp, nodeRef, nodeId, ncId, groupId, origGroup); 
+	Group updGroup = populateGroup(IsUnicastGrp, nodeRef, nodeId, ncId, groupId, origGroup); 
 	if (updGroup == null){
 		LOG.warn("lacpAddPort: updGroup is NULL");
 	}
@@ -259,7 +278,7 @@ public class LacpGroupTbl
    }
 
 
-    public Group populateGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId,
+    public Group populateGroup(boolean IsUnicastGrp, NodeRef nodeRef, NodeId nodeId,
 			       NodeConnectorId ncId, GroupId groupId,
 			       Group origGroup) {
 
@@ -269,7 +288,7 @@ public class LacpGroupTbl
          GroupBuilder groupBuilder = new GroupBuilder();
 
 
-         if (isUnicastGrp == true)
+         if (IsUnicastGrp == true)
          {
                  groupBuilder.setGroupType(GroupTypes.GroupSelect);
 		 LOG.debug("populate group: type select");
@@ -352,8 +371,8 @@ public class LacpGroupTbl
 		
    }
 
-   public Group lacpRemPort(Group origGroup, NodeConnectorRef nodeConnectorRef, boolean isUnicastGrp) {
-        if (nodeConnectorRef == null){
+   public Group lacpRemPort(Group origGroup, NodeConnectorRef nodeConnectorref, boolean IsUnicastGrp) {
+        if (nodeConnectorref == null){
             return null;
 	}
 	if (origGroup == null)
@@ -361,8 +380,8 @@ public class LacpGroupTbl
 		LOG.warn("lacpAddPort: origGroup is NULL");
 		return null;
 	}
-        LOG.info("LACP: lacpAddPort ", nodeConnectorRef);
-	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue();
+        LOG.info("LACP: lacpAddPort ", nodeConnectorref);
+	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorref.getValue();
         GroupId groupId = origGroup.getGroupId();
 
         NodeConnectorId ncId = InstanceIdentifier.keyOf(ncInstId).getId();
@@ -386,13 +405,13 @@ public class LacpGroupTbl
         GroupKey groupkey = new GroupKey(groupId);
 
         InstanceIdentifier <Group> lacpGId = InstanceIdentifier.create(Nodes.class).child(Node.class, nodeKey).augmentation(FlowCapableNode.class).child(Group.class, groupkey);
-	Group updGroup = populatedelGroup(isUnicastGrp, nodeRef, nodeId, ncId, groupId, origGroup);
+	Group updGroup = populatedelGroup(IsUnicastGrp, nodeRef, nodeId, ncId, groupId, origGroup);
 	updateGroup(lacpGId, origGroup, updGroup , nodeInstId);
 	return updGroup;
 
     }
 
-    public Group populatedelGroup(boolean isUnicastGrp, NodeRef nodeRef, 
+    public Group populatedelGroup(boolean IsUnicastGrp, NodeRef nodeRef, 
 				  NodeId nodeId, NodeConnectorId ncId, 
 				  GroupId groupId, Group origGroup) {
 
@@ -403,7 +422,7 @@ public class LacpGroupTbl
 
 
 
-         if (isUnicastGrp == true)
+         if (IsUnicastGrp == true)
          {
                  groupBuilder.setGroupType(GroupTypes.GroupSelect);
          } else {
@@ -489,7 +508,7 @@ public class LacpGroupTbl
          }
          catch (InterruptedException | ExecutionException | TimeoutException e)
          {
-             	LOG.error("received interrupt " + e.toString());
+             	LOG.error("received interrupt " + e.getMessage());
          }
 
 	LOG.debug("updateGroup:returning "+isGroupUpdated);
@@ -497,13 +516,12 @@ public class LacpGroupTbl
 
     }
 
-    public void lacpRemGroup(Boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef, GroupId  groupId)
+    public void lacpRemGroup(Boolean IsUnicastGrp, NodeConnectorRef nodeConnectorref, GroupId  groupId)
     {
-        if (nodeConnectorRef == null){
+        if (nodeConnectorref == null)
             return;
-	}
-        LOG.info("LACP: lacpRemGroup ", nodeConnectorRef);
-	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue();
+        LOG.info("LACP: lacpRemGroup ", nodeConnectorref);
+	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorref.getValue();
 
         NodeConnectorId ncId = InstanceIdentifier.keyOf(ncInstId).getId();
 
@@ -526,7 +544,7 @@ public class LacpGroupTbl
     }
 
 
-    private boolean remGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId, 
+    private boolean remGroup(boolean IsUnicastGrp, NodeRef nodeRef, NodeId nodeId, 
 			     NodeConnectorId ncId, GroupId  groupId ) {
 
 
@@ -541,7 +559,7 @@ public class LacpGroupTbl
 
          RemoveGroupInputBuilder groupBuilder = new RemoveGroupInputBuilder();
 
-         if (isUnicastGrp == true)
+         if (IsUnicastGrp == true)
          {
                  groupBuilder.setGroupType(GroupTypes.GroupSelect);
          } else {
@@ -588,7 +606,7 @@ public class LacpGroupTbl
          }
          catch (InterruptedException | ExecutionException | TimeoutException e)
          {
-             	LOG.error("received interrupt " + e.toString());
+             	LOG.error("received interrupt " + e.getMessage());
          }
 
          return(isGroupRemoved);

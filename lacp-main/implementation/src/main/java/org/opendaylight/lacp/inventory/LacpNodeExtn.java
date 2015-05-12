@@ -63,7 +63,6 @@ public class LacpNodeExtn
     public LacpNodeExtn (InstanceIdentifier nodeId)
     {
         Long groupId = LacpUtil.getNextGroupId();
-        System.out.println("group id"+groupId);
         bcastGroupId = new GroupId (groupId);
         nodeInstId = nodeId;
         lacpBuilder = new LacpNodeBuilder();

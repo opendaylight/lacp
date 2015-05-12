@@ -79,7 +79,6 @@ public class LacpUtil
     {
         int value = RAND_GRP_GEN.nextInt(65535);
         Long id = Long.valueOf(value);
-        System.out.println("value "+ value+" id " +id);
         return id;
     }
 
@@ -117,7 +116,6 @@ public class LacpUtil
         public static byte[] hexStringToByteArray(String s) {
                 int len = s.length();
                 byte[] data = null;
-                System.out.println("hexStringToByteArray: length - :" + s.length());
                 if(len == 1){
                         data = new byte[1];
                         data[0] = (byte) Character.digit(s.charAt(0), 16);
