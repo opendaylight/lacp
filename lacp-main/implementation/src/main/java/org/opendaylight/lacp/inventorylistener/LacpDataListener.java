@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -51,6 +52,9 @@ public class LacpDataListener implements DataChangeListener
     private final DataBroker dataService;
     private static HashSet<InstanceIdentifier<NodeConnector>> intNodeConnSet;
     private static final String CURRTOPO = "flow:1";
+    private Registration extPortListener;
+    private Registration nodeListener;
+    private Registration nodeConnListener;   
 
     public LacpDataListener (DataBroker dataBroker)
     {
@@ -59,13 +63,41 @@ public class LacpDataListener implements DataChangeListener
         updateInternalNodeConnectors();
     }
     
-    public ListenerRegistration<DataChangeListener> registerDataChangeListener()
+    public void registerDataChangeListener()
     {
+        LOG.debug ("registering as listener for node, nodeconnector and link");
         InstanceIdentifier<Link> linkInstance = InstanceIdentifier.builder(NetworkTopology.class)
                                                 .child(Topology.class, new TopologyKey(new TopologyId(CURRTOPO)))
                                                 .child(Link.class).build();
-        return dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, linkInstance,
+        extPortListener = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, linkInstance,
                                                      this, AsyncDataBroker.DataChangeScope.BASE);
+        InstanceIdentifier<Node> nodeInstance = InstanceIdentifier.<Nodes>builder(Nodes.class)
+                                                 .<Node>child(Node.class).build();
+        nodeListener = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, nodeInstance,
+                                                             this, AsyncDataBroker.DataChangeScope.BASE);
+        InstanceIdentifier<NodeConnector> nodeConnInstance = InstanceIdentifier.<Nodes>builder(Nodes.class)
+                                                              .<Node>child(Node.class)
+                                                              .<NodeConnector>child(NodeConnector.class).build();
+        nodeConnListener = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, nodeConnInstance,
+                                                             this, AsyncDataBroker.DataChangeScope.BASE);
+        LOG.debug ("registered");
+        return;
+    }
+    public void closeListeners() throws Exception
+    {
+        if (extPortListener != null)
+        {
+            extPortListener.close();
+        }
+        if (nodeListener != null)
+        {
+            nodeListener.close();
+        }
+        if (nodeConnListener != null)
+        {
+            nodeConnListener.close();
+        }
+        return;
     }
     /* If the nodes are already available, obtain the available links in the learnt topology
      * and update the internal nodeConnector set */
@@ -166,38 +198,86 @@ public class LacpDataListener implements DataChangeListener
             return;
         }
         Map<InstanceIdentifier<?>, DataObject> createdData = dataChangeEvent.getCreatedData();
+        Map<InstanceIdentifier<?>, DataObject> updatedData = dataChangeEvent.getUpdatedData();
         Set<InstanceIdentifier<?>> removedData = dataChangeEvent.getRemovedPaths();
         Map<InstanceIdentifier<?>, DataObject> originalData = dataChangeEvent.getOriginalData();
         if ((createdData != null) && !(createdData.isEmpty()))
         {
-            Set<InstanceIdentifier<?>> linkset = createdData.keySet();
-            for (InstanceIdentifier<?> linkId : linkset)
+            Set<InstanceIdentifier<?>> createdSet = createdData.keySet();
+            for (InstanceIdentifier<?> instanceId : createdSet)
             {
-                if (Link.class.isAssignableFrom(linkId.getTargetType()))
-                {
-                    Link link = (Link) createdData.get(linkId);
-                    if (!(link.getLinkId().getValue().contains("host")))
-                    {
-                        addIntNodeConnectors(link);
-                    }
-                }
+                processInstanceId (instanceId, createdData.get(instanceId), true);
+            }
+        }
+        if ((updatedData != null) && !(updatedData.isEmpty()))
+        {
+            Set<InstanceIdentifier<?>> updatedSet = updatedData.keySet();
+            for (InstanceIdentifier<?> instanceId : updatedSet)
+            {
+                processInstanceId (instanceId, updatedData.get(instanceId), true);
             }
         }
         if ((removedData != null) && (!removedData.isEmpty()) && (originalData != null) && (!originalData.isEmpty()))
         {
             for (InstanceIdentifier<?> instanceId : removedData)
             {
-                if (Link.class.isAssignableFrom(instanceId.getTargetType()))
-                {
-                    Link link = (Link) originalData.get(instanceId);
-                    if (!(link.getLinkId().getValue().contains("host")))
-                    {
-                        removeIntNodeConnectors(link);
-                    }
-                }
+                processInstanceId (instanceId, originalData.get(instanceId), false);
             }
         }
     }
+    private void processInstanceId (InstanceIdentifier instanceId, DataObject data, boolean updDelFlag)
+    {
+        LOG.debug ("entering processInstanceId");
+        if (instanceId.getTargetType().equals(Link.class))
+        {
+            Link link = (Link) data;
+            if (!(link.getLinkId().getValue().contains("host")))
+            {
+                LOG.debug ("processing link up/down events");
+                if (updDelFlag == true)
+                {
+                    addIntNodeConnectors(link);
+                }
+                else
+                {
+                    removeIntNodeConnectors(link);
+                }
+            }
+        }
+        else if (instanceId.getTargetType().equals(Node.class))
+        {
+            LacpNodeListener nodeListener = LacpNodeListener.getNodeListenerInstance();
+            Node node = (Node)data;
+            LOG.debug ("processing node up/down events");
+            if (updDelFlag == true)
+            {
+System.out.println ("got a node update " + instanceId + " " + node);
+                nodeListener.updateNode (instanceId, node);
+            }
+            else
+            {
+System.out.println ("got a node remove " + instanceId + " " + node);
+                nodeListener.removeNode(instanceId, node);
+            }
+        }
+        else if (instanceId.getTargetType().equals(NodeConnector.class))
+        {
+            LacpNodeListener nodeListener = LacpNodeListener.getNodeListenerInstance();
+            NodeConnector nodeCon = (NodeConnector)data;
+            LOG.debug ("processing nodeConn up/down events");
+            if (updDelFlag == true)
+            {
+System.out.println ("got a nodeCon update " + instanceId + " " + nodeCon);
+                nodeListener.updateNodeConnector(instanceId, nodeCon);
+            }
+            else
+            {
+System.out.println ("got a nodeCon remove " + instanceId + " " + nodeCon);
+                nodeListener.removeNodeConnector(instanceId, nodeCon);
+            }
+        }
+    }
+
     private void addIntNodeConnectors(Link link)
     {
         InstanceIdentifier id;

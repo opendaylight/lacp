@@ -33,9 +33,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 
     private final static Logger LOG = LoggerFactory.getLogger(LacpMainModule.class);
     private LacpNodeListener lacpListener;
-    private Registration nodeListener = null;
     private LacpDataListener portDataListener;
-    private Registration extPortListener = null;
     private LacpPacketHandler lacpPacketHandler;
     private Registration packetListener = null;
     private LacpFlow lacpFlow;
@@ -71,8 +69,6 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 
         lacpSystem = LacpSystem.getLacpSystem();
         LacpNodeExtn.setDataBrokerService(dataService);
-        lacpListener = new LacpNodeListener(lacpSystem);
-        nodeListener = notificationService.registerNotificationListener(lacpListener);
         lacpFlow = new LacpFlow();
         lacpFlow.setSalFlowService(salFlowService);
         lacpFlow.setLacpFlowHardTime(getLacpFlowHardTimeout());
@@ -84,7 +80,8 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         LacpUtil.setSalGroupService(salGroupService);
         LacpLogPort.setNotificationService(notificationService);
         portDataListener = new LacpDataListener (dataService);
-        extPortListener = portDataListener.registerDataChangeListener();
+        portDataListener.registerDataChangeListener();
+        LacpNodeListener.setLacpSystem(lacpSystem);
 
 
         LOG.debug("starting to read from data store");
@@ -115,18 +112,11 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         final class CloseLacpResources implements AutoCloseable {
         @Override
           public void close() throws Exception {
-            if (nodeListener != null)
-            {
-                nodeListener.close();
-            }
             if (packetListener != null)
             {
                 packetListener.close();
             }
-            if (extPortListener != null)
-            {
-                extPortListener.close();
-            }
+            portDataListener.closeListeners();
             LOG.info("closed the listeners for lacp. Clearing the cached info.");
             /* clean up the nodes and nodeconnectors learnt by lacp */
             lacpSystem.clearResources();

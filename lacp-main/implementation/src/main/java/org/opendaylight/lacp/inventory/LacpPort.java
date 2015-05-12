@@ -735,8 +735,11 @@ public class LacpPort implements Comparable<LacpPort> {
                }
                else
                {
-                    lacpNode.removeNonLacpPort(ncId);
-                    lacpNode.addLacpPort(ncId, this);
+                    synchronized (lacpNode)
+                    {
+                        lacpNode.removeNonLacpPort(ncId);
+                        lacpNode.addLacpPort(ncId, this);
+                    }
                }
                operUpStatus = true;
 	       LOG.debug("Exiting LacpPort constructor for switchid={} port={}",portId, swId);
@@ -1524,8 +1527,11 @@ public class LacpPort implements Comparable<LacpPort> {
                             }
                             else
                             {
-                                lacpNode.removeNonLacpPort(ncId);
-                                lacpNode.addLacpPort(ncId, this);
+                                synchronized (lacpNode)
+                                {
+                                    lacpNode.removeNonLacpPort(ncId);
+                                    lacpNode.addLacpPort(ncId, this);
+                                }
                             }
                         }
 

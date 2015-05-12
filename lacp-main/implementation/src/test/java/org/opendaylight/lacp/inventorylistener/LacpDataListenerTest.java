@@ -61,7 +61,7 @@ public class LacpDataListenerTest {
     public void testRegisterDataChangeListener() throws Exception
     {
         listener.registerDataChangeListener();
-        verify(dataBroker, times(1)).registerDataChangeListener(any(LogicalDatastoreType.class),
+        verify(dataBroker, times(3)).registerDataChangeListener(any(LogicalDatastoreType.class),
                                        any(InstanceIdentifier.class), any(DataChangeListener.class), any(DataChangeScope.class));
     }
     @Test

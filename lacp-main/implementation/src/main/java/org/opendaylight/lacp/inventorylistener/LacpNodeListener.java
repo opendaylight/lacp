@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorUpdated;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortState;
 import org.opendaylight.lacp.Utils.*;
 import org.opendaylight.lacp.util.LacpUtil;
@@ -39,59 +39,45 @@ enum EventType
     DELETED;
 }
 
-public class LacpNodeListener implements OpendaylightInventoryListener
+public class LacpNodeListener 
 {
     private static final Logger LOG = LoggerFactory.getLogger(LacpNodeListener.class);
     private final ExecutorService lacpService = Executors.newCachedThreadPool();
-    private LacpSystem lacpSystem;
+    private static LacpSystem lacpSystem;
+    private static final LacpNodeListener LIST_INSTANCE = new LacpNodeListener();
 
-    public LacpNodeListener (LacpSystem lacpSys)
+    private LacpNodeListener ()
+    {}
+    
+    public static void setLacpSystem (LacpSystem lacpSys)
     {
         lacpSystem = lacpSys;
     }
-    @Override
-    public void onNodeConnectorRemoved (NodeConnectorRemoved nodeConnectorRemoved)
+    public static LacpNodeListener getNodeListenerInstance()
     {
-        if (nodeConnectorRemoved == null)
-        {
-            return;
-        }
-        LOG.info("got a node connec removed in lacp {} ", nodeConnectorRemoved);
-        lacpService.submit(new LacpNodeConnectorUpdate(EventType.DELETED, nodeConnectorRemoved));
+        return LIST_INSTANCE;
+    }
+    public void removeNodeConnector (InstanceIdentifier<NodeConnector> ncId, NodeConnector nc)
+    {
+        LOG.info("got a node connec removed in lacp {} ", ncId);
+        lacpService.submit(new LacpNodeConnectorUpdate(EventType.DELETED, ncId, nc));
     }
 
-    @Override
-    public void onNodeConnectorUpdated (NodeConnectorUpdated nodeConnectorUpdated)
+    public void updateNodeConnector (InstanceIdentifier<NodeConnector> ncId, NodeConnector nc)
     {
-        if (nodeConnectorUpdated == null)
-        {
-            return;
-        }
-        LOG.info("got a node connec Updated {} in lacp ", nodeConnectorUpdated);
-        lacpService.submit(new LacpNodeConnectorUpdate(EventType.UPDATED, nodeConnectorUpdated));
+        LOG.info("got a node connec Updated {} in lacp ", ncId);
+        lacpService.submit(new LacpNodeConnectorUpdate(EventType.UPDATED, ncId, nc));
     }
 
-    @Override
-    public void onNodeRemoved (NodeRemoved nodeRemoved)
+    public void removeNode (InstanceIdentifier<Node> nodeId, Node node)
     {
-        if (nodeRemoved == null)
-        {
-            return;
-        }
-        LOG.info("got a node removed {} in lacp ", nodeRemoved);
-        InstanceIdentifier <Node> nodeId = (InstanceIdentifier<Node>) nodeRemoved.getNodeRef().getValue();
+        LOG.info("got a node removed {} in lacp ", node);
         lacpService.submit(new LacpNodeUpdate(nodeId, EventType.DELETED));
     }
 
-    @Override
-    public void onNodeUpdated (NodeUpdated nodeUpdated)
+    public void updateNode (InstanceIdentifier<Node> nodeId, Node node)
     {
-        if (nodeUpdated == null)
-        {
-            return;
-        }
-        LOG.info("got a node updated {} ", nodeUpdated);
-        InstanceIdentifier <Node> nodeId = (InstanceIdentifier<Node>) nodeUpdated.getNodeRef().getValue();
+        LOG.info("got a node updated {} ", node);
         lacpService.submit(new LacpNodeUpdate(nodeId, EventType.UPDATED));
     }
 
@@ -120,9 +106,11 @@ public class LacpNodeListener implements OpendaylightInventoryListener
 
         private void handleNodeUpdate (InstanceIdentifier<Node> lNode)
         {
+            LOG.debug ("entering handleNodeUpdate");
             InstanceIdentifier<Node> nodeId = lNode;
             synchronized (LacpSystem.class)
             {
+            LOG.debug ("verifying node is already available");
             if (lacpSystem.getLacpNode(nodeId) != null)
             {
                 LOG.debug ("Node already notified to lacp. Ignoring it {}", nodeId);
@@ -134,6 +122,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 LOG.error("cannot add a lacp node for node {}", nodeId);
                 return;
             }
+            LOG.debug ("adding the node to the lacpSystem");
             lacpSystem.addLacpNode(nodeId, lacpNode);
             LOG.debug ("added node for nodeId {}", nodeId);
             }
@@ -141,11 +130,13 @@ public class LacpNodeListener implements OpendaylightInventoryListener
 
         private void handleNodeDeletion (InstanceIdentifier<Node> lNode)
         {
+            LOG.debug ("entering handleNodeDelete");
             InstanceIdentifier <Node> nodeId = lNode;
             LacpNodeExtn lacpNode = null;
 
             synchronized (LacpSystem.class)
             {
+                LOG.debug ("searching the node in the lacpSystem");
                 lacpNode = lacpSystem.getLacpNode(nodeId);
                 if (lacpNode == null)
                 {
@@ -156,6 +147,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 lacpNode.setLacpNodeDeleteStatus (true);
                 LacpNodeNotif nodeNotif = new LacpNodeNotif();
                 LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
+                LOG.debug("sending node delete msg");
                 if (pduQueue.enqueueAtFront(swId, nodeNotif) == false)
                 {
                     LOG.warn ("Failed to enqueue node deletion message to the pduQ for node {}", nodeId);
@@ -168,31 +160,25 @@ public class LacpNodeListener implements OpendaylightInventoryListener
     private class LacpNodeConnectorUpdate implements Runnable
     {
         private EventType event;
-        private NodeConnectorUpdated ncUpdated;
+        private NodeConnector ncUpdated;
+        private InstanceIdentifier<NodeConnector> ncId;
         private NodeConnectorRemoved ncRemoved;
 
-        public LacpNodeConnectorUpdate (EventType evt, NodeConnectorUpdated nc)
+        public LacpNodeConnectorUpdate (EventType evt, InstanceIdentifier<NodeConnector> nodeConnId, NodeConnector nc)
         {
-            event = evt;
+            this.event = evt;
             this.ncUpdated = nc;
-            this.ncRemoved = null;
-        }
-        public LacpNodeConnectorUpdate (EventType evt, NodeConnectorRemoved nc)
-        {
-            event = evt;
-            this.ncRemoved = nc;
-            this.ncUpdated = null;
+            this.ncId = nodeConnId;
         }
 
         @Override
         public void run ()
         { 
             InstanceIdentifier<NodeConnector> lNodeCon;
-
+            lNodeCon = ncId;
             if (event.equals(EventType.UPDATED) == true)
             {
-                lNodeCon = (InstanceIdentifier<NodeConnector>)ncUpdated.getNodeConnectorRef().getValue();
-                FlowCapableNodeConnectorUpdated flowConnector = ncUpdated.<FlowCapableNodeConnectorUpdated>getAugmentation(FlowCapableNodeConnectorUpdated.class);
+                FlowCapableNodeConnector flowConnector = ncUpdated.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
                 long portNum = flowConnector.getPortNumber().getUint32();
                 if (portNum > LacpUtil.getLogPortNum())
                 {
@@ -213,7 +199,13 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             }
             else
             {
-                lNodeCon = (InstanceIdentifier<NodeConnector>)ncRemoved.getNodeConnectorRef().getValue();
+                FlowCapableNodeConnector flowConnector = ncUpdated.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
+                long portNum = flowConnector.getPortNumber().getUint32();
+                if (portNum > LacpUtil.getLogPortNum())
+                {
+                    LOG.debug ("avoiding notifications for the logical port {}", portNum);
+                    return;
+                }
                 handlePortDelete(lNodeCon, false);
             }
         }
