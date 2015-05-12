@@ -135,7 +135,6 @@ public class PduQueueHandlerTest {
             	for (int i=0;i<payload.length;i++) {
                 	sb1.append(Integer.toHexString((int) payload[i]));
             	}
-            	System.out.println("Built packet String " + sb1.toString());
 		StringBuffer sb2 = new StringBuffer();
             	for (int i=0;i<packet.length;i++) {
                 	sb2.append(Integer.toHexString((int) packet[i]));

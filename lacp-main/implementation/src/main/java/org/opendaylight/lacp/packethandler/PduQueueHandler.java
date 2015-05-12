@@ -17,6 +17,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.SubTy
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.VersionValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.TlvTypeOption;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.*;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.lacp.util.LacpPortType;
 import org.opendaylight.lacp.Utils.*;
 import org.opendaylight.lacp.queue.*;
 import org.opendaylight.lacp.core.*;
@@ -59,12 +61,12 @@ public class PduQueueHandler {
         isNewNode = !(lacpPduQ.isLacpQueuePresent(sid));
         LOG.debug ("received the packet in pdu decoder. queue present {} for switch {} ", lacpPduQ.isLacpQueuePresent(sid), sid);
 
+        LacpSystem lacpSystem = LacpSystem.getLacpSystem();
+        LacpNodeExtn lacpNodeExtn = lacpSystem.getLacpNode(sid);
         if (isNewNode)
         {
             LOG.debug ("within if to create RSM thread");
             RSMManager instance = RSMManager.getRSMManagerInstance();
-            LacpSystem lacpSystem = LacpSystem.getLacpSystem();
-            LacpNodeExtn lacpNodeExtn = lacpSystem.getLacpNode(sid);
             if (lacpNodeExtn == null)
             {
                 LOG.debug ("LacpNode for node id {} is yet to be created. Drop the packets and return", sid);
@@ -74,6 +76,16 @@ public class PduQueueHandler {
             instance.createRSM(lacpNodeExtn);
             LOG.debug ("created RSM thread for node {} ", sid);
         }
+
+	InstanceIdentifier port = packetReceived.getIngress().getValue();
+        if((lacpNodeExtn != null) && 
+	   (lacpNodeExtn.containsPort(port)) == LacpPortType.NONE){
+                LOG.debug ("LacpNodeconnector {} is yet to be created. Drop the packets and return", packetReceived.getIngress().getValue());
+                return;
+
+	}
+
+	
 
         // Decode the received Packet.
         LacpPacketPduBuilder builder = decodeLacp(packetReceived);

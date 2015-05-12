@@ -251,12 +251,10 @@ public class LacpDataListener implements DataChangeListener
             LOG.debug ("processing node up/down events");
             if (updDelFlag == true)
             {
-System.out.println ("got a node update " + instanceId + " " + node);
                 nodeListener.updateNode (instanceId, node);
             }
             else
             {
-System.out.println ("got a node remove " + instanceId + " " + node);
                 nodeListener.removeNode(instanceId, node);
             }
         }
@@ -267,12 +265,10 @@ System.out.println ("got a node remove " + instanceId + " " + node);
             LOG.debug ("processing nodeConn up/down events");
             if (updDelFlag == true)
             {
-System.out.println ("got a nodeCon update " + instanceId + " " + nodeCon);
                 nodeListener.updateNodeConnector(instanceId, nodeCon);
             }
             else
             {
-System.out.println ("got a nodeCon remove " + instanceId + " " + nodeCon);
                 nodeListener.removeNodeConnector(instanceId, nodeCon);
             }
         }
