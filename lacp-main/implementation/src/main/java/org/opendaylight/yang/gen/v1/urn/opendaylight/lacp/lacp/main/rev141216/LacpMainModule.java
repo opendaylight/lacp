@@ -32,10 +32,10 @@ import org.slf4j.LoggerFactory;
 public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.lacp.main.rev141216.AbstractLacpMainModule {
 
     private final static Logger LOG = LoggerFactory.getLogger(LacpMainModule.class);
-    private LacpNodeListener lacpListener;
     private LacpDataListener portDataListener;
     private LacpPacketHandler lacpPacketHandler;
     private Registration packetListener = null;
+    private Registration portStatusListener = null;
     private LacpFlow lacpFlow;
     private LacpSystem lacpSystem;
 
@@ -82,6 +82,8 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         portDataListener = new LacpDataListener (dataService);
         portDataListener.registerDataChangeListener();
         LacpNodeListener.setLacpSystem(lacpSystem);
+        LacpNodeListener nodeListener = LacpNodeListener.getNodeListenerInstance();
+        portStatusListener = notificationService.registerNotificationListener(nodeListener);
 
 
         LOG.debug("starting to read from data store");
@@ -115,6 +117,10 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
             if (packetListener != null)
             {
                 packetListener.close();
+            }
+            if (portStatusListener != null)
+            {
+                portStatusListener.close();
             }
             portDataListener.closeListeners();
             LOG.info("closed the listeners for lacp. Clearing the cached info.");

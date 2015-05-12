@@ -10,19 +10,24 @@ package org.opendaylight.lacp.inventorylistener;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRemoved;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRemoved;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeUpdated;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryListener;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.List;
 import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnectorUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortState;
 import org.opendaylight.lacp.Utils.*;
 import org.opendaylight.lacp.util.LacpUtil;
@@ -31,15 +36,17 @@ import org.opendaylight.lacp.queue.LacpPDUQueue;
 import org.opendaylight.lacp.queue.LacpPortStatus;
 import org.opendaylight.lacp.queue.LacpPDUPortStatusContainer;
 import org.opendaylight.lacp.queue.LacpNodeNotif;
+import org.opendaylight.lacp.util.LacpPortType;
 
 
 enum EventType
 {
     UPDATED,
-    DELETED;
+    DELETED,
+    STATUS_UPDATE;
 }
 
-public class LacpNodeListener 
+public class LacpNodeListener implements OpendaylightInventoryListener
 {
     private static final Logger LOG = LoggerFactory.getLogger(LacpNodeListener.class);
     private final ExecutorService lacpService = Executors.newCachedThreadPool();
@@ -72,23 +79,52 @@ public class LacpNodeListener
     public void removeNode (InstanceIdentifier<Node> nodeId, Node node)
     {
         LOG.info("got a node removed {} in lacp ", node);
-        lacpService.submit(new LacpNodeUpdate(nodeId, EventType.DELETED));
+        lacpService.submit(new LacpNodeUpdate(nodeId, node, EventType.DELETED));
     }
 
     public void updateNode (InstanceIdentifier<Node> nodeId, Node node)
     {
         LOG.info("got a node updated {} ", node);
-        lacpService.submit(new LacpNodeUpdate(nodeId, EventType.UPDATED));
+        lacpService.submit(new LacpNodeUpdate(nodeId, node, EventType.UPDATED));
+    }
+    @Override
+    public void onNodeConnectorRemoved (NodeConnectorRemoved nodeConnectorRemoved)
+    {
+        //do Nothing for node removal. it is handled via the datachange listener
+    }
+    @Override
+    public void onNodeConnectorUpdated (NodeConnectorUpdated nodeConnectorUpdated)
+    {
+        if (nodeConnectorUpdated == null)
+        {   
+            return;
+        }
+        LOG.info("got a node connec Updated from inventory listener {} in lacp ", nodeConnectorUpdated);
+        InstanceIdentifier<NodeConnector> instanceId = (InstanceIdentifier<NodeConnector>)nodeConnectorUpdated.getNodeConnectorRef().getValue();
+        lacpService.submit(new LacpNodeConnectorUpdate(EventType.STATUS_UPDATE, instanceId,
+                                                       nodeConnectorUpdated));
+    }
+    @Override
+    public void onNodeRemoved (NodeRemoved nodeRemoved)
+    {
+        //do Nothing for node removal. it is handled via the datachange listener
+    }
+    @Override
+    public void onNodeUpdated (NodeUpdated nodeUpdated)
+    {
+        //do Nothing for node updation. it is handled via the datachange listener
     }
 
     private class LacpNodeUpdate implements Runnable
     {
         private InstanceIdentifier<Node> lNode;
+        private Node node;
         private EventType event;
 
-        public LacpNodeUpdate(InstanceIdentifier<Node> node, EventType evt)
+        public LacpNodeUpdate(InstanceIdentifier<Node> nodeId, Node lacpNode, EventType evt)
         {
-            lNode = node;
+            lNode = nodeId;
+            node = lacpNode;
             event = evt;
         }
         @Override
@@ -96,7 +132,7 @@ public class LacpNodeListener
         {  
             if (event.equals(EventType.UPDATED) == true)
             {
-                handleNodeUpdate(lNode);
+                handleNodeUpdate(lNode, node);
             }
             else
             {
@@ -104,7 +140,7 @@ public class LacpNodeListener
             }
         }
 
-        private void handleNodeUpdate (InstanceIdentifier<Node> lNode)
+        private void handleNodeUpdate (InstanceIdentifier<Node> lNode, Node node)
         {
             LOG.debug ("entering handleNodeUpdate");
             InstanceIdentifier<Node> nodeId = lNode;
@@ -125,6 +161,33 @@ public class LacpNodeListener
             LOG.debug ("adding the node to the lacpSystem");
             lacpSystem.addLacpNode(nodeId, lacpNode);
             LOG.debug ("added node for nodeId {}", nodeId);
+            // if the node-connector notification have been received before the node update
+            // notification, then those notifications will be lost. So get the list of 
+            // node-connectors available for the node and process it
+            List<NodeConnector> nodeConnectors = node.getNodeConnector();
+            if(nodeConnectors == null)
+            {
+                return;
+            }
+            for(NodeConnector nc : nodeConnectors)
+            {
+                FlowCapableNodeConnector flowConnector = nc.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
+                long portNum = flowConnector.getPortNumber().getUint32();
+                if (portNum > LacpUtil.getLogPortNum())
+                {
+                    LOG.debug ("avoiding notifications for the logical port {}", portNum);
+                    continue;
+                }
+                PortState portState = flowConnector.getState();
+                if ((portState == null) || (portState.isLinkDown()))
+                {
+                    continue;
+                }
+                InstanceIdentifier<NodeConnector> ncId = 
+                    InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
+                      .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nc.getKey()).build();
+                lacpNode.addNonLacpPort(ncId);
+            }
             }
         }
 
@@ -160,14 +223,20 @@ public class LacpNodeListener
     private class LacpNodeConnectorUpdate implements Runnable
     {
         private EventType event;
-        private NodeConnector ncUpdated;
+        private NodeConnector nc;
         private InstanceIdentifier<NodeConnector> ncId;
-        private NodeConnectorRemoved ncRemoved;
+        private NodeConnectorUpdated ncUpdated;
 
-        public LacpNodeConnectorUpdate (EventType evt, InstanceIdentifier<NodeConnector> nodeConnId, NodeConnector nc)
+        public LacpNodeConnectorUpdate (EventType evt, InstanceIdentifier<NodeConnector> nodeConnId, NodeConnector nodeConn)
         {
             this.event = evt;
-            this.ncUpdated = nc;
+            this.nc = nodeConn;
+            this.ncId = nodeConnId;
+        }
+        public LacpNodeConnectorUpdate (EventType evt, InstanceIdentifier<NodeConnector> nodeConnId, NodeConnectorUpdated nodeConnUpdated)
+        {
+            this.event = evt;
+            this.ncUpdated = nodeConnUpdated;
             this.ncId = nodeConnId;
         }
 
@@ -178,7 +247,7 @@ public class LacpNodeListener
             lNodeCon = ncId;
             if (event.equals(EventType.UPDATED) == true)
             {
-                FlowCapableNodeConnector flowConnector = ncUpdated.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
+                FlowCapableNodeConnector flowConnector = nc.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
                 long portNum = flowConnector.getPortNumber().getUint32();
                 if (portNum > LacpUtil.getLogPortNum())
                 {
@@ -197,9 +266,9 @@ public class LacpNodeListener
                     handlePortUpdate(lNodeCon);
                 }
             }
-            else
+            else if(event.equals(EventType.DELETED))
             {
-                FlowCapableNodeConnector flowConnector = ncUpdated.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
+                FlowCapableNodeConnector flowConnector = nc.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
                 long portNum = flowConnector.getPortNumber().getUint32();
                 if (portNum > LacpUtil.getLogPortNum())
                 {
@@ -207,6 +276,49 @@ public class LacpNodeListener
                     return;
                 }
                 handlePortDelete(lNodeCon, false);
+            }
+            else
+            {
+                InstanceIdentifier<Node> nodeId = lNodeCon.firstIdentifierOf(Node.class);
+                LacpNodeExtn lacpNode = null;
+                LacpPortType portType;
+                synchronized (LacpSystem.class)
+                {   
+                    lacpNode = lacpSystem.getLacpNode(nodeId);
+                }
+                if (lacpNode == null)
+                {
+                    return;
+                }
+                synchronized (lacpNode)
+                {
+                    portType = lacpNode.containsPort(lNodeCon);
+                }
+                FlowCapableNodeConnectorUpdated flowConnector 
+                        = ncUpdated.<FlowCapableNodeConnectorUpdated>getAugmentation(FlowCapableNodeConnectorUpdated.class);
+                long portNum = flowConnector.getPortNumber().getUint32();
+                if (portNum > LacpUtil.getLogPortNum())
+                {
+                    LOG.debug ("avoiding notifications for the logical port {}", portNum);
+                    return;
+                }
+                PortState portState = flowConnector.getState();
+                if ((portState == null) || (portState.isLinkDown()))
+                {
+                    // port is in linkdown state, remove the port from the node.
+                    if (portType != LacpPortType.NONE)
+                    {
+                        handlePortDelete(lNodeCon, true);
+                    }
+                }
+                else
+                {
+                    // port is in linkup state, add the port to the node.
+                    if (portType == LacpPortType.NONE)
+                    {
+                        handlePortUpdate(lNodeCon);
+                    }
+                }
             }
         }
 
@@ -249,13 +361,6 @@ public class LacpNodeListener
                         LOG.debug("port already available with lacp node. Ignoring it {}", ncId);
                         return;
                     }
-		    /*
-          	    if(!enqueuePortStatus(ncId,1)){
-                        LOG.debug("port {} with state UP is enqued succesfully for port state procesing", ncId);
-                    }else{
-                        LOG.error("port {}, enque failed", ncId);
-                    }
-		    */
                 }
             }
             else

@@ -75,6 +75,7 @@ public class LacpNodeExtn
         nonLacpPortList = new ArrayList<InstanceIdentifier<NodeConnector>>();
         lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
         deleteStatus = false;
+        LOG.debug ("programming the flow fo sw {}", switchId);
         LACPFLOW.programLacpFlow(nodeInstId, this);
         lacpBuilder.setNonLagGroupid(groupId);
         lagList = new Hashtable<Integer,LacpBond>();
@@ -221,7 +222,6 @@ public class LacpNodeExtn
        /* If delFlag is false, do only the cleanup
         * else, delete the information from datastore also. */
         long groupId = 0;
-        this.deleteStatus = true;
 
         nonLacpPortList.clear();
         //groupTbl.lacpRemGroup (false, null, bcastGroupId);
@@ -258,10 +258,17 @@ public class LacpNodeExtn
             LACPFLOW.removeLacpFlow(this.nodeInstId, this);
             updateLacpNodeDS(nodeInstId);
         }
+        this.deleteStatus = true;
         lacpBuilder = null;
     }    
     public void updateLacpNodeDS (InstanceIdentifier nodeId)
     {
+        if (this.deleteStatus == true)
+        {
+            //do not update the datastore as the node is in process of deletion
+            LOG.debug ("update of LACP node DS skipped");
+            return;
+        }
         final WriteTransaction write = dataService.newWriteOnlyTransaction();
         LacpNode lacpNode = lacpBuilder.build();
         InstanceIdentifier<LacpNode> lacpNodeId = nodeId.augmentation(LacpNode.class);
@@ -321,6 +328,12 @@ public class LacpNodeExtn
     public void updateNodeConnectorLacpInfo (InstanceIdentifier port)
     {
         short portNo = 0;
+        if (this.deleteStatus == true)
+        {
+            //do not update the datastore as the node is in process of deletion
+            LOG.debug ("update of LACP nodeConnector DS skipped");
+            return;
+        }
         final WriteTransaction write = dataService.newWriteOnlyTransaction();
         LacpNodeConnectorBuilder lacpNCBuilder = new LacpNodeConnectorBuilder();
         lacpNCBuilder.setActorPortNumber(portNo);
@@ -361,6 +374,8 @@ public class LacpNodeExtn
     public void setLacpNodeDeleteStatus (boolean delStatus)
     {
         deleteStatus = delStatus;
+        LOG.debug ("setting the delete status to {}", delStatus);
+        return;
     }
     public boolean getLacpNodeDeleteStatus ()
     {

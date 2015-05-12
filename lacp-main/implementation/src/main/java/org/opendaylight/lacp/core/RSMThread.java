@@ -344,7 +344,11 @@ public class RSMThread implements Runnable
 	}
     else
     {
-        boolean result = lacpNode.removeNonLacpPort(ncId);
+        boolean result = false;
+        synchronized (lacpNode)
+        {
+            result = lacpNode.removeNonLacpPort(ncId);
+        }
         if (result == false)
         {
 		    LOG.debug("handleLacpPortState - couldn't find port={} in switch {}, no action to be taken", portId, swId);

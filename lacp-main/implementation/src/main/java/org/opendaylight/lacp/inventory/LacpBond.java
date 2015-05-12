@@ -847,6 +847,11 @@ public class LacpBond {
     }
     public void deleteLacpAggregatorDS ()
     {
+        if (lacpNodeRef.getLacpNodeDeleteStatus() == true)
+        {
+            LOG.debug ("updation of the LACP Aggregator DS is skipped as the node is in process of deletion");
+            return;
+        }
         DataBroker dataService = LacpUtil.getDataBrokerService();
         final WriteTransaction write = dataService.newWriteOnlyTransaction();
 
@@ -916,15 +921,18 @@ public class LacpBond {
             updateLacpAggregatorsDS();
             lagGroup = lacpGroupTbl.lacpRemPort (lagGroup, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true);
         }
-        lacpNodeRef.removeLacpPort(lacpPort.getNodeConnectorId(), false);
-        if (lacpPort.getPortOperStatus() == true)
+        synchronized (lacpNodeRef)
         {
-            LOG.debug("removing the port as lacp port and adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
-            lacpNodeRef.addNonLacpPort(lacpPort.getNodeConnectorId());
-        }
-        else
-        {
-            LOG.debug("removing the port as lacp port and not adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
+            lacpNodeRef.removeLacpPort(lacpPort.getNodeConnectorId(), false);
+            if (lacpPort.getPortOperStatus() == true)
+            {
+                LOG.debug("removing the port as lacp port and adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
+                lacpNodeRef.addNonLacpPort(lacpPort.getNodeConnectorId());
+            }
+            else
+            {
+                LOG.debug("removing the port as lacp port and not adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
+            }
         }
         return true;
     }
