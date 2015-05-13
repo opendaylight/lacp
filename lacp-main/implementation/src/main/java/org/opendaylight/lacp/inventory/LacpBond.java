@@ -249,7 +249,6 @@ public class LacpBond {
 	{
 		LOG.debug("LacpBond is created with sys priority ={} and key={}",sys_priority,key); 
 
-		bondInstanceId = UniqueId++;
 		this.bondLock = new ReentrantLock();
 		minLinks = 1;		
 		slaveCnt = 0;
@@ -276,6 +275,7 @@ public class LacpBond {
                 logNodeConnRef = null;
                 InstanceIdentifier<Node> nodeId = lacpNode.getNodeId();
                 NodeId nId = nodeId.firstKeyOf(Node.class, NodeKey.class).getId();
+		        bondInstanceId = lacpNode.getAndIncrementNextAggId();
                 aggInstId = InstanceIdentifier.builder(Nodes.class)
                               .child (Node.class, new NodeKey (nId))
                               .augmentation(LacpNode.class)
@@ -964,12 +964,25 @@ public class LacpBond {
             return portSlaveMap.get(portId);
     }
 
-    public void lacpBondCleanup(){
-            for (LacpPort lacpPort: slaveList) {
-                    if( lacpPort != null){
-                            lacpPort.lacpPortCleanup();
-                    }
+    public void lacpBondCleanup()
+    {
+        for (LacpPort lacpPort :slaveList)
+        {
+            bondStateMachineLock();
+            lacpPort.slavePSMLock();
+            try
+            {
+                lacpPort.lacpDisablePort();
+                portSlaveMap.remove(lacpPort.slaveGetPortId());
             }
+            finally
+            {
+                lacpPort.slavePSMUnlock();
+            }
+            LOG.debug("Port {} is removed from LACP Bond Key {}", lacpPort.getNodeConnectorId(), this.adminKey);
+            bondStateMachineUnlock();
+        }
+        slaveList.clear();
+        this.slaveCnt = 0;
     }
-    
 }

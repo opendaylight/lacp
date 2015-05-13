@@ -54,7 +54,7 @@ public class LacpDataListener implements DataChangeListener
     private static final String CURRTOPO = "flow:1";
     private Registration extPortListener;
     private Registration nodeListener;
-    private Registration nodeConnListener;   
+    private Registration nodeConnListener;
 
     public LacpDataListener (DataBroker dataBroker)
     {
@@ -62,7 +62,7 @@ public class LacpDataListener implements DataChangeListener
         intNodeConnSet = new HashSet<InstanceIdentifier<NodeConnector>>();
         updateInternalNodeConnectors();
     }
-    
+
     public void registerDataChangeListener()
     {
         LOG.debug ("registering as listener for node, nodeconnector and link");
@@ -128,7 +128,7 @@ public class LacpDataListener implements DataChangeListener
             {
                 LOG.debug("Topology is not yet updated with the links {}", topoId);
                 return;
-            } 
+            }
             for (Link link : links)
             {
                 if (!(link.getLinkId().getValue().contains("host")))
@@ -141,7 +141,7 @@ public class LacpDataListener implements DataChangeListener
         {
             LOG.error("Error reading the network topology", e.getMessage());
             readTx.close();
-        }     
+        }
         readTx.close();
     }
 
@@ -171,25 +171,25 @@ public class LacpDataListener implements DataChangeListener
             return;
         }
 
-        int portId = (int) NodePort.getPortId(new NodeConnectorRef(ncId)); 
-        long swId = NodePort.getSwitchId(new NodeConnectorRef(ncId)); 
-        NodeConnector nc = (NodeConnector) InstanceIdentifier.keyOf(ncId); 
+        int portId = (int) NodePort.getPortId(new NodeConnectorRef(ncId));
+        long swId = NodePort.getSwitchId(new NodeConnectorRef(ncId));
+        NodeConnector nc = (NodeConnector) InstanceIdentifier.keyOf(ncId);
         int portFeaturesResult = LacpPortProperties.mapSpeedDuplexFromPortFeature(nc);
- 
-        LacpPDUPortStatusContainer pduElem = null; 
+
+        LacpPDUPortStatusContainer pduElem = null;
         int down = 2;
-        pduElem = new LacpPortStatus(swId, portId, down, portFeaturesResult, ncId); 
-        LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance(); 
+        pduElem = new LacpPortStatus(swId, portId, down, portFeaturesResult, ncId);
+        LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
 
         if ((pduQueue!= null) && !(pduQueue.enqueue(swId, pduElem)))
         {
-            LOG.debug("Failed to enque port status object for port={}, switch {}",portId, swId); 
-        } 
+            LOG.debug("Failed to enque port status object for port={}, switch {}",portId, swId);
+        }
         lacpNode.addNonLacpPort(ncId);
         LOG.debug("internal port {} is removed as a lacp port and added as a non-lacp port.", ncId);
         return;
     }
-    
+
     @Override
     public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent)
     {
@@ -246,16 +246,19 @@ public class LacpDataListener implements DataChangeListener
         }
         else if (instanceId.getTargetType().equals(Node.class))
         {
+            LOG.debug ("processing node up/down events");
             LacpNodeListener nodeListener = LacpNodeListener.getNodeListenerInstance();
             Node node = (Node)data;
-            LOG.debug ("processing node up/down events");
+
             if (updDelFlag == true)
             {
+   LOG.debug ("node update event for {}", instanceId);
                 nodeListener.updateNode (instanceId, node);
             }
             else
             {
-                nodeListener.removeNode(instanceId, node);
+   LOG.debug ("node remove event for {}", instanceId);
+                nodeListener.removeNode(instanceId);
             }
         }
         else if (instanceId.getTargetType().equals(NodeConnector.class))
@@ -279,7 +282,7 @@ public class LacpDataListener implements DataChangeListener
         InstanceIdentifier id;
         if (link.getDestination().getDestTp().getValue().contains("host"))
         {
-            id = createNCId(link.getSource().getSourceNode().getValue(), 
+            id = createNCId(link.getSource().getSourceNode().getValue(),
                             link.getSource().getSourceTp().getValue());
         }
         else
@@ -300,7 +303,7 @@ public class LacpDataListener implements DataChangeListener
         InstanceIdentifier id;
         if (link.getDestination().getDestTp().getValue().contains("host"))
         {
-            id = createNCId(link.getSource().getSourceNode().getValue(), 
+            id = createNCId(link.getSource().getSourceNode().getValue(),
                             link.getSource().getSourceTp().getValue());
         }
         else

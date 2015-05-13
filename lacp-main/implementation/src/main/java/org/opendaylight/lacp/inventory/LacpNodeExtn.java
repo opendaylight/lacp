@@ -59,7 +59,8 @@ public class LacpNodeExtn
     private LacpGroupTbl groupTbl;
     private GroupId bcastGroupId;
     private Group bcastGroup;
-    
+    private int nextAggId;
+
     public LacpNodeExtn (InstanceIdentifier nodeId)
     {
         Long groupId = LacpUtil.getNextGroupId();
@@ -67,7 +68,7 @@ public class LacpNodeExtn
         nodeInstId = nodeId;
         lacpBuilder = new LacpNodeBuilder();
         bcastGroup = null;
-        
+
         switchId = LacpUtil.getNodeSwitchId(nodeId);
         String sysId = obtainSystemMac();
         lacpBuilder.setSystemId(new MacAddress(sysId));
@@ -75,14 +76,22 @@ public class LacpNodeExtn
         nonLacpPortList = new ArrayList<InstanceIdentifier<NodeConnector>>();
         lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
         deleteStatus = false;
-        LOG.debug ("programming the flow fo sw {}", switchId);
-        LACPFLOW.programLacpFlow(nodeInstId, this);
         lacpBuilder.setNonLagGroupid(groupId);
         lagList = new Hashtable<Integer,LacpBond>();
         ArrayList<LacpAggregators> aggList = new ArrayList<LacpAggregators>();
         lacpBuilder.setLacpAggregators(aggList);
         groupTbl = new LacpGroupTbl (LacpUtil.getSalGroupService(), dataService);
-        updateLacpNodeDS(nodeInstId);
+        nextAggId = 1;
+    }
+    public void updateLacpNodeInfo()
+    {
+        synchronized (this)
+        {
+            updateLacpNodeDS(nodeInstId);
+            LOG.debug ("programming the flow fo sw {}", switchId);
+            LACPFLOW.programLacpFlow(nodeInstId, this);
+        }
+        return;
     }
     private String obtainSystemMac()
     {
@@ -226,9 +235,9 @@ public class LacpNodeExtn
         nonLacpPortList.clear();
         //groupTbl.lacpRemGroup (false, null, bcastGroupId);
         //TODO KALAI when remGroup nc is null it is not internally handled. handle it there.
-        
+
         RSMManager rsmManager = RSMManager.getRSMManagerInstance();
-        rsmStatus = rsmManager.deleteRSM(this); 
+        rsmStatus = rsmManager.deleteRSM(this);
         // add hook to remove the list of aggregators.
         Collection<LacpBond> aggList = lagList.values();
         for (LacpBond lacpAgg : aggList)
@@ -239,7 +248,7 @@ public class LacpNodeExtn
                 // irrespective of delFlag status, remove the lag group entry.
             }
         }
-        //add hook to remove lag bcast group entry 
+        //add hook to remove lag bcast group entry
         lagList.clear();
         // add hook to remove the list of lacp ports.
         Collection<LacpPort> portList = lacpPortList.values();
@@ -260,7 +269,7 @@ public class LacpNodeExtn
         }
         this.deleteStatus = true;
         lacpBuilder = null;
-    }    
+    }
     public void updateLacpNodeDS (InstanceIdentifier nodeId)
     {
         if (this.deleteStatus == true)
@@ -299,13 +308,13 @@ public class LacpNodeExtn
             LOG.debug ("addLacpAggregator: given bond {} is already available in the node {}", lacpAgg.getBondInstanceId(), switchId);
             return false;
         }
-        
+
         lagList.put(lacpAgg.getBondInstanceId(), lacpAgg);
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.add(lacpAgg.buildLacpAgg());
         LOG.debug ("adding aggregator {}", lacpAgg.buildLacpAgg());
         lacpBuilder.setLacpAggregators(aggList);
-        /* Aggregator list is only updated here. Aggregator DS will be 
+        /* Aggregator list is only updated here. Aggregator DS will be
          * updated in LacpBond */
         return true;
     }
@@ -321,7 +330,7 @@ public class LacpNodeExtn
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.remove(lacpAgg.buildLacpAgg());
         lacpBuilder.setLacpAggregators(aggList);
-        /* Aggregator list is only updated here. Aggregator DS will be 
+        /* Aggregator list is only updated here. Aggregator DS will be
          * updated in LacpBond */
         return true;
     }
@@ -380,5 +389,15 @@ public class LacpNodeExtn
     public boolean getLacpNodeDeleteStatus ()
     {
         return deleteStatus;
+    }
+    public int getAndIncrementNextAggId()
+    {
+        int aggId = 0;
+        synchronized(this)
+        {
+            aggId = this.nextAggId;
+            nextAggId++;
+        }
+        return aggId;
     }
 }
