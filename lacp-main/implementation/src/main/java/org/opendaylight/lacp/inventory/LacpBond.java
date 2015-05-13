@@ -964,12 +964,25 @@ public class LacpBond {
             return portSlaveMap.get(portId);
     }
 
-    public void lacpBondCleanup(){
-            for (LacpPort lacpPort: slaveList) {
-                    if( lacpPort != null){
-                            lacpPort.lacpPortCleanup();
-                    }
+    public void lacpBondCleanup()
+    {
+        for (LacpPort lacpPort :slaveList)
+        {
+            bondStateMachineLock();
+            lacpPort.slavePSMLock();
+            try
+            {
+                lacpPort.lacpDisablePort();
+                portSlaveMap.remove(lacpPort.slaveGetPortId());
             }
+            finally
+            {
+                lacpPort.slavePSMUnlock();
+            }
+            LOG.debug("Port {} is removed from LACP Bond Key {}", lacpPort.getNodeConnectorId(), this.adminKey);
+            bondStateMachineUnlock();
+        }
+        slaveList.clear();
+        this.slaveCnt = 0;
     }
-    
 }
