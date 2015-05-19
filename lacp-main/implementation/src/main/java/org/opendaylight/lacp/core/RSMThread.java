@@ -351,44 +351,47 @@ public class RSMThread implements Runnable
         }
         if (result == false)
         {
-		    LOG.debug("handleLacpPortState - couldn't find port={} in switch {}, no action to be taken", portId, swId);
+            LOG.debug("handleLacpPortState - couldn't find port={} in switch {}, no action to be taken", portId, swId);
         }
     }
-	LOG.debug("handleLacpPortState - Exit");
+    LOG.debug("handleLacpPortState - Exit");
   }
 
-    public void nodeCleanup(){
-            long swId = lacpNode.getSwitchId();
-            byte[] sysId = null;
-            short key = 0 ;
+    public void nodeCleanup()
+    {
+        long swId = lacpNode.getSwitchId();
+        byte[] sysId = null;
+        short key = 0 ;
 
-            LOG.debug("nodeCleanup Entry");
-            if(lacpList.size() != 0){
-                    for (LacpBond bond: lacpList.values()) {
-                            if (bond.getActiveAgg() != null) {
-                                    sysId = bond.getActiveAgg().getPartnerSystem();
-                                    key = bond.getActiveAgg().aggGetPartnerOperAggKey();
-                            }
-
-                            if (!bond.bondHasMember()) {
-                                    if (key!=0) {
-                                            LOG.debug("SW={} Key={} is removed from lacp system key list",
-                                                            swId, key);
-                                            LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId,key);
-                                            lacpSysKeyList.remove(sysKeyInfo);
-                                    }
-                            }
-
-                            for (LacpPort lacpPort: bond.getSlaveList()) {
-                                    if( lacpPort != null){
-                                            lacpPort.lacpPortCleanup();
-                                            bond.bondDelSlave(swId, lacpPort.slaveGetPortId());
-                                            lacpList.remove(new PortId(lacpPort.slaveGetPortId()));
-                                    }
-                            }
+        LOG.debug("nodeCleanup Entry");
+        if(lacpList.size() != 0)
+        {
+            for (LacpBond bond: lacpList.values())
+            {
+                if (bond.getActiveAgg() != null)
+                {
+                    sysId = bond.getActiveAgg().getPartnerSystem();
+                    key = bond.getActiveAgg().aggGetPartnerOperAggKey();
+                }
+                if (!bond.bondHasMember())
+                {
+                    if (key!=0)
+                    {
+                        LOG.debug("SW={} Key={} is removed from lacp system key list",
+                                   swId, key);
+                        LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId,key);
+                        lacpSysKeyList.remove(sysKeyInfo);
                     }
+                }
+                for (LacpPort lacpPort: bond.getSlaveList())
+                {
+                    lacpList.remove(lacpPort.slaveGetPortId());
+                    lacpPort.lacpPortCleanup();
+                }
+                bond.lacpBondCleanup();
             }
-            LOG.debug("nodeCleanup Exit");
+        }
+        LOG.debug("nodeCleanup Exit");
     }
 
 
@@ -408,13 +411,23 @@ public class RSMThread implements Runnable
         {
             LOG.warn("failed to delete the timer queue for the node {}", lacpNode.getNodeId());
         }
-	//nodeCleanup();
+        nodeCleanup();
         // remove from rsmThread mgr.
         rsmMgrRef.deleteRSM (lacpNode);
         LOG.debug("handleLacpNodeDeletion: removing the RSM thread created for this node");
         // remove from lacp system call deleteLacpNode.
         LacpSystem lacpSystem = LacpSystem.getLacpSystem();
-        lacpSystem.removeLacpNode (swId);
+        synchronized(lacpSystem)
+        {
+            if (lacpSystem.removeLacpNode (swId) == null)
+            {
+                LOG.error("Unable to remove the node {} from the lacpSystem", swId);
+            }
+            else
+            {
+                LOG.debug ("Removed the node {} from lacpSystem", swId);
+            }
+        }
     }
 
     @Override

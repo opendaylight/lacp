@@ -138,6 +138,7 @@ public class LacpSystem
                 LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
                 continue;
             }
+            lacpNode.updateLacpNodeInfo();
 
             List<NodeConnector> nodeConnectors = node.getNodeConnector();
             if (nodeConnectors == null)
@@ -157,7 +158,6 @@ public class LacpSystem
                                 InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
                                  .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nc.getKey()).build();
                 lacpNode.addNonLacpPort (ncId);
-
             }
         }
     }
