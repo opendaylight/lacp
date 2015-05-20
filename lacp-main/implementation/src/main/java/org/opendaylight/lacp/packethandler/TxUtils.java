@@ -129,11 +129,11 @@ public class TxUtils {
 
 		bytetoString(hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())));
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())),2));
-		bb.put(convertStringtoByte((new String (new Integer((lacpPDU.getSubtype().getIntValue())).toString()))));
-		bb.put(convertStringtoByte((new String (new Integer((lacpPDU.getVersion().getIntValue())).toString()))));
+		bb.put(convertStringtoByte((new String (Integer.valueOf((lacpPDU.getSubtype().getIntValue())).toString()))));
+		bb.put(convertStringtoByte((new String (Integer.valueOf((lacpPDU.getVersion().getIntValue())).toString()))));
 
 		ActorInfo actorInfo = lacpPDU.getActorInfo();
-		bb.put(convertStringtoByte((new String (new Integer((actorInfo.getTlvType().getIntValue())).toString()))));
+		bb.put(convertStringtoByte((new String (Integer.valueOf((actorInfo.getTlvType().getIntValue())).toString()))));
 		bb.put(convertStringtoByte((new String (Integer.toHexString(actorInfo.getInfoLen()).toString()))));
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(actorInfo.getSystemPriority())),2));
 		bb.put(HexEncode.bytesFromHexString((new String ((actorInfo.getSystemId().getValue()).toString()))));
@@ -145,7 +145,7 @@ public class TxUtils {
 		bb.put(convertStringtoByte((new String (Integer.toHexString(actorInfo.getReserved1()).toString()))));
 
 		PartnerInfo partnerInfo = lacpPDU.getPartnerInfo();
-		bb.put(convertStringtoByte((new String (new Integer((partnerInfo.getTlvType().getIntValue())).toString()))));
+		bb.put(convertStringtoByte((new String (Integer.valueOf((partnerInfo.getTlvType().getIntValue())).toString()))));
 		bb.put(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getInfoLen()).toString()))));
 		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(partnerInfo.getSystemPriority()).toString()),2));
 		bb.put(HexEncode.bytesFromHexString((new String ((partnerInfo.getSystemId().getValue()).toString()))));
@@ -157,12 +157,12 @@ public class TxUtils {
 		bb.put(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getReserved1()).toString()))));
 
 
-		bb.put(convertStringtoByte((new String (new Integer((lacpPDU.getCollectorTlvType().getIntValue())).toString()))));
+		bb.put(convertStringtoByte((new String (Integer.valueOf((lacpPDU.getCollectorTlvType().getIntValue())).toString()))));
 		bb.put(convertStringtoByte((new String (Integer.toHexString(lacpPDU.getCollectorInfoLen()).toString()))));
 		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(lacpPDU.getCollectorMaxDelay()).toString()))),2));
 		bb.put(padExtraZeroes(convertStringtoByte((new String ((lacpPDU.getCollectorReserved()).toString()))),8));
 		bb.put(padExtraZeroes(convertStringtoByte((new String (Long.toHexString(lacpPDU.getCollectorReserved1()).toString()))),4));
-		bb.put(convertStringtoByte((new String (new Integer((lacpPDU.getTerminatorTlvType().getIntValue())).toString()))));
+		bb.put(convertStringtoByte((new String (Integer.valueOf((lacpPDU.getTerminatorTlvType().getIntValue())).toString()))));
 		bb.put(convertStringtoByte((new String (Integer.toHexString(lacpPDU.getTerminatorInfoLen()).toString()))));
 		bb.put(padExtraZeroes(convertStringtoByte((new String (lacpPDU.getTerminatorReserved()))),50));
 		bb.put(padExtraZeroes(convertStringtoByte((new String ((lacpPDU.getFCS()).toString()))),4));
