@@ -1128,58 +1128,58 @@ public class LacpPort implements Comparable<LacpPort> {
 			obj.setSrcAddress(getSwitchHardwareAddress());
 			obj.setDestAddress( new MacAddress (LacpConst.LACP_DEST_MAC_STRING));
 
-			obj.setLenType(new Integer(LacpConst.LEN_TYPE));
+			obj.setLenType(Integer.valueOf((LacpConst.LEN_TYPE)));
 			obj.setSubtype(SubTypeOption.SlowProtocol);
 			obj.setVersion(VersionValue.LacpVersion);
 
 			ActorInfoBuilder actorInfoBuilder = new ActorInfoBuilder();
 
-			actorInfoBuilder.setSystemPriority(new Integer(this.getActorSystemPriority()));
+			actorInfoBuilder.setSystemPriority(Integer.valueOf(this.getActorSystemPriority()));
 			LOG.debug("actor system id before bytesToHex conversion is :", (this.getActorSystem()));
 			actorInfoBuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(this.getActorSystem())));
 			LOG.debug("actor system id after bytesToHex conversion is :", HexEncode.bytesToHexString(this.getActorSystem()));
-			actorInfoBuilder.setKey(new Integer(this.actorOperPortKey));
-			actorInfoBuilder.setPortPriority(new Integer(this.getActorPortPriority()));
-			actorInfoBuilder.setPort(new Integer(this.getActorPortNumber()));
+			actorInfoBuilder.setKey(Integer.valueOf(this.actorOperPortKey));
+			actorInfoBuilder.setPortPriority(Integer.valueOf((this.getActorPortPriority())));
+			actorInfoBuilder.setPort(Integer.valueOf(this.getActorPortNumber()));
 
 			short pState = toUnsigned(this.getActorOperPortState());
 			actorInfoBuilder.setState(Short.valueOf(pState));
 
 			actorInfoBuilder.setTlvType(TlvTypeOption.ActorInfo);
-			actorInfoBuilder.setInfoLen(new Short(LacpConst.ACTOR_INFO_LEN));
-			actorInfoBuilder.setReserved(new Integer(LacpConst.RESERVED));
-			actorInfoBuilder.setReserved1(new Short((short)LacpConst.RESERVED));
+			actorInfoBuilder.setInfoLen(Short.valueOf(LacpConst.ACTOR_INFO_LEN));
+			actorInfoBuilder.setReserved(Integer.valueOf(LacpConst.RESERVED));
+			actorInfoBuilder.setReserved1(Short.valueOf((short)LacpConst.RESERVED));
 		
 
 			final PortParams partner = this.partnerOper;
 			PartnerInfoBuilder partnerInfoBuilder = new PartnerInfoBuilder();
 
-			partnerInfoBuilder.setSystemPriority(new Integer(partner.systemPriority));
+			partnerInfoBuilder.setSystemPriority(Integer.valueOf(partner.systemPriority));
 			LOG.debug("partner system id before bytesToHex conversion is :", (partner.system));
 			partnerInfoBuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(partner.system)));
 			LOG.debug("partner system id after bytesToHex conversion is :", HexEncode.bytesToHexStringFormat(partner.system));
-			partnerInfoBuilder.setKey(new Integer(partner.key));
-			partnerInfoBuilder.setPortPriority(new Integer(partner.portPriority));
-			partnerInfoBuilder.setPort(new Integer(partner.portNumber));
+			partnerInfoBuilder.setKey(Integer.valueOf(partner.key));
+			partnerInfoBuilder.setPortPriority(Integer.valueOf(partner.portPriority));
+			partnerInfoBuilder.setPort(Integer.valueOf(partner.portNumber));
 
 			partnerInfoBuilder.setState(Short.valueOf(partner.portState));
 
 			partnerInfoBuilder.setTlvType(TlvTypeOption.PartnerInfo);
-			partnerInfoBuilder.setInfoLen(new Short(LacpConst.PARTNER_INFO_LEN));
-			partnerInfoBuilder.setReserved(new Integer(LacpConst.RESERVED));
-			partnerInfoBuilder.setReserved1(new Short((short)LacpConst.RESERVED));
+			partnerInfoBuilder.setInfoLen(Short.valueOf(LacpConst.PARTNER_INFO_LEN));
+			partnerInfoBuilder.setReserved(Integer.valueOf(LacpConst.RESERVED));
+			partnerInfoBuilder.setReserved1(Short.valueOf((short)LacpConst.RESERVED));
 		
 			obj.setActorInfo(actorInfoBuilder.build());
 			obj.setPartnerInfo(partnerInfoBuilder.build());
 
-			obj.setCollectorMaxDelay(new Integer(0));
+			obj.setCollectorMaxDelay(Integer.valueOf(0));
 			obj.setCollectorTlvType(TlvTypeOption.CollectorInfo);
-			obj.setCollectorInfoLen(new Short(LacpConst.COLLECTOR_INFO_LEN));
+			obj.setCollectorInfoLen(Short.valueOf(LacpConst.COLLECTOR_INFO_LEN));
 			obj.setCollectorReserved(new BigInteger("0"));
-			obj.setCollectorReserved1(new Long(LacpConst.RESERVED));
+			obj.setCollectorReserved1(Long.valueOf(LacpConst.RESERVED));
 
 			obj.setTerminatorTlvType(TlvTypeOption.Terminator);
-			obj.setTerminatorInfoLen(new Short(LacpConst.TERMINATOR_INFO_LEN));
+			obj.setTerminatorInfoLen(Short.valueOf(LacpConst.TERMINATOR_INFO_LEN));
 			obj.setTerminatorReserved(new String("0"));
 			obj.setFCS(0L);
 
@@ -1639,7 +1639,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		LacpAggregator foundAgg = null;
 		
 		if ((this.getStateMachineBitSet() & LacpConst.PORT_SELECTED) > 0){
-			LOG.info("portSelectionLogic is returing without further processing as the port={} is already PORT_SELECTED",portId);
+			LOG.debug("portSelectionLogic is returing without further processing as the port={} is already PORT_SELECTED",portId);
 			return;
 		}
 
