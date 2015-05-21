@@ -174,9 +174,11 @@ public class LacpDataListener implements DataChangeListener
         int portId = (int) NodePort.getPortId(new NodeConnectorRef(ncId));
         long swId = NodePort.getSwitchId(new NodeConnectorRef(ncId));
         NodeConnector nc = (NodeConnector) InstanceIdentifier.keyOf(ncId);
-        int portFeaturesResult = LacpPortProperties.mapSpeedDuplexFromPortFeature(nc);
-
-        LacpPDUPortStatusContainer pduElem = null;
+        /* Sending only the port oper down message here. speed duplex bit value is not required for
+         * processing the port down messages. So sending a dummy value here */
+        
+        int portFeaturesResult = 0;
+        LacpPDUPortStatusContainer pduElem = null; 
         int down = 2;
         pduElem = new LacpPortStatus(swId, portId, down, portFeaturesResult, ncId);
         LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();

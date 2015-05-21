@@ -151,16 +151,7 @@ public class RSMThread implements Runnable
 
 				bond.bondUpdateSystemPriority(((priority >>1) & INT_PRIORITY) );
 			} 
-			NodeConnector portNC = null;
-			int portFeatureResult = 0;
-			DataBroker ds = LacpUtil.getDataBrokerService();
-			if(ds == null){
-				LOG.error("handleLacpBpdu - Unable to get the DataBroker service,NOT processing the lacp pdu");
-				return;
-			}
-			portNC = LacpPortProperties.getNodeConnector(ds, lacpBpdu.getNCRef());
-			portFeatureResult = LacpPortProperties.mapSpeedDuplexFromPortFeature(portNC);
-			bond.bondUpdateLinkUpSlave(swId,portId,portFeatureResult);
+			bond.bondUpdateLinkUpSlave(swId,portId);
 			if (lacpList.putIfAbsent(portId, bond) == null) {
 				newEntry = true;
 				LOG.debug("handleLacpBpdu - bond={} added for  given port={}",bond,  String.format("0x%04x",portId));
@@ -185,16 +176,7 @@ public class RSMThread implements Runnable
 			LOG.debug("LacpBond with key={} is created with system priority={} ",
 					(rsmMgrRef.getGlobalLacpkey()-1), String.format("%04x",priority));
 			bond.setLacpEnabled(true);
-			NodeConnector portNC = null;
-			int portFeatureResult = 0;
-			DataBroker ds = LacpUtil.getDataBrokerService();
-			if(ds == null){
-				LOG.error("handleLacpBpdu - Unable to get the DataBroker service,NOT processing the lacp pdu");
-				return;
-			}
-			portNC = LacpPortProperties.getNodeConnector(ds, lacpBpdu.getNCRef());
-			portFeatureResult = LacpPortProperties.mapSpeedDuplexFromPortFeature(portNC);
-			bond.bondUpdateLinkUpSlave(swId,portId,portFeatureResult);
+			bond.bondUpdateLinkUpSlave(swId,portId);
 			LacpBond lacpBond = lacpList.putIfAbsent(portId, bond);
 
 			sysKeyInfo = new LacpSysKeyInfo(sysId,key);
@@ -289,7 +271,6 @@ public class RSMThread implements Runnable
 
 	long swId = portState.getSwID();
 	short portId = (short)portState.getPortID();
-	int portFeatures = portState.getPortFeatures();
         InstanceIdentifier<NodeConnector> ncId = portState.getNodeConnectorInstanceId();
 	
 	bond = lacpList.get(portId);	
@@ -298,7 +279,7 @@ public class RSMThread implements Runnable
         {
 		if(portState.getPortStatus()==1){
 			LOG.debug("handleLacpPortState - found lacpBond for port={},  send link up into bond={}", portId,bond.getBondId());
-			bond.bondUpdateLinkUpSlave(swId,portId,portFeatures);
+			bond.bondUpdateLinkUpSlave(swId,portId);
 		}else{
 		    LOG.debug("handleLacpPortState - found lacpBond for port={},  send link down int bond={}", portId,bond.getBondId());
                     lacpPort = bond.getSlavePortObject(portId);
@@ -373,15 +354,12 @@ public class RSMThread implements Runnable
                     sysId = bond.getActiveAgg().getPartnerSystem();
                     key = bond.getActiveAgg().aggGetPartnerOperAggKey();
                 }
-                if (!bond.bondHasMember())
+                if (key!=0)
                 {
-                    if (key!=0)
-                    {
-                        LOG.debug("SW={} Key={} is removed from lacp system key list",
+                    LOG.debug("SW={} Key={} is removed from lacp system key list",
                                    swId, key);
-                        LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId,key);
-                        lacpSysKeyList.remove(sysKeyInfo);
-                    }
+                    LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId,key);
+                    lacpSysKeyList.remove(sysKeyInfo);
                 }
                 for (LacpPort lacpPort: bond.getSlaveList())
                 {

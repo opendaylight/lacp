@@ -139,7 +139,8 @@ public class LacpPort implements Comparable<LacpPort> {
 	private LacpNodeConnectorBuilder lacpNCBuilder;
 	private InstanceIdentifier ncId;
 	private static DataBroker dataService;
-        private boolean operUpStatus; // to inform lag port timeout status to state machine
+    private boolean operUpStatus; // to inform lag port timeout status to state machine
+    private MacAddress ncMac = null;
 
 	public enum portStateEnum {
 		ACT(0),TMO(1),AGG(2),SYN(3),COL(4),DIS(5),DEF(6),EXP(7);
@@ -721,7 +722,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	        muxAttachedState = new MuxAttachedState();
 	        muxCollectingDistributingState =  new MuxCollectingDistributingState();
 	     
-	       portAssignSlave(bond.getSysMacAddr(), bond.getLacpFast(), bond.bondGetSysPriority(), this.portPriority, bond.getAdminKey());			
+	       portAssignSlave(bond.getBondSystemId(), bond.getLacpFast(), bond.bondGetSysPriority(), this.portPriority, bond.getAdminKey());			
                ncId = bpduInfo.getNCRef().getValue();
                lacpNCBuilder = new LacpNodeConnectorBuilder();
                lacpNCBuilder.setActorPortNumber(this.actorPortNumber);
@@ -741,8 +742,23 @@ public class LacpPort implements Comparable<LacpPort> {
                         lacpNode.addLacpPort(ncId, this);
                     }
                }
-               operUpStatus = true;
-	       LOG.debug("Exiting LacpPort constructor for switchid={} port={}",portId, swId);
+        operUpStatus = true;
+        DataBroker ds = LacpUtil.getDataBrokerService();
+        NodeConnector portNC = LacpPortProperties.getNodeConnector(ds, ncId);
+        if (portNC == null)
+        {
+            LOG.error ("Unable to read the nodeConnector for {}", ncId);
+            return;
+        }
+        int result = LacpPortProperties.mapSpeedDuplexFromPortFeature(portNC);
+        int speed = (result >> LacpConst.DUPLEX_KEY_BITS);
+        byte duplex = (byte) (result & LacpConst.DUPLEX_KEY_BITS);
+        this.slaveSetSpeed(speed);
+        this.slaveSetDuplex(duplex);
+        
+        FlowCapableNodeConnector flowCapNodeConn = portNC.getAugmentation(FlowCapableNodeConnector.class);
+        ncMac = flowCapNodeConn.getHardwareAddress();
+        LOG.debug("Exiting LacpPort constructor for switchid={} port={}",portId, swId);
 	}
 	
 	
@@ -1995,22 +2011,10 @@ public class LacpPort implements Comparable<LacpPort> {
         updateNCLacpInfo();
     }
 
-	public MacAddress getSwitchHardwareAddress(){
-		 NodeConnector portRef = null;
-		 MacAddress hwMac = null;
-		 DataBroker ds = LacpUtil.getDataBrokerService();
-                 if(ds != null){
-                 portRef = LacpPortProperties.getNodeConnector(ds, portTxLacpdu.getNCRef());
-		 if(portRef != null){
-                	FlowCapableNodeConnector flowCapNodeConn = portRef.getAugmentation(FlowCapableNodeConnector.class);
-			hwMac = flowCapNodeConn.getHardwareAddress();
-
-		 }else{
-                     LOG.error("getHardwareAddress - Unable to get the DataBroker service,NOT processing the lacp pdu");
-		 }
-		}
-		return hwMac;
-	}
+	public MacAddress getSwitchHardwareAddress()
+    {
+        return this.ncMac;
+    }
 
         public void lacpPortCleanup(){
                 if(this.currWhileTimeout != null){
