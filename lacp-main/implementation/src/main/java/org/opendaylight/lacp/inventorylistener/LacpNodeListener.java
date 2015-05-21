@@ -417,11 +417,6 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                         LOG.error("port {} enque failed", ncId);
                     }
 
-                    /* if (lacpNode.deletePort (ncId, hardReset) == false)
-                    {
-                        LOG.debug("port not present with the lacp node. Ignoring it {}", ncId) ;
-                        return;
-                    } */
                 }
             }
             else
