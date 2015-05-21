@@ -99,6 +99,11 @@ public class LacpBond {
 	public void setVirtualSysMacAddr(byte[] virtualSysMacAddr) {
 		this.virtualSysMacAddr = Arrays.copyOf(virtualSysMacAddr, LacpConst.ETH_ADDR_LEN);
 	}
+    public byte[] getBondSystemId()
+    {
+        byte[] systemId = HexEncode.bytesFromHexString(this.lacpNodeRef.getNodeSystemId().getValue());
+        return systemId;
+    }
 	public List<LacpPort> getSlaveList() {
 		return slaveList;
 	}
@@ -303,13 +308,12 @@ public class LacpBond {
 		
 	}
 	
-	public void bondAddSlave(long swId, short portId, int portPri,LacpBpduInfo bpduInfo) {
-
+	public void bondAddSlave(long swId, short portId, int portPri,LacpBpduInfo bpduInfo)
+    {
 		byte[] macAddr;
-
-		macAddr = LacpConst.mapMacAddrFromSwId(swId);
 		short systemId = 0;
 		
+        macAddr = HexEncode.bytesFromHexString(this.lacpNodeRef.getNodeSystemId().getValue());
 		bondStateMachineLock();
 		try {
 			setDirty(true);
@@ -330,7 +334,7 @@ public class LacpBond {
 		if (systemId == 1) {
 			/* Set Virtual MAC address for Bond */
 			this.virtualSysMacAddr = Arrays.copyOf(macAddr, LacpConst.ETH_ADDR_LEN);
-			this.virtualSysMacAddr[0] |= 0x02;			
+			this.virtualSysMacAddr[5] += bondInstanceId;			
 		}
 		
 		LacpPort slave = LacpPort.newInstance((long)swId,portId, this, portPri, bpduInfo);
@@ -631,21 +635,15 @@ public class LacpBond {
 		return result;
 	}
 
-	public void bondUpdateLinkUpSlave(long swId, short portId,
-		int currentFeatures) {
+	public void bondUpdateLinkUpSlave(long swId, short portId)
+    {
 		this.bondStateMachineLock();
 		try {
 			if (portId != 0) {
-				int result = currentFeatures;
-				int speed = (result >> LacpConst.DUPLEX_KEY_BITS);
-				byte duplex = (byte) (result & LacpConst.DUPLEX_KEY_BITS);
-				LOG.debug("bondUpdateLinkUpSlave : currentFeatures={}, speed={}",
-						String.format("%x", currentFeatures), String.format("%x", speed));
+				LOG.debug("entering bondUpdateLinkUpSlave");
 				LacpPort slave = portSlaveMap.get(portId);
 				slave.slavePSMLock();
 				try {
-					slave.slaveSetSpeed(speed);
-					slave.slaveSetDuplex(duplex);
 					slave.slaveHandleLinkChange(LacpConst.BOND_LINK_UP);
 				} finally {
 					slave.slavePSMUnlock();
@@ -669,8 +667,6 @@ public class LacpBond {
 				LacpPort slave = portSlaveMap.get(portId);
 				slave.slavePSMLock();
 				try {
-					slave.slaveSetSpeed((byte)0);
-					slave.slaveSetDuplex((byte)0);
 					slave.slaveHandleLinkChange(LacpConst.BOND_LINK_DOWN);
 					LOG.info("LACP Port [ PortId={} ] in SW={} Link Down at {}",
 						HexEncode.longToHexString((long)portId), 

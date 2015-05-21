@@ -180,7 +180,7 @@ public class LacpSystemTest
 
         lacpSystem.readDataStore(dataBroker);
         verify(dataBroker, times(1)).newReadOnlyTransaction();
-        verify(writeOnlyTransaction, times(3)).submit();
+        verify(writeOnlyTransaction, times(2)).submit();
     }
     @Test
     public void verifyLacpPort() throws Exception

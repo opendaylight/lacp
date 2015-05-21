@@ -61,10 +61,11 @@ public class LacpNodeExtn
     private GroupId bcastGroupId;
     private Group bcastGroup;
     private int nextAggId;
+    private Long groupId;
     
     public LacpNodeExtn (InstanceIdentifier nodeId)
     {
-        Long groupId = LacpUtil.getNextGroupId();
+        groupId = LacpUtil.getNextGroupId();
         bcastGroupId = new GroupId (groupId);
         nodeInstId = nodeId;
         lacpBuilder = new LacpNodeBuilder();
@@ -83,14 +84,13 @@ public class LacpNodeExtn
         ArrayList<LacpAggregators> aggList = new ArrayList<LacpAggregators>();
         lacpBuilder.setLacpAggregators(aggList);
         groupTbl = new LacpGroupTbl (LacpUtil.getSalGroupService(), dataService);
-	nextAggId =1;
+        nextAggId =1;
     }
 
     public void updateLacpNodeInfo()
     {
         synchronized (this)
         {
-            updateLacpNodeDS(nodeInstId);
             LOG.debug ("programming the flow fo sw {}", switchId);
             LACPFLOW.programLacpFlow(nodeInstId, this);
         }
@@ -124,21 +124,24 @@ public class LacpNodeExtn
         {
             return false;
         }
-        updateNodeConnectorLacpInfo (port);
         this.nonLacpPortList.add(port);
-	synchronized (groupTbl)
-	{
-        	//if (nonLacpPortList.size() == 1)
+        LOG.debug("adding non lacp port {} ", port);
+    	synchronized (groupTbl)
+	    {
         	if (firstGrpAdd)
         	{
-            		bcastGroup = groupTbl.lacpAddGroup (false, new NodeConnectorRef(port), bcastGroupId, null);
-			firstGrpAdd = false;
+                bcastGroup = groupTbl.lacpAddGroup (false, new NodeConnectorRef(port), bcastGroupId, null);
+                firstGrpAdd = false;
+                lacpBuilder.setNonLagGroupid(groupId);
+                LOG.debug("creating non-lag group id {} ", groupId);
+                updateLacpNodeDS(nodeInstId);
         	}
         	else
         	{
             		bcastGroup = groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroup, null);
         	}
-	}
+	    }
+        updateNodeConnectorLacpInfo (port);
         return true;
     }
     public boolean addLacpPort (InstanceIdentifier<NodeConnector> portId, LacpPort lacpPort)
@@ -160,17 +163,15 @@ public class LacpNodeExtn
             LOG.debug ("getting a remove port indication for LOCAL port. ignoring it");
             return false;
         }
+        boolean result = nonLacpPortList.remove(port);
 
-        /*if (nonLacpPortList.size() <= 1)
+        LOG.debug("removing non lacp port {} result {}", port, result);
+        if (result == true)
         {
-            groupTbl.lacpRemGroup (false, new NodeConnectorRef(port), bcastGroupId);
-        }
-        else
-        { */
             bcastGroup = groupTbl.lacpRemPort (bcastGroup, new NodeConnectorRef(port), 
-						false, null);
-        //}
-        return (nonLacpPortList.remove(port));
+                                                false, null);
+        }
+        return result;
     }
     public LacpPort removeLacpPort (InstanceIdentifier<NodeConnector> portId, boolean hardReset)
     {
@@ -399,6 +400,10 @@ public class LacpNodeExtn
     public boolean getLacpNodeDeleteStatus ()
     {
         return deleteStatus;
+    }
+    public MacAddress getNodeSystemId()
+    {
+        return this.lacpBuilder.getSystemId();
     }
 
     public int getAndIncrementNextAggId()

@@ -62,31 +62,6 @@ public class LacpPortProperties {
         return nc;
 
     }
-    public static long getPortNumber(NodeConnector portRef){
-	LOG.debug("getPortNumber - Entry");
-	long lPort = 0;
-	if(portRef != null){
-		FlowCapableNodeConnector flowConnector = portRef.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
-		lPort = flowConnector.getPortNumber().getUint32();
-		LOG.debug("getPortNumber - port number obtained from nodeconnector ref is={}",lPort);
-	}
-	LOG.debug("getPortNumber - Exit");
-	return lPort;
-    }
-
-     public static PortState getPortState(NodeConnector portRef){
-	LOG.debug("getPortState - Entry");
-	FlowCapableNodeConnector flowCapNodeConn = portRef.getAugmentation(FlowCapableNodeConnector.class);
-	PortState ps = flowCapNodeConn.getState();
-	if(ps != null){
-		boolean isBlocked = ps.isBlocked();
-		boolean isLive = ps.isLive();
-		boolean isLinkDown = ps.isLinkDown();
-	}
-	LOG.debug("getPortState - Exit");
-	return ps;
-     }
-
      public static int mapSpeedDuplexFromPortFeature(NodeConnector portRef){
 	LOG.debug("mapSpeedDuplexFromPortFeature- Entry");
 
