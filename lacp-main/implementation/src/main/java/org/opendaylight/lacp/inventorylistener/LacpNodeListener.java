@@ -49,7 +49,7 @@ enum EventType
 public class LacpNodeListener implements OpendaylightInventoryListener
 {
     private static final Logger LOG = LoggerFactory.getLogger(LacpNodeListener.class);
-    private final ExecutorService lacpService = Executors.newCachedThreadPool();
+    private final ExecutorService lacpService = Executors.newFixedThreadPool(20);
     private static LacpSystem lacpSystem;
     private static final LacpNodeListener LIST_INSTANCE = new LacpNodeListener();
 
@@ -225,9 +225,28 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             LacpNodeNotif nodeNotif = new LacpNodeNotif();
             LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
             LOG.debug("sending node delete msg");
-            if (pduQueue.enqueueAtFront(swId, nodeNotif) == false)
+            if (pduQueue.isLacpQueuePresent(swId) == true)
             {
-                LOG.warn ("Failed to enqueue node deletion message to the pduQ for node {}", nodeId);
+                if (pduQueue.enqueueAtFront(swId, nodeNotif) == false)
+                {
+                    LOG.warn ("Failed to enqueue node deletion message to the pduQ for node {}", nodeId);
+                }
+            }
+            else
+            {
+                LOG.debug ("RSM thread and pduQueue are not yet created for the switch {}, deleteing the node", nodeId);
+                LacpSystem lacpSystem = LacpSystem.getLacpSystem();
+                synchronized(lacpSystem)
+                {
+                    if (lacpSystem.removeLacpNode (swId) == null)
+                    {
+                        LOG.error("Unable to remove the node {} from the lacpSystem in node remove handling.", swId);
+                    }
+                    else
+                    {
+                        LOG.debug ("Removed the node {} from lacpSystem in node remove handling.", swId);
+                    }
+                }
             }
         }
     }
