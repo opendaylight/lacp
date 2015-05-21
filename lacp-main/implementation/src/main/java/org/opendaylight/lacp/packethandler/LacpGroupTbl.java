@@ -29,6 +29,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.output.action._case.OutputActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.group.action._case.GroupActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCaseBuilder; 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.group.action._case.GroupActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCaseBuilder; 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCase;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.AddGroupOutput;
@@ -94,9 +101,9 @@ public class LacpGroupTbl
 
     //public void lacpAddGroup(Boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef,
     public Group lacpAddGroup(Boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef,
-			     GroupId groupId)
+			     GroupId groupId, GroupId addGroupId)
     {
-        if (nodeConnectorRef == null){
+        if (nodeConnectorRef == null && addGroupId == null){
             return null;
 	}
         LOG.info("LACP: lacpAddGroup ", nodeConnectorRef);
@@ -119,26 +126,39 @@ public class LacpGroupTbl
 	}
 	NodeRef nodeRef = new NodeRef(nodeInstId);
 
-	Group grp = addGroup( true, nodeRef, nodeId , ncId, groupId);
+	Group grp = addGroup( isUnicastGrp, nodeRef, nodeId , ncId, groupId,
+				addGroupId);
 	return grp;
     }
 
 
     //private boolean addGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId, 
     private Group addGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId, 
-			     NodeConnectorId ncId, GroupId groupId) {
+			     NodeConnectorId ncId, GroupId groupId,
+			     GroupId addGroupId) {
 
         boolean isGroupAdded = true, retry=false;
 	int trials=0 ;
 
 	NodeKey nodeKey = new NodeKey(nodeId);
 
+        ActionBuilder ab = new ActionBuilder();
          /* Create output action for this ncId*/
-         OutputActionBuilder oab = new OutputActionBuilder();
-         oab.setOutputNodeConnector(ncId);
-         ActionBuilder ab = new ActionBuilder();
-         ab.setAction(new OutputActionCaseBuilder().setOutputAction(oab.build()).build());
-         LOG.debug("lacpAddGroup: addGroup", ab.build());
+
+	if ( addGroupId == null )
+	{
+        	OutputActionBuilder oab = new OutputActionBuilder();
+        	oab.setOutputNodeConnector(ncId);
+         	ab.setAction(new OutputActionCaseBuilder().setOutputAction(oab.build()).build());
+         	LOG.debug("lacpAddGroup: addGroup", ab.build());
+	}
+	else
+	{
+		GroupActionBuilder tgrpab = new GroupActionBuilder();
+		tgrpab.setGroupId(addGroupId.getValue());
+		tgrpab.setGroup("Output Group " + addGroupId);
+		ab.setAction(new GroupActionCaseBuilder().setGroupAction(tgrpab.build()).build());
+	}
 
          AddGroupInputBuilder groupBuilder = new AddGroupInputBuilder();
 
@@ -228,9 +248,9 @@ public class LacpGroupTbl
 
 
     public Group lacpAddPort(boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef, 
-			   Group  origGroup) {
+			   Group  origGroup, GroupId addGroupId) {
 
-        if (nodeConnectorRef == null)
+        if (nodeConnectorRef == null &&  addGroupId == null)
             return null;
 	if (origGroup == null)
         {
@@ -265,7 +285,8 @@ public class LacpGroupTbl
 	LOG.info("lacpAddPort: lacpGid ", lacpGId);
 	LOG.info("lacpAddPort:  key " , groupkey);
 
-	Group updGroup = populateGroup(isUnicastGrp, nodeRef, nodeId, ncId, groupId, origGroup); 
+	Group updGroup = populateGroup(isUnicastGrp, nodeRef, nodeId, ncId, 
+				groupId, origGroup, addGroupId); 
 	if (updGroup == null){
 		LOG.warn("lacpAddPort: updGroup is NULL");
 	}
@@ -279,7 +300,7 @@ public class LacpGroupTbl
 
     public Group populateGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId,
 			       NodeConnectorId ncId, GroupId groupId,
-			       Group origGroup) {
+			       Group origGroup, GroupId addGroupId) {
 
 	NodeKey nodeKey = new NodeKey(nodeId);
 
@@ -312,6 +333,7 @@ public class LacpGroupTbl
 
 	Buckets origbuckets = origGroup.getBuckets();
 	NodeConnectorId origncId;
+	Long origgid;
 
         /* put output action to the bucket */
         /* set order for new action and add to action list */
@@ -321,9 +343,12 @@ public class LacpGroupTbl
 			if (action.getAction() instanceof OutputActionCase) {
 				OutputActionCase opAction = (OutputActionCase)action.getAction();
 				origncId = (NodeConnectorId) opAction.getOutputAction().getOutputNodeConnector();
-				if (opAction.getOutputAction().getOutputNodeConnector().equals(new Uri(ncId))) {
-					LOG.warn("returning null here at 1");
-					return(null);
+				if (addGroupId == null)
+				{
+					if (opAction.getOutputAction().getOutputNodeConnector().equals(new Uri(ncId))) {
+						LOG.warn("returning null here at 1");
+						return(null);
+					}
 				}
          			OutputActionBuilder oab = new OutputActionBuilder();
         			oab.setOutputNodeConnector(origncId);
@@ -333,21 +358,52 @@ public class LacpGroupTbl
         			ab.setKey(new ActionKey(bucketActionList.size()));
         			bucketActionList.add(ab.build());
 			}
+
+			if (action.getAction() instanceof GroupActionCase) {
+				GroupActionCase grpAction = (GroupActionCase)action.getAction();
+				origgid = grpAction.getGroupAction().getGroupId();
+				GroupActionBuilder tgrpab = new GroupActionBuilder();
+				tgrpab.setGroupId(origgid);
+				tgrpab.setGroup("Output Group " + origgid);
+				ActionBuilder tab = new ActionBuilder();
+				tab.setAction(new GroupActionCaseBuilder().setGroupAction(tgrpab.build()).build());
+				tab.setOrder(bucketActionList.size());
+				tab.setKey(new ActionKey(bucketActionList.size()));
+				bucketActionList.add(tab.build());
+			}
 		   }
 	    }
 				
          /* Create output action for this ncId*/
-        OutputActionBuilder oab = new OutputActionBuilder();
-        oab.setOutputNodeConnector(ncId);
-        ActionBuilder ab = new ActionBuilder();
-        ab.setAction(new OutputActionCaseBuilder().setOutputAction(oab.build()).build());
-        ab.setOrder(bucketActionList.size());
-       	ab.setKey(new ActionKey(bucketActionList.size()));
-       	bucketActionList.add(ab.build());
+	if (addGroupId == null)
+	{
+        	OutputActionBuilder oab = new OutputActionBuilder();
+       		oab.setOutputNodeConnector(ncId);
+        	ActionBuilder ab = new ActionBuilder();
+        	ab.setAction(new OutputActionCaseBuilder().setOutputAction(oab.build()).build());
+        	ab.setOrder(bucketActionList.size());
+       		ab.setKey(new ActionKey(bucketActionList.size()));
+       		bucketActionList.add(ab.build());
 
-        bucket.setAction(bucketActionList);
-        bucketList.add(bucket.build());
-        bucketBuilder.setBucket(bucketList);
+        	bucket.setAction(bucketActionList);
+        	bucketList.add(bucket.build());
+        	bucketBuilder.setBucket(bucketList);
+	}
+	else
+	{
+		GroupActionBuilder grpab = new GroupActionBuilder();
+		grpab.setGroupId(addGroupId.getValue());
+		grpab.setGroup("Output Group " + addGroupId);
+		ActionBuilder ab = new ActionBuilder();
+		ab.setAction(new GroupActionCaseBuilder().setGroupAction(grpab.build()).build());
+		ab.setOrder(bucketActionList.size());
+		ab.setKey(new ActionKey(bucketActionList.size()));
+		bucketActionList.add(ab.build());
+
+		bucket.setAction(bucketActionList);
+		bucketList.add(bucket.build());
+		bucketBuilder.setBucket(bucketList);
+	}
         groupBuilder.setBuckets(bucketBuilder.build());
 	return(groupBuilder.build());
 
@@ -370,8 +426,9 @@ public class LacpGroupTbl
 		
    }
 
-   public Group lacpRemPort(Group origGroup, NodeConnectorRef nodeConnectorRef, boolean isUnicastGrp) {
-        if (nodeConnectorRef == null){
+   public Group lacpRemPort(Group origGroup, NodeConnectorRef nodeConnectorRef, 
+				boolean isUnicastGrp, GroupId delGroupId) {
+        if (nodeConnectorRef == null  && delGroupId == null){
             return null;
 	}
 	if (origGroup == null)
@@ -404,7 +461,8 @@ public class LacpGroupTbl
         GroupKey groupkey = new GroupKey(groupId);
 
         InstanceIdentifier <Group> lacpGId = InstanceIdentifier.create(Nodes.class).child(Node.class, nodeKey).augmentation(FlowCapableNode.class).child(Group.class, groupkey);
-	Group updGroup = populatedelGroup(isUnicastGrp, nodeRef, nodeId, ncId, groupId, origGroup);
+	Group updGroup = populatedelGroup(isUnicastGrp, nodeRef, nodeId, ncId, 
+						groupId, origGroup, delGroupId);
 	updateGroup(lacpGId, origGroup, updGroup , nodeInstId);
 	return updGroup;
 
@@ -412,12 +470,13 @@ public class LacpGroupTbl
 
     public Group populatedelGroup(boolean isUnicastGrp, NodeRef nodeRef, 
 				  NodeId nodeId, NodeConnectorId ncId, 
-				  GroupId groupId, Group origGroup) {
+				  GroupId groupId, Group origGroup, GroupId delGroupId) {
 
 	NodeKey nodeKey = new NodeKey(nodeId);
 
 
 	GroupBuilder groupBuilder = new GroupBuilder();
+	Long origgid;
 
 
 
@@ -462,8 +521,24 @@ public class LacpGroupTbl
         				bucketActionList.add(ab.build());
 			  }
 			}
+			if (action.getAction() instanceof GroupActionCase) {
+				GroupActionCase grpAction = (GroupActionCase)action.getAction();
+				origgid = grpAction.getGroupAction().getGroupId();
+				if ((delGroupId == null) || ((delGroupId != null) && (origgid != delGroupId.getValue()))) {
+					GroupActionBuilder tgrpab = new GroupActionBuilder();
+					tgrpab.setGroupId(origgid);
+					tgrpab.setGroup("Output Group " + origgid);
+					ActionBuilder tab = new ActionBuilder();
+					tab.setAction(new GroupActionCaseBuilder().setGroupAction(tgrpab.build()).build());
+					tab.setOrder(bucketActionList.size());
+					tab.setKey(new ActionKey(bucketActionList.size()));
+					bucketActionList.add(tab.build());
+				}
+			}
+
 		   }
-	    }
+		
+	}
         bucket.setAction(bucketActionList);
         bucketList.add(bucket.build());
         bucketBuilder.setBucket(bucketList);
@@ -610,6 +685,67 @@ public class LacpGroupTbl
 
          return(isGroupRemoved);
 
+    }
+
+
+
+    public Group lacpAddRemGroupId(boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef,
+                           Group  origGroup, GroupId newGroupId, boolean isAdd) {
+
+        Group updGroup ;
+        if (nodeConnectorRef == null)
+            return null;
+        if (origGroup == null)
+        {
+                LOG.warn("lacpAddGroupId: origGroup is NULL");
+                return null;
+        }
+        LOG.info("LACP: lacpAddGroupId ", nodeConnectorRef);
+        GroupId groupId = origGroup.getGroupId();
+        InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue();
+
+        NodeConnectorId ncId = InstanceIdentifier.keyOf(ncInstId).getId();
+
+        LOG.info("lacpAddGroupId for group id " , groupId);
+        if (ncId == null)
+        {
+                LOG.warn("LACP: lacpAddGroupId Node Connector ID is NULL");
+                return null;
+        }
+
+        InstanceIdentifier<Node> nodeInstId = ncInstId.firstIdentifierOf(Node.class);
+        NodeId nodeId = InstanceIdentifier.keyOf(nodeInstId).getId();
+	if (nodeId == null)
+        {
+                LOG.warn("LACP: lacpAddGroupId: nodeId is NULL");
+                return null;
+        }
+        NodeRef nodeRef = new NodeRef(nodeInstId);
+        NodeKey nodeKey = new NodeKey(nodeId);
+        GroupKey groupkey = new GroupKey(groupId);
+
+        InstanceIdentifier<Group> lacpGId = InstanceIdentifier.builder(Nodes.class).child(Node.class, nodeKey).augmentation(FlowCapableNode.class).child(Group.class, groupkey).toInstance();
+        LOG.info("lacpAddGroupId: lacpGid ", lacpGId);
+        LOG.info("lacpAddGroupId:  key " , groupkey);
+
+        if (isAdd)
+        {
+                updGroup = populateGroup(isUnicastGrp, nodeRef, nodeId, ncId,
+                                        groupId, origGroup, newGroupId);
+        }
+        else
+        {
+                updGroup = populatedelGroup(isUnicastGrp, nodeRef, nodeId, ncId,
+                                          groupId, origGroup, newGroupId);
+        }
+        if (updGroup == null){
+                LOG.warn("lacpAddGroupId: updGroup is NULL");
+        }
+	else{
+                LOG.info("lacpAddGroupId updGroup is available proceeding to program it");
+                updateGroup(lacpGId, origGroup, updGroup , nodeInstId);
+        }
+        return updGroup;
     }
 
 

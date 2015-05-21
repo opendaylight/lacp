@@ -275,7 +275,7 @@ public class LacpBond {
                 logNodeConnRef = null;
                 InstanceIdentifier<Node> nodeId = lacpNode.getNodeId();
                 NodeId nId = nodeId.firstKeyOf(Node.class, NodeKey.class).getId();
-                bondInstanceId = lacpNode.getAndIncrementNextAggId();
+		bondInstanceId = lacpNode.getAndIncrementNextAggId();
                 aggInstId = InstanceIdentifier.builder(Nodes.class)
                               .child (Node.class, new NodeKey (nId))
                               .augmentation(LacpNode.class)
@@ -887,14 +887,16 @@ public class LacpBond {
         {
             LOG.debug ("creating the logical port and adding lag group ");
             LacpLogPort.createLogicalPort(this);
-            lagGroup = lacpGroupTbl.lacpAddGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
+            lagGroup = lacpGroupTbl.lacpAddGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId, null);
+	    lacpNodeRef.setbcastGroup(new NodeConnectorRef(lacpPort.getNodeConnectorId()),
+			aggGrpId, true);
             lacpNodeRef.addLacpAggregator(this);
         }
         else
         {
             LOG.debug ("setting NCRef and adding port to lag group");
             lacpPort.setLogicalNCRef(logNodeConnRef);
-            lagGroup = lacpGroupTbl.lacpAddPort(true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), lagGroup);
+            lagGroup = lacpGroupTbl.lacpAddPort(true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), lagGroup, null);
         }
         return true;
     }
@@ -913,13 +915,15 @@ public class LacpBond {
             activePortList.remove (lacpPort);
             LacpLogPort.deleteLogicalPort(this);
             lacpGroupTbl.lacpRemGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
+	    lacpNodeRef.setbcastGroup(new NodeConnectorRef(lacpPort.getNodeConnectorId()),
+					aggGrpId, false);
             deleteLacpAggregatorDS();
         }
         else
         {
             activePortList.remove (lacpPort);
             updateLacpAggregatorsDS();
-            lagGroup = lacpGroupTbl.lacpRemPort (lagGroup, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true);
+            lagGroup = lacpGroupTbl.lacpRemPort (lagGroup, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true, null);
         }
         synchronized (lacpNodeRef)
         {
@@ -984,5 +988,7 @@ public class LacpBond {
         slaveList.clear();
         this.slaveCnt = 0;
         bondStateMachineUnlock();
-    }
+   }
+
+    
 }

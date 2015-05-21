@@ -49,6 +49,7 @@ public class LacpNodeExtn
     private Hashtable<Integer, LacpBond> lagList;
     private Hashtable<InstanceIdentifier<NodeConnector>, LacpPort> lacpPortList;
     private List<InstanceIdentifier<NodeConnector>> nonLacpPortList;
+    private boolean firstGrpAdd;
     private Long flowId;
     private InstanceIdentifier<Node> nodeInstId;
     private static final LacpFlow LACPFLOW = new LacpFlow();
@@ -60,7 +61,7 @@ public class LacpNodeExtn
     private GroupId bcastGroupId;
     private Group bcastGroup;
     private int nextAggId;
-
+    
     public LacpNodeExtn (InstanceIdentifier nodeId)
     {
         Long groupId = LacpUtil.getNextGroupId();
@@ -68,11 +69,13 @@ public class LacpNodeExtn
         nodeInstId = nodeId;
         lacpBuilder = new LacpNodeBuilder();
         bcastGroup = null;
+        
         switchId = LacpUtil.getNodeSwitchId(nodeId);
         String sysId = obtainSystemMac();
         lacpBuilder.setSystemId(new MacAddress(sysId));
         lacpBuilder.setSystemPriority(LacpUtil.DEF_LACP_PRIORITY);
         nonLacpPortList = new ArrayList<InstanceIdentifier<NodeConnector>>();
+	firstGrpAdd = true;
         lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
         deleteStatus = false;
         lacpBuilder.setNonLagGroupid(groupId);
@@ -80,8 +83,9 @@ public class LacpNodeExtn
         ArrayList<LacpAggregators> aggList = new ArrayList<LacpAggregators>();
         lacpBuilder.setLacpAggregators(aggList);
         groupTbl = new LacpGroupTbl (LacpUtil.getSalGroupService(), dataService);
-        nextAggId = 1;
+	nextAggId =1;
     }
+
     public void updateLacpNodeInfo()
     {
         synchronized (this)
@@ -92,6 +96,7 @@ public class LacpNodeExtn
         }
         return;
     }
+
     private String obtainSystemMac()
     {
         long id = this.switchId;
@@ -121,14 +126,19 @@ public class LacpNodeExtn
         }
         updateNodeConnectorLacpInfo (port);
         this.nonLacpPortList.add(port);
-        if (nonLacpPortList.size() == 1)
-        {
-            bcastGroup = groupTbl.lacpAddGroup (false, new NodeConnectorRef(port), bcastGroupId);
-        }
-        else
-        {
-            bcastGroup = groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroup);
-        }
+	synchronized (groupTbl)
+	{
+        	//if (nonLacpPortList.size() == 1)
+        	if (firstGrpAdd)
+        	{
+            		bcastGroup = groupTbl.lacpAddGroup (false, new NodeConnectorRef(port), bcastGroupId, null);
+			firstGrpAdd = false;
+        	}
+        	else
+        	{
+            		bcastGroup = groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroup, null);
+        	}
+	}
         return true;
     }
     public boolean addLacpPort (InstanceIdentifier<NodeConnector> portId, LacpPort lacpPort)
@@ -151,14 +161,15 @@ public class LacpNodeExtn
             return false;
         }
 
-        if (nonLacpPortList.size() <= 1)
+        /*if (nonLacpPortList.size() <= 1)
         {
             groupTbl.lacpRemGroup (false, new NodeConnectorRef(port), bcastGroupId);
         }
         else
-        {
-            bcastGroup = groupTbl.lacpRemPort (bcastGroup, new NodeConnectorRef(port), false);
-        }
+        { */
+            bcastGroup = groupTbl.lacpRemPort (bcastGroup, new NodeConnectorRef(port), 
+						false, null);
+        //}
         return (nonLacpPortList.remove(port));
     }
     public LacpPort removeLacpPort (InstanceIdentifier<NodeConnector> portId, boolean hardReset)
@@ -234,9 +245,9 @@ public class LacpNodeExtn
         nonLacpPortList.clear();
         //groupTbl.lacpRemGroup (false, null, bcastGroupId);
         //TODO KALAI when remGroup nc is null it is not internally handled. handle it there.
-
+        
         RSMManager rsmManager = RSMManager.getRSMManagerInstance();
-        rsmStatus = rsmManager.deleteRSM(this);
+        rsmStatus = rsmManager.deleteRSM(this); 
         // add hook to remove the list of aggregators.
         Collection<LacpBond> aggList = lagList.values();
         for (LacpBond lacpAgg : aggList)
@@ -247,7 +258,7 @@ public class LacpNodeExtn
                 // irrespective of delFlag status, remove the lag group entry.
             }
         }
-        //add hook to remove lag bcast group entry
+        //add hook to remove lag bcast group entry 
         lagList.clear();
         // add hook to remove the list of lacp ports.
         Collection<LacpPort> portList = lacpPortList.values();
@@ -268,7 +279,7 @@ public class LacpNodeExtn
         }
         this.deleteStatus = true;
         lacpBuilder = null;
-    }
+    }    
     public void updateLacpNodeDS (InstanceIdentifier nodeId)
     {
         if (this.deleteStatus == true)
@@ -307,13 +318,13 @@ public class LacpNodeExtn
             LOG.debug ("addLacpAggregator: given bond {} is already available in the node {}", lacpAgg.getBondInstanceId(), switchId);
             return false;
         }
-
+        
         lagList.put(lacpAgg.getBondInstanceId(), lacpAgg);
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.add(lacpAgg.buildLacpAgg());
         LOG.debug ("adding aggregator {}", lacpAgg.buildLacpAgg());
         lacpBuilder.setLacpAggregators(aggList);
-        /* Aggregator list is only updated here. Aggregator DS will be
+        /* Aggregator list is only updated here. Aggregator DS will be 
          * updated in LacpBond */
         return true;
     }
@@ -329,7 +340,7 @@ public class LacpNodeExtn
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.remove(lacpAgg.buildLacpAgg());
         lacpBuilder.setLacpAggregators(aggList);
-        /* Aggregator list is only updated here. Aggregator DS will be
+        /* Aggregator list is only updated here. Aggregator DS will be 
          * updated in LacpBond */
         return true;
     }
@@ -389,6 +400,7 @@ public class LacpNodeExtn
     {
         return deleteStatus;
     }
+
     public int getAndIncrementNextAggId()
     {
         int aggId = 0;
@@ -399,4 +411,33 @@ public class LacpNodeExtn
         }
         return aggId;
     }
+
+    public GroupId getbcastGroupId()
+    {
+	return bcastGroupId;
+    }
+
+    public Group getbcastGroup()
+    {
+	return bcastGroup;
+    }
+
+    public Group setbcastGroup(NodeConnectorRef ncRef, GroupId lagGroupId, boolean isAdd)
+    {
+	synchronized (groupTbl)
+	{
+		if (firstGrpAdd)
+		{
+			bcastGroup = groupTbl.lacpAddGroup (false, ncRef, bcastGroupId, lagGroupId);
+			firstGrpAdd = false;
+		}
+		else
+		{
+			bcastGroup = groupTbl.lacpAddRemGroupId(false, ncRef, bcastGroup,
+						lagGroupId, isAdd);
+		}
+	}
+
+	return bcastGroup;
+     }
 }
