@@ -431,6 +431,15 @@ public class LacpNodeExtn
     {
 	synchronized (groupTbl)
 	{
+		InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)ncRef.getValue();
+		NodeConnectorId ncId = InstanceIdentifier.keyOf(ncInstId).getId();
+		if (ncId == null)
+		{
+			LOG.warn("setbcastGroup: NodeConnector is NULL");
+			return null;
+		}
+
+		InstanceIdentifier<Node> nodeInstId = ncInstId.firstIdentifierOf(Node.class);
 		if (firstGrpAdd)
 		{
 			bcastGroup = groupTbl.lacpAddGroup (false, ncRef, bcastGroupId, lagGroupId);
@@ -438,7 +447,7 @@ public class LacpNodeExtn
 		}
 		else
 		{
-			bcastGroup = groupTbl.lacpAddRemGroupId(false, ncRef, bcastGroup,
+			bcastGroup = groupTbl.lacpAddRemGroupId(false, nodeInstId, bcastGroup,
 						lagGroupId, isAdd);
 		}
 	}

@@ -689,31 +689,18 @@ public class LacpGroupTbl
 
 
 
-    public Group lacpAddRemGroupId(boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef,
+    public Group lacpAddRemGroupId(boolean isUnicastGrp, InstanceIdentifier<Node> nodeInstId,
                            Group  origGroup, GroupId newGroupId, boolean isAdd) {
 
         Group updGroup ;
-        if (nodeConnectorRef == null)
-            return null;
         if (origGroup == null)
         {
                 LOG.warn("lacpAddGroupId: origGroup is NULL");
                 return null;
         }
-        LOG.info("LACP: lacpAddGroupId ", nodeConnectorRef);
         GroupId groupId = origGroup.getGroupId();
-        InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue();
-
-        NodeConnectorId ncId = InstanceIdentifier.keyOf(ncInstId).getId();
 
         LOG.info("lacpAddGroupId for group id " , groupId);
-        if (ncId == null)
-        {
-                LOG.warn("LACP: lacpAddGroupId Node Connector ID is NULL");
-                return null;
-        }
-
-        InstanceIdentifier<Node> nodeInstId = ncInstId.firstIdentifierOf(Node.class);
         NodeId nodeId = InstanceIdentifier.keyOf(nodeInstId).getId();
 	if (nodeId == null)
         {
@@ -730,12 +717,12 @@ public class LacpGroupTbl
 
         if (isAdd)
         {
-                updGroup = populateGroup(isUnicastGrp, nodeRef, nodeId, ncId,
+                updGroup = populateGroup(isUnicastGrp, nodeRef, nodeId, null,
                                         groupId, origGroup, newGroupId);
         }
         else
         {
-                updGroup = populatedelGroup(isUnicastGrp, nodeRef, nodeId, ncId,
+                updGroup = populatedelGroup(isUnicastGrp, nodeRef, nodeId, null,
                                           groupId, origGroup, newGroupId);
         }
         if (updGroup == null){
