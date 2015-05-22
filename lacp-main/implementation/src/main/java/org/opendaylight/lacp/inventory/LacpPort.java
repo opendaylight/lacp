@@ -141,6 +141,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	private static DataBroker dataService;
     private boolean operUpStatus; // to inform lag port timeout status to state machine
     private MacAddress ncMac = null;
+    private boolean resetStatus;
 
 	public enum portStateEnum {
 		ACT(0),TMO(1),AGG(2),SYN(3),COL(4),DIS(5),DEF(6),EXP(7);
@@ -743,6 +744,7 @@ public class LacpPort implements Comparable<LacpPort> {
                     }
                }
         operUpStatus = true;
+        resetStatus = true;
         DataBroker ds = LacpUtil.getDataBrokerService();
         NodeConnector portNC = LacpPortProperties.getNodeConnector(ds, ncId);
         if (portNC == null)
@@ -1971,6 +1973,11 @@ public class LacpPort implements Comparable<LacpPort> {
     }
     public void updateNCLacpInfo ()
     {
+        if (this.resetStatus == false)
+        {
+            LOG.debug ("ResetStatus is disabled. not updating the ds for the port");
+            return;
+        }
         final WriteTransaction write = dataService.newWriteOnlyTransaction();
         LacpNodeConnector lacpNC;
         lacpNC  = lacpNCBuilder.build();
@@ -2038,5 +2045,10 @@ public class LacpPort implements Comparable<LacpPort> {
     public boolean getPortOperStatus ()
     {
         return operUpStatus;
+    }
+    public void setResetStatus (boolean value)
+    {
+        resetStatus = value;
+        return;
     }
 }
