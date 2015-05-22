@@ -97,6 +97,8 @@ public class LacpDataListener implements DataChangeListener
         {
             nodeConnListener.close();
         }
+        LacpNodeListener listener = LacpNodeListener.getNodeListenerInstance();
+        listener.releaseThreadPool();
         return;
     }
     /* If the nodes are already available, obtain the available links in the learnt topology
@@ -174,13 +176,10 @@ public class LacpDataListener implements DataChangeListener
         int portId = (int) NodePort.getPortId(new NodeConnectorRef(ncId));
         long swId = NodePort.getSwitchId(new NodeConnectorRef(ncId));
         NodeConnector nc = (NodeConnector) InstanceIdentifier.keyOf(ncId);
-        /* Sending only the port oper down message here. speed duplex bit value is not required for
-         * processing the port down messages. So sending a dummy value here */
-        
-        int portFeaturesResult = 0;
-        LacpPDUPortStatusContainer pduElem = null; 
+
+        LacpPDUPortStatusContainer pduElem = null;
         int down = 2;
-        pduElem = new LacpPortStatus(swId, portId, down, portFeaturesResult, ncId);
+        pduElem = new LacpPortStatus(swId, portId, down, ncId, true);
         LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
 
         if ((pduQueue!= null) && !(pduQueue.enqueue(swId, pduElem)))
@@ -249,31 +248,31 @@ public class LacpDataListener implements DataChangeListener
         else if (instanceId.getTargetType().equals(Node.class))
         {
             LOG.debug ("processing node up/down events");
-            LacpNodeListener nodeListener = LacpNodeListener.getNodeListenerInstance();
+            LacpNodeListener listener = LacpNodeListener.getNodeListenerInstance();
             Node node = (Node)data;
             if (updDelFlag == true)
             {
                 LOG.debug ("node update event for {}", instanceId);
-                nodeListener.updateNode (instanceId, node);
+                listener.updateNode (instanceId, node);
             }
             else
             {
                 LOG.debug ("node remove event for {}", instanceId);
-                nodeListener.removeNode(instanceId);
+                listener.removeNode(instanceId);
             }
         }
         else if (instanceId.getTargetType().equals(NodeConnector.class))
         {
-            LacpNodeListener nodeListener = LacpNodeListener.getNodeListenerInstance();
+            LacpNodeListener listener = LacpNodeListener.getNodeListenerInstance();
             NodeConnector nodeCon = (NodeConnector)data;
             LOG.debug ("processing nodeConn up/down events");
             if (updDelFlag == true)
             {
-                nodeListener.updateNodeConnector(instanceId, nodeCon);
+                listener.updateNodeConnector(instanceId, nodeCon);
             }
             else
             {
-                nodeListener.removeNodeConnector(instanceId, nodeCon);
+                listener.removeNodeConnector(instanceId, nodeCon);
             }
         }
     }

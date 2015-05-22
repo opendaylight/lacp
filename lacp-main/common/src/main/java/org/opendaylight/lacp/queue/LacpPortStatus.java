@@ -10,16 +10,16 @@ public class LacpPortStatus implements LacpPDUPortStatusContainer{
     private int portStatus;
     public static final int PORT_STATUS_UP = 1;
     public static final int PORT_STATUS_DOWN = 2; 
-    private int portFeatures = 0;
+    private boolean resetFlag;
     private InstanceIdentifier<NodeConnector> ncId;
 
-      public LacpPortStatus(long swid, int i, int portStatus,int portFeatures, InstanceIdentifier<NodeConnector> ncId)
+      public LacpPortStatus(long swid, int i, int portStatus, InstanceIdentifier<NodeConnector> ncId, boolean rFlag)
       {
         this.swID = swid;
         this.portID = i;
         this.portStatus = portStatus;
-	this.portFeatures = portFeatures;
         this.ncId = ncId;
+        this.resetFlag = rFlag;
       }
 
       public long getSwID(){
@@ -33,13 +33,14 @@ public class LacpPortStatus implements LacpPDUPortStatusContainer{
       public int getPortStatus(){
           return portStatus;
       }  
-      public int getPortFeatures(){
-	 return portFeatures;
-      }
-      public InstanceIdentifier<NodeConnector> getNodeConnectorInstanceId()
-      {
-            return ncId;
-      }
+    public boolean getPortResetStatus()
+    {
+        return this.resetFlag;
+    }
+    public InstanceIdentifier<NodeConnector> getNodeConnectorInstanceId()
+    {
+        return ncId;
+    }
 
       public MessageType getMessageType(){
 	  return LacpPDUPortStatusContainer.MessageType.LACP_PORT_STATUS_MSG;

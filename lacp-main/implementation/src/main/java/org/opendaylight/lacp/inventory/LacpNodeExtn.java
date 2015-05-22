@@ -237,50 +237,36 @@ public class LacpNodeExtn
         }
         return false;
     }
-    public void deleteLacpNode (boolean delFlag)
+    public void deleteLacpNode ()
     {
-       /* If delFlag is false, do only the cleanup
-        * else, delete the information from datastore also. */
         long groupId = 0;
+        InstanceIdentifier<NodeConnector> ncId = null;
 
-        nonLacpPortList.clear();
-        //groupTbl.lacpRemGroup (false, null, bcastGroupId);
-        //TODO KALAI when remGroup nc is null it is not internally handled. handle it there.
-        
-        RSMManager rsmManager = RSMManager.getRSMManagerInstance();
-        rsmStatus = rsmManager.deleteRSM(this); 
-        // add hook to remove the list of aggregators.
-        Collection<LacpBond> aggList = lagList.values();
-        for (LacpBond lacpAgg : aggList)
+        if (nonLacpPortList.size() != 0)
         {
-            //lacpAgg.delete();
-            //if (delFlag == true)
-            {
-                // irrespective of delFlag status, remove the lag group entry.
-            }
+            ncId = nonLacpPortList.get(0);
+            nonLacpPortList.clear();
         }
-        //add hook to remove lag bcast group entry 
+        // add hook to remove the list of aggregators.
         lagList.clear();
         // add hook to remove the list of lacp ports.
-        Collection<LacpPort> portList = lacpPortList.values();
-        for (LacpPort lacpPort : portList)
-        {
-            //lacpPort.delete(false);
-        }
         lacpPortList.clear();
         lacpBuilder.setNonLagGroupid(groupId);
         ArrayList<LacpAggregators> empAggList = new ArrayList<LacpAggregators>();
         lacpBuilder.setLacpAggregators(empAggList);
 
-        if (delFlag == true)
+        if (this.deleteStatus == false)
         {
             /* clean up in switch */
             LACPFLOW.removeLacpFlow(this.nodeInstId, this);
             updateLacpNodeDS(nodeInstId);
+            if (ncId != null)
+            {
+                groupTbl.lacpRemGroup (false, new NodeConnectorRef(ncId), bcastGroupId);
+            }
         }
-        this.deleteStatus = true;
         lacpBuilder = null;
-    }    
+    }
     public void updateLacpNodeDS (InstanceIdentifier nodeId)
     {
         if (this.deleteStatus == true)
@@ -319,13 +305,13 @@ public class LacpNodeExtn
             LOG.debug ("addLacpAggregator: given bond {} is already available in the node {}", lacpAgg.getBondInstanceId(), switchId);
             return false;
         }
-        
+
         lagList.put(lacpAgg.getBondInstanceId(), lacpAgg);
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.add(lacpAgg.buildLacpAgg());
         LOG.debug ("adding aggregator {}", lacpAgg.buildLacpAgg());
         lacpBuilder.setLacpAggregators(aggList);
-        /* Aggregator list is only updated here. Aggregator DS will be 
+        /* Aggregator list is only updated here. Aggregator DS will be
          * updated in LacpBond */
         return true;
     }
@@ -341,7 +327,7 @@ public class LacpNodeExtn
         List<LacpAggregators> aggList = lacpBuilder.getLacpAggregators();
         aggList.remove(lacpAgg.buildLacpAgg());
         lacpBuilder.setLacpAggregators(aggList);
-        /* Aggregator list is only updated here. Aggregator DS will be 
+        /* Aggregator list is only updated here. Aggregator DS will be
          * updated in LacpBond */
         return true;
     }

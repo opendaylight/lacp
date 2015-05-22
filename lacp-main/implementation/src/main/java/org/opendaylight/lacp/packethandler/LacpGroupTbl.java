@@ -8,8 +8,6 @@
 
 package org.opendaylight.lacp.grouptbl;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryListener;
@@ -83,7 +81,6 @@ import com.google.common.base.Optional;
 public class LacpGroupTbl
 {
     private static final Logger LOG = LoggerFactory.getLogger(LacpGroupTbl.class);
-    private final ExecutorService lacpService = Executors.newCachedThreadPool();
     private SalGroupService salGroupService;
     private DataBroker dataService;
     private final AtomicLong txNum = new AtomicLong();

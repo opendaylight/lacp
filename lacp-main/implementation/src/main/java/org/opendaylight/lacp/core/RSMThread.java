@@ -271,6 +271,7 @@ public class RSMThread implements Runnable
 
 	long swId = portState.getSwID();
 	short portId = (short)portState.getPortID();
+    boolean resetStatus = portState.getPortResetStatus();
         InstanceIdentifier<NodeConnector> ncId = portState.getNodeConnectorInstanceId();
 	
 	bond = lacpList.get(portId);	
@@ -286,6 +287,7 @@ public class RSMThread implements Runnable
                     if( lacpPort != null)
                     {
                         lacpPort.setPortOperStatus(false); 
+                        lacpPort.setResetStatus(resetStatus);
                         LOG.debug("in handleLacpPortState - setting timeout to true"); 
                     }
 		    bond.bondUpdateLinkDownSlave(swId,portId);

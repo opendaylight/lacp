@@ -114,6 +114,10 @@ public class LacpNodeListener implements OpendaylightInventoryListener
     {
         //do Nothing for node updation. it is handled via the datachange listener
     }
+    public void releaseThreadPool()
+    {
+        lacpService.shutdown();
+    }
 
     private class LacpNodeUpdate implements Runnable
     {
@@ -354,17 +358,14 @@ public class LacpNodeListener implements OpendaylightInventoryListener
         }
 
 
-	private boolean enqueuePortStatus (InstanceIdentifier<NodeConnector> ncId, int upDown){
-
+	private boolean enqueuePortStatus (InstanceIdentifier<NodeConnector> ncId, int upDown, boolean hardReset)
+    {
                 boolean result = false;
                 if (ncId != null){
                         short portId = NodePort.getPortId(new NodeConnectorRef(ncId));
                         long swId = NodePort.getSwitchId(new NodeConnectorRef(ncId));
-                        // portStatus is sent out for portDown.
-                        // So not sending any portFeature info with the status message.
-                        int portFeaturesResult = 0;
                         LacpPDUPortStatusContainer pduElem = null;
-                        pduElem = new LacpPortStatus(swId,portId,upDown,portFeaturesResult, ncId);
+                        pduElem = new LacpPortStatus(swId,portId,upDown, ncId, hardReset);
                         LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
                         if((pduQueue!= null) && !(pduQueue.enqueue(swId,pduElem))){
                                 LOG.debug("Failed to enque port status object for port={}",portId);
@@ -411,7 +412,8 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             {
                 synchronized (lacpNode)
                 {
-                    if(enqueuePortStatus(ncId,2)){
+                    if(enqueuePortStatus(ncId, 2, hardReset))
+                    {
                         LOG.debug("port {} with state DOWN is enqued succesfully for port state procesing", ncId);
                     }else{
                         LOG.error("port {} enque failed", ncId);

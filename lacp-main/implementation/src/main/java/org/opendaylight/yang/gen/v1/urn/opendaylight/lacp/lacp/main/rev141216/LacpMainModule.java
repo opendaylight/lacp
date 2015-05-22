@@ -126,6 +126,8 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
             LOG.info("closed the listeners for lacp. Clearing the cached info.");
             /* clean up the nodes and nodeconnectors learnt by lacp */
             lacpSystem.clearResources();
+            TxThrExecutor.shutdown();
+            pduDecoderExecutor.shutdown();
             return;
           }
         }

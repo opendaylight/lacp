@@ -42,7 +42,7 @@ public class LacpPortStatusTest {
         @Before
         public void setUp() throws Exception {
 		nodeConnectorId = InstanceIdentifier.builder( Nodes.class ).child( Node.class, new NodeKey( new NodeId("openflow:1"))).child( NodeConnector.class, new NodeConnectorKey( new NodeConnectorId("openflow:1:3" ))).build();
-		portStatus = new LacpPortStatus(1L, 20, 1, 10, nodeConnectorId);
+		portStatus = new LacpPortStatus(1L, 20, 1, nodeConnectorId, true);
         }
 
         @After
@@ -68,8 +68,8 @@ public class LacpPortStatusTest {
 
 
         @Test
-        public void testgetPortFeatures() throws Exception {
-                assertTrue(portStatus.getPortFeatures() == 10);
+        public void testgetPortResetStatus() throws Exception {
+                assertTrue(portStatus.getPortResetStatus() == true);
         }
         
         @Test

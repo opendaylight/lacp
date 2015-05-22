@@ -29,6 +29,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.P
 import org.opendaylight.lacp.packethandler.TxProcessor;
 import org.opendaylight.lacp.queue.LacpTxQueue;
 import org.opendaylight.lacp.packethandler.PduDecoderProcessor;
+import org.opendaylight.lacp.queue.LacpPDUQueue;
+import org.opendaylight.lacp.queue.LacpNodeNotif;
 
 public class LacpSystem
 {
@@ -68,7 +70,7 @@ public class LacpSystem
             return null;
         }
         LacpNodeExtn lacpNode = LACPNODE_MAP.remove(swId);
-        lacpNode.deleteLacpNode(false);
+        lacpNode.deleteLacpNode();
         return lacpNode;
     }
     public LacpNodeExtn getLacpNode (Long switchId)
@@ -88,11 +90,25 @@ public class LacpSystem
     public void clearLacpNodes ()
     {
         Collection<LacpNodeExtn> nodeList = LACPNODE_MAP.values();
+        LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
         for (LacpNodeExtn lacpNode : nodeList)
         {
-            lacpNode.deleteLacpNode(true);
+            Long swId = lacpNode.getSwitchId();
+            LacpNodeNotif nodeNotif = new LacpNodeNotif();
+            LOG.debug("sending node delete msg in clear LacpNodes");
+            if (pduQueue.isLacpQueuePresent(swId) == true)
+            {
+                if (pduQueue.enqueueAtFront(swId, nodeNotif) == false)
+                {
+                    LOG.warn ("Failed to enqueue node deletion message to the pduQ for node {}", swId);
+                }
+            }
+            else
+            {
+                LOG.debug ("RSM thread and pduQueue are not yet created for the switch {}, deleteing the node", swId);
+                this.removeLacpNode (swId);
+            }
         }
-        LACPNODE_MAP.clear();
         return;
     }
     public void readDataStore (DataBroker dataService)
