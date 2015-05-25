@@ -179,10 +179,10 @@ public class TxUtils {
 					  MacAddress srcMac, MacAddress destMac, 
 					  PacketProcessingService pServ) {
 
-		String nodeId = ingress.getValue().firstIdentifierOf(Node.class).firstKeyOf(Node.class, NodeKey.class).getId().getValue();
 		NodeConnectorRef destNodeConnector = ingress;
 
 		if(destNodeConnector != null) {
+            LOG.debug ("dispatching the packet on nc {}", destNodeConnector);
 		 	sendPacketOut(payload, destNodeConnector,pServ);
 		} else {
 			LOG.debug("TxProcessor: desNodeConnector is NULL");

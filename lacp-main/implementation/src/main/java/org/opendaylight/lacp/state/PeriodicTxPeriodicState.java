@@ -23,14 +23,25 @@ public class PeriodicTxPeriodicState extends PeriodicTxState {
 		stateFlag = LacpConst.PERIODIC_STATES.PERIODIC_TX;
 	}
 	
-	public void executeStateAction(PeriodicTxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
-		//NTT = TRUE
-		stateFlag = LacpConst.PERIODIC_STATES.PERIODIC_TX;
+	public void executeStateAction(PeriodicTxContext obj, LacpPort portObjRef,LacpBpduInfo pdu)
+    {
+	    LacpConst.PERIODIC_STATES flag = LacpConst.PERIODIC_STATES.SLOW_PERIODIC;
+
 		LOG.debug("Entering PeriodicTxPeriodicState executeStateAction, setting ntt to true for port={}", portObjRef.slaveGetPortId());
 		if(!portObjRef.getPeriodicWhileTimer().isExpired()){
 			portObjRef.getPeriodicWhileTimer().cancel();
 		}
 		portObjRef.setNtt(true);
+        if ((portObjRef.portPartnerOperGetPortState() & LacpConst.LONG_TIMEOUT) == LacpConst.LONG_TIMEOUT)
+        {
+            flag = LacpConst.PERIODIC_STATES.SLOW_PERIODIC;
+        }
+        else
+        {
+            flag = LacpConst.PERIODIC_STATES.FAST_PERIODIC;
+        }
+        obj.setState(portObjRef.getPeriodicTxState(flag));
+        obj.getState().executeStateAction(obj, portObjRef, pdu);
 	}
 	
 	public LacpConst.PERIODIC_STATES getStateFlag(){
