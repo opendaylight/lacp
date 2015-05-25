@@ -49,7 +49,9 @@ enum EventType
 public class LacpNodeListener implements OpendaylightInventoryListener
 {
     private static final Logger LOG = LoggerFactory.getLogger(LacpNodeListener.class);
-    private final ExecutorService lacpService = Executors.newFixedThreadPool(20);
+    private final ExecutorService lacpServiceNode = Executors.newCachedThreadPool();
+    private final ExecutorService lacpServiceNodeConnector = Executors.newCachedThreadPool();
+
     private static LacpSystem lacpSystem;
     private static final LacpNodeListener LIST_INSTANCE = new LacpNodeListener();
 
@@ -67,25 +69,25 @@ public class LacpNodeListener implements OpendaylightInventoryListener
     public void removeNodeConnector (InstanceIdentifier<NodeConnector> ncId, NodeConnector nc)
     {
         LOG.info("got a node connec removed in lacp {} ", ncId);
-        lacpService.submit(new LacpNodeConnectorUpdate(EventType.DELETED, ncId, nc));
+        lacpServiceNodeConnector.submit(new LacpNodeConnectorUpdate(EventType.DELETED, ncId, nc));
     }
 
     public void updateNodeConnector (InstanceIdentifier<NodeConnector> ncId, NodeConnector nc)
     {
         LOG.info("got a node connec Updated {} in lacp ", ncId);
-        lacpService.submit(new LacpNodeConnectorUpdate(EventType.UPDATED, ncId, nc));
+        lacpServiceNodeConnector.submit(new LacpNodeConnectorUpdate(EventType.UPDATED, ncId, nc));
     }
 
     public void removeNode (InstanceIdentifier<Node> nodeId)
     {
         LOG.info("got a node removed {} in lacp ", nodeId);
-        lacpService.submit(new LacpNodeUpdate(nodeId, null, EventType.DELETED));
+        lacpServiceNode.submit(new LacpNodeUpdate(nodeId, null, EventType.DELETED));
     }
 
     public void updateNode (InstanceIdentifier<Node> nodeId, Node node)
     {
         LOG.info("got a node updated {} ", node);
-        lacpService.submit(new LacpNodeUpdate(nodeId, node, EventType.UPDATED));
+        lacpServiceNode.submit(new LacpNodeUpdate(nodeId, node, EventType.UPDATED));
     }
     @Override
     public void onNodeConnectorRemoved (NodeConnectorRemoved nodeConnectorRemoved)
@@ -101,7 +103,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
         }
         LOG.debug("got a node connec Updated from inventory listener {} in lacp ", nodeConnectorUpdated);
         InstanceIdentifier<NodeConnector> instanceId = (InstanceIdentifier<NodeConnector>)nodeConnectorUpdated.getNodeConnectorRef().getValue();
-        lacpService.submit(new LacpNodeConnectorUpdate(EventType.STATUS_UPDATE, instanceId,
+        lacpServiceNodeConnector.submit(new LacpNodeConnectorUpdate(EventType.STATUS_UPDATE, instanceId,
                                                        nodeConnectorUpdated));
     }
     @Override
@@ -116,7 +118,8 @@ public class LacpNodeListener implements OpendaylightInventoryListener
     }
     public void releaseThreadPool()
     {
-        lacpService.shutdown();
+        lacpServiceNodeConnector.shutdown();
+	lacpServiceNode.shutdown();
     }
 
     private class LacpNodeUpdate implements Runnable
@@ -380,10 +383,32 @@ public class LacpNodeListener implements OpendaylightInventoryListener
         {
             InstanceIdentifier<Node> nodeId = ncId.firstIdentifierOf(Node.class);
             LacpNodeExtn lacpNode = null;
-            synchronized (LacpSystem.class)
-            {
-                lacpNode = lacpSystem.getLacpNode(nodeId);
+
+
+            int LOOP_COUNT = 6;
+            int TIMEOUT = 500;
+
+            try{
+               for(int i= 0; i<LOOP_COUNT ; i++){
+                 synchronized (LacpSystem.class)
+                 {
+                     lacpNode = lacpSystem.getLacpNode(nodeId);
+                 }
+                 if (lacpNode == null)
+                 {
+                     LOG.debug("got a a nodeConnector updation for non-existing node {}, hence retrying with sleep... ", nodeId);
+                     Thread.sleep(TIMEOUT);
+                     continue;
+                 }else{
+                     Long swId = lacpNode.getSwitchId();
+                     LOG.debug("node connector update thread woke up from sleep for node {} and is now procesing md-sal write",swId);
+                     break;
+                 }
+                }
+            }catch(InterruptedException e){
+              LOG.error("Interrupted Exception received in handlePortUpdate while thread is in sleep" + e.toString());
             }
+
             if (lacpNode != null)
             {
                 synchronized (lacpNode)
