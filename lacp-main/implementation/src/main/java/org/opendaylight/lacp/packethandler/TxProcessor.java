@@ -54,7 +54,7 @@ public class TxProcessor implements Runnable
                 lacpPortId = lacpTxQueue.dequeue(queueId);
                 if (lacpPortId != null)
                 {
-                    LOG.debug("LACP TxProcessor queueId is = {}  and  lacpPort is = {}",queueId, lacpPortId.getPortId());
+                    LOG.debug("LACP TxProcessor queueId is = {}  and  lacpPort is = {}, {}",queueId, lacpPortId.getSwitchId(), lacpPortId.getPortId());
                     RSMManager rsmManager = RSMManager.getRSMManagerInstance();
                     lacpPort = rsmManager.getLacpPortFromBond(lacpPortId.getSwitchId(), (short) lacpPortId.getPortId());
                     if (lacpPort == null)
@@ -68,7 +68,7 @@ public class TxProcessor implements Runnable
                         LacpPacketPdu pdu = lacpPort.updateLacpFromPortToLacpPacketPdu();
                         payload = TxUtils.convertLacpPdutoByte(pdu);
                         TxUtils.dispatchPacket(payload, pdu.getIngressPort(), pdu.getSrcAddress(), pdu.getDestAddress(), pktProcessService);
-                        LOG.debug ("dispatched the packet out for port {}", lacpPortId.getPortId());
+                        LOG.debug ("dispatched the packet out for port {}, {}", lacpPortId.getSwitchId(), lacpPortId.getPortId());
                     }
                 }
                 else

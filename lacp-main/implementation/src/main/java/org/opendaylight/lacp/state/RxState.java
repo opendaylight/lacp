@@ -42,6 +42,7 @@ public class RxState {
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 				| LacpConst.PORT_STATE_DEFAULTED));
 		portObjRef.portSetLagId();
+        portObjRef.lacpPortCleanup();
 	}
 }
 

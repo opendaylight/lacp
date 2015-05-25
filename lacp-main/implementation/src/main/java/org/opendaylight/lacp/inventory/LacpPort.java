@@ -1138,7 +1138,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		LacpPacketPduBuilder obj =null;
 
                 try {
-			LOG.debug("Entering updateLacpFromPortToLacpPacketPdu for port={}",portId);
+			LOG.debug("Entering updateLacpFromPortToLacpPacketPdu for port= {}, {}",swId, portId);
 
 			obj = new LacpPacketPduBuilder();		
 
@@ -1203,7 +1203,7 @@ public class LacpPort implements Comparable<LacpPort> {
 
 			LOG.debug("The PDU object to be enqued onto Tx queue ActorInfo: ",  obj.getActorInfo());
 			LOG.debug("The PDU object to be enqued onto Tx queue PartnerInfo: ",  obj.getPartnerInfo());
-			LOG.debug("Exiting updateLacpFromPortToLacpPacketPdu for port={}",portId);
+			LOG.debug("Exiting updateLacpFromPortToLacpPacketPdu for port={}, {}",swId, portId);
 		}finally{
 			this.slavePSMUnlock();
 		}
@@ -1377,10 +1377,10 @@ public class LacpPort implements Comparable<LacpPort> {
 		ret = LacpConst.RX_HANDLER_CONSUMED;
 
 		TimerExpiryMessage obj = null;
-		LOG.debug("Calling runProtocolStateMachine for port={}",portId);
+		LOG.debug("Calling runProtocolStateMachine for port={}, {}",swId, portId);
 		runProtocolStateMachine(lacpdu,obj);
 
-		LOG.debug("Exiting slaveRxLacpBpduReceived for port={}",portId);
+		LOG.debug("Exiting slaveRxLacpBpduReceived for port={}, {}",swId, portId);
 		return ret;
 	}	
 	
@@ -1437,7 +1437,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	
     public int slaveSendBpdu(LacpTxQueue.QueueType qType)
     {
-        LOG.debug("Entering slaveSendBpdu for port={}",portId);
+        LOG.debug("Entering slaveSendBpdu for switch{}, port={}",this.swId, this.portId);
         if (this.getLink() != LacpConst.BOND_LINK_UP)
         {
 			LOG.warn("slaveSendBpdu did not put the portId onto queue as port={} link is down ",portId);
@@ -1452,7 +1452,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	
 	public void runProtocolStateMachine(LacpBpduInfo lacpBpdu, TimerExpiryMessage tmExpMsg) {
 		
-		LOG.debug("Entering runProtocolStateMachine for port={}",portId);
+		LOG.debug("Entering runProtocolStateMachine for port={}, {}",swId, portId);
 
 		if((lacpBpdu != null) || ((tmExpMsg != null) && (tmExpMsg.getTimerWheelType() == Utils.timerWheeltype.CURRENT_WHILE_TIMER))){
 			this.portRxStateMachine(lacpBpdu,tmExpMsg);
@@ -1483,23 +1483,23 @@ public class LacpPort implements Comparable<LacpPort> {
                      this.setStateMachineBitSet((short)(this.getStateMachineBitSet() & ~LacpConst.PORT_BEGIN));
         	}
 
-		LOG.debug("Exiting runProtocolStateMachine for port={}",portId);
+		LOG.debug("Exiting runProtocolStateMachine for port={}, {}",swId, portId);
 	}
 	
 	public void disableCollectingDistributing(short portId, LacpAggregator agg) {
-		LOG.debug("Entering disableCollectingDistributing for port={}",portId);
+		LOG.debug("Entering disableCollectingDistributing for port={}, {}",swId, portId);
 		this.activeSince = null;
 		//do we need to call below method? - CHECKLATER
 		//agg.setIsActive((short)0);
                 bond.removeActivePort(this);
-		LOG.debug("Exiting disableCollectingDistributing for port={}",portId);
+		LOG.debug("Exiting disableCollectingDistributing for port={}, {}",swId, portId);
 	}
 
 	public void enableCollectingDistributing(short portId, LacpAggregator agg) {
-		LOG.debug("Entering enableCollectingDistributing for port={}",portId);
+		LOG.debug("Entering enableCollectingDistributing for port={}, {}",swId, portId);
 		if (agg.getIsActive() == 0) {
 			if (agg.aggGetBond()!=null) {
-				LOG.debug("Calling bondAggSelectionLogic for port={}",portId);
+				LOG.debug("Calling bondAggSelectionLogic for port={}, {}",swId, portId);
 				agg.aggGetBond().bondAggSelectionLogic();
 			}
 		}
@@ -1507,11 +1507,11 @@ public class LacpPort implements Comparable<LacpPort> {
 			this.activeSince = new Date();
 		}
                 bond.addActivePort(this);
-		LOG.debug("Exiting enableCollectingDistributing for port={}",portId);
+		LOG.debug("Exiting enableCollectingDistributing for port={}, {}",swId, portId);
 	}
 
 	public void portRxStateMachine(LacpBpduInfo lacpdu,TimerExpiryMessage timerExpired ){
-		LOG.debug("Entering portRxStateMachine for port={}",portId);
+		LOG.debug("Entering portRxStateMachine for port={}, {}",swId, portId);
 		boolean timerExpiredFlag = false;
 		LacpConst.RX_STATES lastState;
 		lastState = rxContext.getState().getStateFlag();
@@ -1594,7 +1594,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		}
 		
 		LOG.debug("RX Machine Port=" + this.portId + " lastState=" + lastState + " currentState=" + rxContext.getState().getStateFlag() + " PDU = "+ lacpdu);
-		LOG.debug("Exiting portRxStateMachine for port={}" + portId);
+		LOG.debug("Exiting portRxStateMachine for port={}, {}",swId, portId);
 	}
 
 
@@ -1602,7 +1602,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	void portPeriodicStateMachine(LacpBpduInfo lacpdu,TimerExpiryMessage timerExpired)
 	{
 	
-		LOG.debug("Entering portPeriodicStateMachine for port={}",portId);
+		LOG.debug("Entering portPeriodicStateMachine for port={}, {}",swId, portId);
 		LacpConst.PERIODIC_STATES lastState;
 		// keep current state machine state to compare later if it was changed
 		lastState = periodicTxContext.getState().getStateFlag();
@@ -1620,13 +1620,13 @@ public class LacpPort implements Comparable<LacpPort> {
 		}else if((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.FAST_PERIODIC) &&
 				((timerExpired != null) && (timerExpired.getTimerWheelType() == Utils.timerWheeltype.PERIODIC_TIMER))){
 			periodicTxContext.setState(periodicTxPeriodicState);
-			LOG.debug("portPeriodicStateMachine setting port={} to periodicTxPeriodicState",portId);
+			LOG.debug("1. portPeriodicStateMachine setting port={} to periodicTxPeriodicState",portId);
 		}
 		else if ((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.SLOW_PERIODIC) &&
 						((this.partnerOper.getPortState() & LacpConst.SHORT_TIMEOUT)==0) || 
 								(((timerExpired != null) && (timerExpired.getTimerWheelType() == Utils.timerWheeltype.PERIODIC_TIMER)))){
 			periodicTxContext.setState(periodicTxPeriodicState);
-			LOG.debug("portPeriodicStateMachine setting port={} to periodicTxPeriodicState",portId);
+			LOG.debug("2. portPeriodicStateMachine setting port={} to periodicTxPeriodicState",portId);
 		}else if((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.PERIODIC_TX) &&
 				((this.partnerOper.getPortState() & LacpConst.SHORT_TIMEOUT)==0)){
 			periodicTxContext.setState(periodicTxFastState);
@@ -1644,13 +1644,13 @@ public class LacpPort implements Comparable<LacpPort> {
   		}else{
 		LOG.debug("lastState == currentState for port={}, lastState is={} and the current State is={}", portId,lastState, periodicTxContext.getState().getStateFlag());
 		}
-		LOG.debug("Exiting portPeriodicStateMachine for port={}",portId);
+		LOG.debug("Exiting portPeriodicStateMachine for port={}, {}",swId, portId);
 	}
 	
 	void portSelectionLogic()
 	{
 
-		LOG.debug("Entering portSelectionLogic for port={}",portId);
+		LOG.debug("Entering portSelectionLogic for port={}, {}",swId, portId);
 
 		LacpAggregator freeAgg = null;
 		LacpAggregator tempAgg = null;
@@ -1762,13 +1762,13 @@ public class LacpPort implements Comparable<LacpPort> {
 			LOG.info("portSelectionLogic calling bondAggSelectionLogic for port={}",portId);
 			slaveGetBond().bondAggSelectionLogic();
 		}
-		LOG.debug("Exiting portSelectionLogic for port={}",portId);
+		LOG.debug("Exiting portSelectionLogic for port={}, {}",swId, portId);
 	}
 	
 	
 	void portMuxStateMachine(TimerExpiryMessage timerExpired){
 		
-		LOG.debug("Entering portMuxStateMachine for port={}",portId);
+		LOG.debug("Entering portMuxStateMachine for port={}, {}",swId, portId);
 
 		LacpConst.MUX_STATES lastState;
 		lastState = muxContext.getState().getStateFlag();
@@ -1851,7 +1851,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		}
 		
 		if(muxContext.getState().getStateFlag() != lastState) {
-			LOG.debug("portMuxStateMachine calling executeStateAction for port={}",portId);
+			LOG.debug("portMuxStateMachine calling executeStateAction for port={}, {}",swId, portId);
 			LOG.debug("The Mux State Flag is : " + muxContext.getState().getStateFlag());
 			muxContext.getState().executeStateAction(muxContext,this);
 			slaveGetBond().setDirty(true);
@@ -1861,7 +1861,7 @@ public class LacpPort implements Comparable<LacpPort> {
 
 	void portTxStateMachine(TimerExpiryMessage timerExpired)
 	{
-		LOG.debug("Entering portTxStateMachine for port={}",portId);
+		LOG.debug("Entering portTxStateMachine for port={}, {}",swId, portId);
 		LacpTxQueue.QueueType qType = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
 
 		if(timerExpired != null){
@@ -1877,6 +1877,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			}
 		}else{
 			qType = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
+            this.updateNttForHandleBpdu();
 		}
 
 		/*
@@ -1887,19 +1888,19 @@ public class LacpPort implements Comparable<LacpPort> {
 	 
 		// check if there is something to put on tx queue
 		if ((this.isNtt()) && ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED)>0)) {
-				LOG.debug("portTxStateMachine putting port={} on to tx queue",portId);
+				LOG.debug("portTxStateMachine putting port={}, {} on to tx queue, setting Ntt false ",swId, portId);
 				lacpduSend(qType);
 				this.setNtt(false);
 		}
 		
-		LOG.debug("Exiting portTxStateMachine for port={}",portId);
+		LOG.debug("Exiting portTxStateMachine for port={}, {}",swId, portId);
 	}
 		
 
 	void portHandleLinkChange(byte link)
 	{
 				
-		LOG.debug("Entering portHandleLinkChange for port={}", portId);
+		LOG.debug("Entering portHandleLinkChange for port={}, {}",swId, portId);
 		if (link == LacpConst.BOND_LINK_UP) {
 			isEnabled = true;
 			LOG.info("portHandleLinkChange port={} , link is BOND_LINK_UP", portId);
@@ -1917,12 +1918,12 @@ public class LacpPort implements Comparable<LacpPort> {
         	}
 		portSetLagId();
         	setStateMachineBitSet((short)(getStateMachineBitSet() | LacpConst.PORT_BEGIN));
-		LOG.debug("Exiting portHandleLinkChange for port={}", portId);
+		LOG.debug("Exiting portHandleLinkChange for port={}, {}",swId, portId);
 	}
 	
 	void portAssignSlave(byte[] sysMacAddr, int lacpFast, int sysPri, int portPri, short adminKey) {
 		
-		LOG.debug("Entering portAssignSlave for port={}",portId);
+		LOG.debug("Entering portAssignSlave for port={}, {}",swId, portId);
 		lacpInitPort(lacpFast);
 		this.isInitialized = true;
 		
@@ -2023,20 +2024,23 @@ public class LacpPort implements Comparable<LacpPort> {
         return this.ncMac;
     }
 
-        public void lacpPortCleanup(){
-                if(this.currWhileTimeout != null){
-                        this.currWhileTimeout.cancel();
-                }
+    public void lacpPortCleanup()
+    {
+        LOG.debug("in lacpPortCleanup, stopping the timer for the port {}, {}", swId, portId);
 
-                if(this.periodicTimeout != null){
-                        this.periodicTimeout.cancel();
-                }
-
-                if(this.waitWhileTimeout != null){
-                        this.waitWhileTimeout.cancel();
-                }
-                this.detachBondFromAgg();
+        if(this.currWhileTimeout != null){
+            this.currWhileTimeout.cancel();
         }
+
+        if(this.periodicTimeout != null){
+            this.periodicTimeout.cancel();
+        }
+
+        if(this.waitWhileTimeout != null){
+            this.waitWhileTimeout.cancel();
+        }
+        this.detachBondFromAgg();
+    }
     public void setPortOperStatus (boolean value)
     {
         operUpStatus = value;
@@ -2049,6 +2053,36 @@ public class LacpPort implements Comparable<LacpPort> {
     public void setResetStatus (boolean value)
     {
         resetStatus = value;
+        return;
+    }
+    public PeriodicTxState getPeriodicTxState (LacpConst.PERIODIC_STATES flag)
+    {
+        PeriodicTxState obj = null;
+        switch (flag)
+        {
+            case FAST_PERIODIC:
+                obj = periodicTxFastState;
+                break;
+            case SLOW_PERIODIC:
+                obj = periodicTxSlowState;
+                break;
+            default:
+                break;
+        }
+        return obj;
+    }
+    public void updateNttForHandleBpdu ()
+    {
+        LOG.debug ("in updateNttForHandleBpdu for port {}, {}. Setting Ntt and restarting the periodic while timer", swId, portId);
+        this.setNtt(true);
+        if (periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.FAST_PERIODIC)
+        {
+            this.setPeriodicWhileTimer(LacpConst.FAST_PERIODIC_TIME);
+        }
+        else
+        {
+            this.setPeriodicWhileTimer(LacpConst.SLOW_PERIODIC_TIME);
+        }
         return;
     }
 }

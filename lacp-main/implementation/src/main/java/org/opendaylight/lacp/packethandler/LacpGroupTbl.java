@@ -100,9 +100,10 @@ public class LacpGroupTbl
     public Group lacpAddGroup(Boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef,
 			     GroupId groupId, GroupId addGroupId)
     {
-        if (nodeConnectorRef == null && addGroupId == null){
+        if (nodeConnectorRef == null)
+        {
             return null;
-	}
+    	}
         LOG.info("LACP: lacpAddGroup ", nodeConnectorRef);
 	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue();
 
@@ -147,7 +148,7 @@ public class LacpGroupTbl
         	OutputActionBuilder oab = new OutputActionBuilder();
         	oab.setOutputNodeConnector(ncId);
          	ab.setAction(new OutputActionCaseBuilder().setOutputAction(oab.build()).build());
-         	LOG.debug("lacpAddGroup: addGroup", ab.build());
+         	LOG.debug("lacpAddGroup: addGroup {}", ab.build());
 	}
 	else
 	{
@@ -169,7 +170,7 @@ public class LacpGroupTbl
         GroupKey groupkey = new GroupKey(groupId);
         InstanceIdentifier<Group> lacpGId = InstanceIdentifier.builder(Nodes.class).child(Node.class, nodeKey).augmentation(FlowCapableNode.class).child(Group.class, groupkey).toInstance();
 
-        LOG.info("addGroup: lacpGid " , lacpGId);
+        LOG.info("addGroup: lacpGid {} isUnicast {}" , lacpGId, isUnicastGrp);
 
         groupBuilder.setGroupId(groupId);
 	groupBuilder.setGroupRef(new GroupRef(lacpGId));
@@ -204,7 +205,7 @@ public class LacpGroupTbl
 			try {
                 		Thread.sleep(1000);
             		}catch( InterruptedException e ) {
-                		LOG.info("addGroup: Interrupted Exception ", e.toString());
+                		LOG.info("addGroup: Interrupted Exception {}", e.toString());
             		}
 
 		}
@@ -232,7 +233,7 @@ public class LacpGroupTbl
         	}	
          	catch (InterruptedException | ExecutionException | TimeoutException e)
          	{
-             		LOG.error("received interrupt " + e.toString());
+             		LOG.error("received interrupt{} " + e.toString());
 			retry =true;
 	 		trials++;
          	}
@@ -254,13 +255,13 @@ public class LacpGroupTbl
 		LOG.warn("lacpAddPort: origGroup is NULL"); 
                 return null;
         }
-        LOG.info("LACP: lacpAddPort ", nodeConnectorRef);
+        LOG.info("LACP: lacpAddPort {}", nodeConnectorRef);
 	GroupId groupId = origGroup.getGroupId();
 	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue();
 
         NodeConnectorId ncId = InstanceIdentifier.keyOf(ncInstId).getId();
 
-	LOG.info("lacpAddPort for group id " , groupId);
+	LOG.info("lacpAddPort for group id {}" , groupId);
 	if (ncId == null)
 	{
 		LOG.warn("LACP: lacpAddPort Node Connector ID is NULL");
@@ -279,8 +280,6 @@ public class LacpGroupTbl
         GroupKey groupkey = new GroupKey(groupId);
 
         InstanceIdentifier<Group> lacpGId = InstanceIdentifier.builder(Nodes.class).child(Node.class, nodeKey).augmentation(FlowCapableNode.class).child(Group.class, groupkey).toInstance();
-	LOG.info("lacpAddPort: lacpGid ", lacpGId);
-	LOG.info("lacpAddPort:  key " , groupkey);
 
 	Group updGroup = populateGroup(isUnicastGrp, nodeRef, nodeId, ncId, 
 				groupId, origGroup, addGroupId); 
@@ -430,10 +429,10 @@ public class LacpGroupTbl
 	}
 	if (origGroup == null)
         {
-		LOG.warn("lacpAddPort: origGroup is NULL");
+		LOG.warn("lacpRemPort: origGroup is NULL");
 		return null;
 	}
-        LOG.info("LACP: lacpAddPort ", nodeConnectorRef);
+        LOG.info("LACP: lacpRemPort {} ", nodeConnectorRef);
 	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue();
         GroupId groupId = origGroup.getGroupId();
 
@@ -442,7 +441,7 @@ public class LacpGroupTbl
 	if (ncId == null)
 	{
 		LOG.warn("ncId is NULL");
-		LOG.info("LACP: lacpAddPort Node Connector ID is NULL");
+		LOG.info("LACP: lacpRemPort Node Connector ID is NULL");
 		return null;
 	}
 	
@@ -450,7 +449,7 @@ public class LacpGroupTbl
 	NodeId nodeId = InstanceIdentifier.keyOf(nodeInstId).getId();
 	if (nodeId == null)
 	{
-		LOG.warn("LACP: lacpAddPort: nodeId is NULL");
+		LOG.warn("LACP: lacpRemPort: nodeId is NULL");
 		return null;
 	}
 	NodeRef nodeRef = new NodeRef(nodeInstId);
@@ -471,7 +470,7 @@ public class LacpGroupTbl
 
 	NodeKey nodeKey = new NodeKey(nodeId);
 
-
+    LOG.debug ("entering populatedelGroup");
 	GroupBuilder groupBuilder = new GroupBuilder();
 	Long origgid;
 
@@ -579,10 +578,10 @@ public class LacpGroupTbl
          }
          catch (InterruptedException | ExecutionException | TimeoutException e)
          {
-             	LOG.error("received interrupt " + e.toString());
+             	LOG.error("received interrupt {}" + e.toString());
          }
 
-	LOG.debug("updateGroup:returning "+isGroupUpdated);
+	LOG.debug("updateGroup:returning {}"+isGroupUpdated);
         return(isGroupUpdated);
 
     }
@@ -591,7 +590,7 @@ public class LacpGroupTbl
     {
         if (nodeConnectorRef == null)
             return;
-        LOG.info("LACP: lacpRemGroup ", nodeConnectorRef);
+        LOG.info("LACP: lacpRemGroup {}", nodeConnectorRef);
 	InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue();
 
         NodeConnectorId ncId = InstanceIdentifier.keyOf(ncInstId).getId();
@@ -677,7 +676,7 @@ public class LacpGroupTbl
          }
          catch (InterruptedException | ExecutionException | TimeoutException e)
          {
-             	LOG.error("received interrupt " + e.toString());
+             	LOG.error("received interrupt {}" + e.toString());
          }
 
          return(isGroupRemoved);
@@ -692,16 +691,16 @@ public class LacpGroupTbl
         Group updGroup ;
         if (origGroup == null)
         {
-                LOG.warn("lacpAddGroupId: origGroup is NULL");
+                LOG.warn("lacpAddRemGroupId: origGroup is NULL");
                 return null;
         }
         GroupId groupId = origGroup.getGroupId();
 
-        LOG.info("lacpAddGroupId for group id " , groupId);
+        LOG.info("lacpAddRemGroupId for group id {}" , groupId);
         NodeId nodeId = InstanceIdentifier.keyOf(nodeInstId).getId();
 	if (nodeId == null)
         {
-                LOG.warn("LACP: lacpAddGroupId: nodeId is NULL");
+                LOG.warn("LACP: lacpAddRemGroupId: nodeId is NULL");
                 return null;
         }
         NodeRef nodeRef = new NodeRef(nodeInstId);
@@ -709,8 +708,6 @@ public class LacpGroupTbl
         GroupKey groupkey = new GroupKey(groupId);
 
         InstanceIdentifier<Group> lacpGId = InstanceIdentifier.builder(Nodes.class).child(Node.class, nodeKey).augmentation(FlowCapableNode.class).child(Group.class, groupkey).toInstance();
-        LOG.info("lacpAddGroupId: lacpGid ", lacpGId);
-        LOG.info("lacpAddGroupId:  key " , groupkey);
 
         if (isAdd)
         {
@@ -723,10 +720,10 @@ public class LacpGroupTbl
                                           groupId, origGroup, newGroupId);
         }
         if (updGroup == null){
-                LOG.warn("lacpAddGroupId: updGroup is NULL");
+                LOG.warn("lacpAddRemGroupId: updGroup is NULL");
         }
 	else{
-                LOG.info("lacpAddGroupId updGroup is available proceeding to program it");
+                LOG.info("lacpAddRemGroupId updGroup is available proceeding to program it");
                 updateGroup(lacpGId, origGroup, updGroup , nodeInstId);
         }
         return updGroup;
