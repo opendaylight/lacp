@@ -757,6 +757,8 @@ public class LacpPort implements Comparable<LacpPort> {
         byte duplex = (byte) (result & LacpConst.DUPLEX_KEY_BITS);
         this.slaveSetSpeed(speed);
         this.slaveSetDuplex(duplex);
+        short key = (short)(result >> LacpConst.DUPLEX_KEY_BITS);
+        this.setActorAdminPortKey(key);
         
         FlowCapableNodeConnector flowCapNodeConn = portNC.getAugmentation(FlowCapableNodeConnector.class);
         ncMac = flowCapNodeConn.getHardwareAddress();
@@ -1928,7 +1930,6 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.isInitialized = true;
 		
 		setActorPortNumber(portId);
-		setPortAdminPortKey(adminKey);
 		actorOperPortKey = getActorAdminPortKey();
 		this.setActorSystemPriority(sysPri);
 		this.setActorPortPriority(portPri);
