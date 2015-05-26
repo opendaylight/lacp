@@ -270,7 +270,6 @@ public class LacpBond {
 		this.isLacpEnabled = false;
 		this.select = LacpConst.BOND_TYPE.BOND_STABLE;
 		this.sysPriority = sys_priority;
-		this.adminKey = key;
 		this.activeSince = null;
 		this.dirty = true;
                 lacpNodeRef = lacpNode;
@@ -331,7 +330,8 @@ public class LacpBond {
 			systemId ++;
 			this.systemIdMap.put(swId, systemId);
 		}
-		if (systemId == 1) {
+        if (slaveList.isEmpty())
+        {
 			/* Set Virtual MAC address for Bond */
 			this.virtualSysMacAddr = Arrays.copyOf(macAddr, LacpConst.ETH_ADDR_LEN);
 			this.virtualSysMacAddr[5] += bondInstanceId;			
@@ -339,6 +339,13 @@ public class LacpBond {
 		
 		LacpPort slave = LacpPort.newInstance((long)swId,portId, this, portPri, bpduInfo);
 
+        /* When the 1st port is added to the bond, get portkey from port
+         *  and save it as the key value for the bond. For the subsequent 
+         *  ports, verify if the portkey matches with the bond key value */
+        if (slaveList.isEmpty())
+        {
+		    this.adminKey = slave.getActorAdminPortKey();
+        }
 		portSlaveMap.put(portId, slave);
 		slaveList.add(slave);
 		Collections.sort(slaveList);
