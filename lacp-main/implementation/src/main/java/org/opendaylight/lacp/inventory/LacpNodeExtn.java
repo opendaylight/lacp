@@ -127,20 +127,21 @@ public class LacpNodeExtn
         this.nonLacpPortList.add(port);
         LOG.debug("adding non lacp port {} ", port);
     	synchronized (groupTbl)
-	    {
-        	if (firstGrpAdd)
-        	{
+        {
+            if (firstGrpAdd)
+            {
+                LOG.debug("creating non-lag group id {} ", groupId);
                 bcastGroup = groupTbl.lacpAddGroup (false, new NodeConnectorRef(port), bcastGroupId, null);
                 firstGrpAdd = false;
                 lacpBuilder.setNonLagGroupid(groupId);
-                LOG.debug("creating non-lag group id {} ", groupId);
+                LOG.debug("created non-lag group id {} ", groupId);
                 updateLacpNodeDS(nodeInstId);
-        	}
-        	else
-        	{
-            		bcastGroup = groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroup, null);
-        	}
-	    }
+            }
+            else
+            {
+                bcastGroup = groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroup, null);
+            }
+        }
         updateNodeConnectorLacpInfo (port);
         return true;
     }
@@ -222,7 +223,7 @@ public class LacpNodeExtn
         LacpPortType pType = this.containsPort(port);
         if (pType.equals(LacpPortType.NONE))
         {
-            LOG.error("got a a nodeConnector removal for non-existing nodeConnector {} ", port);
+            LOG.warn("got a a nodeConnector removal for non-existing nodeConnector {} ", port);
         }
         else if (pType.equals(LacpPortType.LACP_PORT))
         {
