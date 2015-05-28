@@ -18,8 +18,7 @@
   <description>Opendaylight Link Aggregation</description>
   <properties>
     <features.file>features.xml</features.file>
-    <!--<maven.test.skip>${skipTests}</maven.test.skip>-->
-    <maven.test.skip>true</maven.test.skip>
+    <maven.test.skip>${skipTests}</maven.test.skip>
   </properties>
   <dependencies>
     <dependency>

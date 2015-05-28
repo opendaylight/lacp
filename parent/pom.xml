@@ -24,7 +24,7 @@
     <yangtools.version>0.8.0-SNAPSHOT</yangtools.version>
     <jung2.version>2.0.1</jung2.version>
     <config.version>0.4.0-SNAPSHOT</config.version>
-    <openflow.plugin.version>0.1.0-SNAPSHOT</openflow.plugin.version>
+    <openflow.plugin.version>0.2.0-SNAPSHOT</openflow.plugin.version>
     <dlux.version>0.3.0-SNAPSHOT</dlux.version>
     <ovsdb.version>1.2.0-SNAPSHOT</ovsdb.version>
     <l2switch.version>0.3.0-SNAPSHOT</l2switch.version>
