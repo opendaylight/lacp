@@ -441,14 +441,14 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                     {
                         LOG.debug("port {} with state DOWN is enqued succesfully for port state procesing", ncId);
                     }else{
-                        LOG.error("port {} enque failed", ncId);
+                        LOG.warn("port {} enque failed", ncId);
                     }
 
                 }
             }
             else
             {
-                LOG.error("got a a nodeConnector removal for non-existing node {} ", nodeId);
+                LOG.warn("got a a nodeConnector removal for non-existing node {} ", nodeId);
             }
         }
     }
