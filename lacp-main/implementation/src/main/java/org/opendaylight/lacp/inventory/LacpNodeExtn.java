@@ -131,17 +131,17 @@ public class LacpNodeExtn
             if (firstGrpAdd)
             {
                 LOG.debug("creating non-lag group id {} ", groupId);
-                bcastGroup = groupTbl.lacpAddGroup (false, new NodeConnectorRef(port), bcastGroupId, null);
+                bcastGroup = groupTbl.lacpAddGroup (false, new NodeConnectorRef(port), bcastGroupId);
                 firstGrpAdd = false;
                 lacpBuilder.setNonLagGroupid(groupId);
                 LOG.debug("created non-lag group id {} ", groupId);
                 updateLacpNodeDS(nodeInstId);
-            }
-            else
-            {
-                bcastGroup = groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroup, null);
-            }
-        }
+        	}
+        	else
+        	{
+            		bcastGroup = groupTbl.lacpAddPort(false, new NodeConnectorRef(port), bcastGroup);
+        	}
+	    }
         updateNodeConnectorLacpInfo (port);
         return true;
     }
@@ -170,7 +170,7 @@ public class LacpNodeExtn
         if (result == true)
         {
             bcastGroup = groupTbl.lacpRemPort (bcastGroup, new NodeConnectorRef(port), 
-                                                false, null);
+                                                false);
         }
         return result;
     }
@@ -404,40 +404,4 @@ public class LacpNodeExtn
         return aggId;
     }
 
-    public GroupId getbcastGroupId()
-    {
-	return bcastGroupId;
-    }
-
-    public Group getbcastGroup()
-    {
-	return bcastGroup;
-    }
-
-    public Group setbcastGroup(NodeConnectorRef ncRef, GroupId lagGroupId, boolean isAdd)
-    {
-	synchronized (groupTbl)
-	{
-		if (ncRef == null)
-		{
-			LOG.warn("setbcastGroup: NodeConnector is NULL");
-			return null;
-		}
-		InstanceIdentifier<NodeConnector> ncInstId = (InstanceIdentifier<NodeConnector>)ncRef.getValue();
-
-		InstanceIdentifier<Node> nodeInstId = ncInstId.firstIdentifierOf(Node.class);
-		if (firstGrpAdd)
-		{
-			bcastGroup = groupTbl.lacpAddGroup (false, ncRef, bcastGroupId, lagGroupId);
-			firstGrpAdd = false;
-		}
-		else
-		{
-			bcastGroup = groupTbl.lacpAddRemGroupId(false, nodeInstId, bcastGroup,
-						lagGroupId, isAdd);
-		}
-	}
-
-	return bcastGroup;
-     }
 }
