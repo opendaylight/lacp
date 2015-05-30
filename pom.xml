@@ -13,7 +13,6 @@
     <module>parent</module>
     <module>lacp-main</module>
     <module>features</module>
-    <module>distribution/base</module>
     <module>distribution/karaf</module>
   </modules>
 </project>
