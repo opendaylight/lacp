@@ -111,6 +111,8 @@ public class LacpSystemTest
     {
         InstanceIdentifier<Node> nodeId = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("1"))).build();
         lacpSystem.addLacpNode(nodeId, lacpNode);
+        LacpNodeExtn lNode = lacpSystem.getLacpNode(nodeId);
+        lNode.setLacpNodeDeleteStatus(true);
         lacpSystem.removeLacpNode(nodeId);
         LacpNodeExtn getLacpNode = lacpSystem.getLacpNode(nodeId);
         assertNull(getLacpNode);

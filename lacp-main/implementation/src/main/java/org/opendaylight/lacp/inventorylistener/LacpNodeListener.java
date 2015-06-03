@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.P
 import org.opendaylight.lacp.Utils.*;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.lacp.queue.LacpPDUQueue;
 import org.opendaylight.lacp.queue.LacpPortStatus;
 import org.opendaylight.lacp.queue.LacpPDUPortStatusContainer;
@@ -69,7 +70,31 @@ public class LacpNodeListener implements OpendaylightInventoryListener
     public void removeNodeConnector (InstanceIdentifier<NodeConnector> ncId, NodeConnector nc)
     {
         LOG.info("got a node connec removed in lacp {} ", ncId);
-        lacpServiceNodeConnector.submit(new LacpNodeConnectorUpdate(EventType.DELETED, ncId, nc));
+
+        NodeConnectorId id = InstanceIdentifier.keyOf(ncId).getId();
+        if (id.getValue().contains("LOCAL"))
+        {
+            /* LOCAL port used for communicating with the controller is removed.
+             * that is the node is removed from the controller. If the node
+             *  deletion notification is not yet received, set the deleteStatus
+             *  flag here so that nodeconnector deletion and aggregator deletion
+             *  are not written to the datastore. Node Deletion message will be
+             *  posted on receiving the node removal notification */
+            InstanceIdentifier<Node> nodeId = ncId.firstIdentifierOf(Node.class);
+            LacpNodeExtn lacpNode = null;
+            synchronized (LacpSystem.class)
+            {
+                lacpNode = lacpSystem.getLacpNode(nodeId);
+            }
+            if ((lacpNode != null) && (lacpNode.getLacpNodeDeleteStatus() != true))
+            {
+                lacpNode.setLacpNodeDeleteStatus (true);
+            }
+        }
+        else
+        {
+            lacpServiceNode.submit(new LacpNodeConnectorUpdate(EventType.DELETED, ncId, nc));
+        }
     }
 
     public void updateNodeConnector (InstanceIdentifier<NodeConnector> ncId, NodeConnector nc)
@@ -81,7 +106,10 @@ public class LacpNodeListener implements OpendaylightInventoryListener
     public void removeNode (InstanceIdentifier<Node> nodeId)
     {
         LOG.info("got a node removed {} in lacp ", nodeId);
-        lacpServiceNode.submit(new LacpNodeUpdate(nodeId, null, EventType.DELETED));
+        /* for node removal notification, only message is posted to the RSM thread.
+         * Message posting is done in the md-sal worker thread context itself as to 
+         * avoid waiting for spawing a new thread for node deletion */
+        new LacpNodeUpdate(nodeId, null, EventType.DELETED).handleNodeDeletion(nodeId);
     }
 
     public void updateNode (InstanceIdentifier<Node> nodeId, Node node)
@@ -147,21 +175,23 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             }
         }
 
-        private void handleNodeUpdate (InstanceIdentifier<Node> lNode, Node node)
+        public void handleNodeUpdate (InstanceIdentifier<Node> lNode, Node node)
         {
             boolean addResult = false;
             LOG.debug ("entering handleNodeUpdate");
             InstanceIdentifier<Node> nodeId = lNode;
+            LacpNodeExtn lacpNode = null;
             synchronized (LacpSystem.class)
             {
                 LOG.debug ("verifying node is already available");
-                if (lacpSystem.getLacpNode(nodeId) != null)
-                {
-                    LOG.debug ("Node already notified to lacp. Ignoring it {}", nodeId);
-                    return;
-                }
+                lacpNode = lacpSystem.getLacpNode(nodeId);
             }
-            LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId);
+            if (lacpNode != null)
+            {
+                LOG.debug ("Node already notified to lacp. Ignoring it {}", nodeId);
+                return;
+            }
+            lacpNode = new LacpNodeExtn (nodeId);
             if (lacpNode == null)
             {
                 LOG.error("cannot add a lacp node for node {}", nodeId);
@@ -185,6 +215,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             List<NodeConnector> nodeConnectors = node.getNodeConnector();
             if(nodeConnectors == null)
             {
+                LOG.debug ("NodeConnectors are not available for the node. Returning");
                 return;
             }
             for(NodeConnector nc : nodeConnectors)
@@ -204,6 +235,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 InstanceIdentifier<NodeConnector> ncId =
                     InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
                       .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nc.getKey()).build();
+                LOG.debug ("adding non-lacp for port {} in NodeUpdate", ncId);
                 synchronized (lacpNode)
                 {
                     lacpNode.addNonLacpPort(ncId);
@@ -211,7 +243,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             }
         }
 
-        private void handleNodeDeletion (InstanceIdentifier<Node> lNode)
+        public void handleNodeDeletion (InstanceIdentifier<Node> lNode)
         {
             LOG.debug ("entering handleNodeDelete");
             InstanceIdentifier <Node> nodeId = lNode;
@@ -243,7 +275,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             {
                 LOG.debug ("RSM thread and pduQueue are not yet created for the switch {}, deleteing the node", nodeId);
                 LacpSystem lacpSystem = LacpSystem.getLacpSystem();
-                synchronized(lacpSystem)
+                synchronized (LacpSystem.class)
                 {
                     if (lacpSystem.removeLacpNode (swId) == null)
                     {
@@ -435,15 +467,11 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             }
             if (lacpNode != null)
             {
-                synchronized (lacpNode)
+                if(enqueuePortStatus(ncId, 2, hardReset))
                 {
-                    if(enqueuePortStatus(ncId, 2, hardReset))
-                    {
-                        LOG.debug("port {} with state DOWN is enqued succesfully for port state procesing", ncId);
-                    }else{
-                        LOG.warn("port {} enque failed", ncId);
-                    }
-
+                    LOG.debug("port {} with state DOWN is enqued succesfully for port state procesing", ncId);
+                }else{
+                    LOG.warn("port {} enque failed", ncId);
                 }
             }
             else

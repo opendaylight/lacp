@@ -801,6 +801,12 @@ public class LacpBond {
         DataBroker dataService = LacpUtil.getDataBrokerService();
 
         final WriteTransaction write = dataService.newWriteOnlyTransaction();
+
+        if (lacpNodeRef.getLacpNodeDeleteStatus() == true)
+        {
+            LOG.debug ("updation of the LACP Aggregator DS is skipped as the node is in process of deletion");
+            return;
+        }
         // TODO fill partner agg mac
 
         LOG.debug ("entering updateLacpAggregators for bond {} ", bondInstanceId);
@@ -877,7 +883,7 @@ public class LacpBond {
     }
     public boolean addActivePort (LacpPort lacpPort)
     {
-        LOG.debug ("entring addActivePort");
+        LOG.debug ("entring addActivePort for {}", lacpPort.getNodeConnectorId());
         if (activePortList.contains (lacpPort))
         {
             LOG.debug ("port {} is already present. returning false ", lacpPort.getNodeConnectorId());
@@ -903,7 +909,7 @@ public class LacpBond {
     }
     public boolean removeActivePort (LacpPort lacpPort)
     {
-        LOG.debug ("in removeActivePort");
+        LOG.debug ("in removeActivePort for {}, active portlist size {}", lacpPort.getNodeConnectorId(), activePortList.size());
         if (!(activePortList.contains (lacpPort)))
         {
             LOG.debug ("port {} is not present. returning false ", lacpPort.getNodeConnectorId());
@@ -917,6 +923,7 @@ public class LacpBond {
             LacpLogPort.deleteLogicalPort(this);
             lacpGroupTbl.lacpRemGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
             deleteLacpAggregatorDS();
+            LOG.debug ("cleaned up the aggregator info for agg {}", aggInstId);
         }
         else
         {
