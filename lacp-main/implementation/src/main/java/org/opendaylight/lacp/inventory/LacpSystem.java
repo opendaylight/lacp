@@ -54,6 +54,11 @@ public class LacpSystem
             LOG.warn ("Invalid node id {}, could not add the node to the lacpSystem", nodeId);
             return false;
         }
+        if (LACPNODE_MAP.containsKey (swId))
+        {
+            LOG.warn ("Node for id {} is already present in the lacpSystem", swId);
+            return false;
+        }
         LACPNODE_MAP.put(swId, lacpNode);
         return true;
     }
