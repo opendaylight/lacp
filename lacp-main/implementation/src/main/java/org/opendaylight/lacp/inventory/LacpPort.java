@@ -729,8 +729,7 @@ public class LacpPort implements Comparable<LacpPort> {
                lacpNCBuilder.setActorPortNumber(this.actorPortNumber);
                lacpNCBuilder.setPeriodicTime(LacpUtil.DEF_PERIODIC_TIME);
                lacpNCBuilder.setLacpAggRef(new AggRef(bond.getLacpAggInstId()));
-               LacpSystem lacpSystem = LacpSystem.getLacpSystem();
-               LacpNodeExtn lacpNode = lacpSystem.getLacpNode(swId);
+               LacpNodeExtn lacpNode = this.getLacpNode();
                if (lacpNode == null)
                {
                     LOG.warn("LacpNode {} associated with this port {} is null", swId, portId);
@@ -1539,8 +1538,7 @@ public class LacpPort implements Comparable<LacpPort> {
                         {
                             /* Lacp Pdu received in defaulted state. move to current.
                              *  change the port from non-lacp port to lacp port */
-                            LacpSystem lacpSystem = LacpSystem.getLacpSystem();
-                            LacpNodeExtn lacpNode = lacpSystem.getLacpNode(swId);
+                            LacpNodeExtn lacpNode = this.getLacpNode();
                             if (lacpNode == null)
                             {
                                 LOG.warn("LacpNode {} associated with this port {} is null", swId, portId);
@@ -1975,7 +1973,9 @@ public class LacpPort implements Comparable<LacpPort> {
     }
     public void updateNCLacpInfo ()
     {
-        if (this.resetStatus == false)
+        LacpNodeExtn lacpNode = this.getLacpNode();
+        if ((this.resetStatus == false)
+            || ((lacpNode != null) && (lacpNode.getLacpNodeDeleteStatus() == true)))
         {
             LOG.debug ("ResetStatus is disabled. not updating the ds for the port");
             return;
@@ -2085,5 +2085,11 @@ public class LacpPort implements Comparable<LacpPort> {
             this.setPeriodicWhileTimer(LacpConst.SLOW_PERIODIC_TIME);
         }
         return;
+    }
+    public LacpNodeExtn getLacpNode()
+    {
+        LacpSystem lacpSystem = LacpSystem.getLacpSystem();
+        LacpNodeExtn lacpNode = lacpSystem.getLacpNode(this.swId);
+        return lacpNode;
     }
 }

@@ -391,7 +391,7 @@ public class RSMThread implements Runnable
         LOG.debug("handleLacpNodeDeletion: removing the RSM thread created for this node");
         // remove from lacp system call deleteLacpNode.
         LacpSystem lacpSystem = LacpSystem.getLacpSystem();
-        synchronized(lacpSystem)
+        synchronized (LacpSystem.class)
         {
             if (lacpSystem.removeLacpNode (swId) == null)
             {

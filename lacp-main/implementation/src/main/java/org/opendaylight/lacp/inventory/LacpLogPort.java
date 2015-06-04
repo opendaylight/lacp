@@ -94,6 +94,13 @@ public class LacpLogPort
     
     public static void deleteLogicalPort (LacpBond lacpBond)
     {
+        LacpNodeExtn lacpNode = lacpBond.getLacpNode();
+        if (lacpNode.getLacpNodeDeleteStatus() == true)
+        {
+            LOG.debug ("Node for {} is deleted. Skipping the removal of the logical port {}", lacpNode.getNodeId(), lacpBond.getBondInstanceId());
+            return;
+        }
+
         NodeConnectorRemovedBuilder builder = new NodeConnectorRemovedBuilder()
                                                 .setNodeConnectorRef(lacpBond.getLogicalNCRef());
         notify.publish(builder.build());
