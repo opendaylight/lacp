@@ -44,8 +44,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregators;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregatorsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregatorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.lacpaggregator.ListOfLagPorts;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.lacpaggregator.ListOfLagPortsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.lacpaggregator.LagPortsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.lacpaggregator.LagPortsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.lacpaggregator.LagPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNode;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -272,25 +273,27 @@ public class LacpBond {
 		this.sysPriority = sys_priority;
 		this.activeSince = null;
 		this.dirty = true;
-                lacpNodeRef = lacpNode;
-                lacpAggBuilder = new LacpAggregatorsBuilder();
-                NodeRef node = new NodeRef(lacpNode.getNodeId());
-                lacpAggBuilder.setLagNodeRef(node);
-                logNodeConnRef = null;
-                InstanceIdentifier<Node> nodeId = lacpNode.getNodeId();
-                NodeId nId = nodeId.firstKeyOf(Node.class, NodeKey.class).getId();
-		bondInstanceId = lacpNode.getAndIncrementNextAggId();
-                aggInstId = InstanceIdentifier.builder(Nodes.class)
-                              .child (Node.class, new NodeKey (nId))
-                              .augmentation(LacpNode.class)
-                              .child (LacpAggregators.class, new LacpAggregatorsKey(bondInstanceId)).toInstance();
-                lacpGroupTbl = new LacpGroupTbl(LacpUtil.getSalGroupService(), LacpUtil.getDataBrokerService());
-                Long groupId = LacpUtil.getNextGroupId();
-                aggGrpId = new GroupId(groupId);
-                activePortList = new ArrayList<LacpPort>();
-                lacpAggBuilder.setLagGroupid(groupId);
-                lacpAggBuilder.setAggId(bondInstanceId);
-                lagGroup = null;
+
+        lacpNodeRef = lacpNode;
+        lacpAggBuilder = new LacpAggregatorsBuilder();
+        NodeRef node = new NodeRef(lacpNode.getNodeId());
+        lacpAggBuilder.setLagNodeRef(node);
+        logNodeConnRef = null;
+        InstanceIdentifier<Node> nodeId = lacpNode.getNodeId();
+        NodeId nId = nodeId.firstKeyOf(Node.class, NodeKey.class).getId();
+        bondInstanceId = lacpNode.getAndIncrementNextAggId();
+        aggInstId = InstanceIdentifier.builder(Nodes.class)
+                .child (Node.class, new NodeKey (nId))
+                .augmentation(LacpNode.class)
+                .child (LacpAggregators.class, new LacpAggregatorsKey(bondInstanceId)).toInstance();
+        lacpGroupTbl = new LacpGroupTbl(LacpUtil.getSalGroupService(), LacpUtil.getDataBrokerService());
+        Long groupId = LacpUtil.getNextGroupId();
+        aggGrpId = new GroupId(groupId);
+        activePortList = new ArrayList<LacpPort>();
+        lacpAggBuilder.setLagGroupid(groupId);
+        lacpAggBuilder.setAggId(bondInstanceId);
+        lacpAggBuilder.setKey(new LacpAggregatorsKey(bondInstanceId));
+        lagGroup = null;
 	}
 	
 	public int bondGetSysPriority() {
@@ -807,33 +810,7 @@ public class LacpBond {
             LOG.debug ("updation of the LACP Aggregator DS is skipped as the node is in process of deletion");
             return;
         }
-        // TODO fill partner agg mac
-
         LOG.debug ("entering updateLacpAggregators for bond {} ", bondInstanceId);
-        LacpAggregator lacpAgg = getActiveAgg();
-
-        MacAddress mac = new MacAddress(HexEncode.bytesToHexStringFormat(lacpAgg.getAggMacAddress()));
-        lacpAggBuilder.setActorAggMacAddress(mac);
-        int actorKey = lacpAgg.getActorOperAggKey();
-        lacpAggBuilder.setActorOperAggKey(actorKey);
-        lacpAggBuilder.setKey(new LacpAggregatorsKey(bondInstanceId));
-        //lacpAggBuilder.setPartnerAggMacAddress(new MacAddress(lacp
-        int partnerKey = lacpAgg.getPartnerOperAggKey();
-        lacpAggBuilder.setPartnerOperAggKey(partnerKey);
-        MacAddress pMac = new MacAddress(HexEncode.bytesToHexStringFormat(lacpAgg.getPartnerSystem()));
-        lacpAggBuilder.setPartnerSystemId(pMac);
-        lacpAggBuilder.setPartnerSystemPriority(lacpAgg.getPartnerSystemPriority());
-        ListOfLagPortsBuilder lagPortBuilder = new ListOfLagPortsBuilder();
-        List<ListOfLagPorts> lagPortList = new ArrayList<ListOfLagPorts>();
-        LOG.debug ("updating agg port list");
-        for(LacpPort lacpPortTmp : activePortList)
-        {
-            ncRef = new NodeConnectorRef (lacpPortTmp.getNodeConnectorId());
-            lagPortBuilder.setLacpPortRef(ncRef);
-            lagPortList.add(lagPortBuilder.build());
-            LOG.debug ("update agg ds {} for port {} ", bondInstanceId, ncRef);
-        }
-        lacpAggBuilder.setListOfLagPorts(lagPortList);
         LacpAggregators lacpAggs = lacpAggBuilder.build();
         
         LOG.debug ("writing the add ds");
@@ -854,7 +831,7 @@ public class LacpBond {
         });
         LOG.debug ("exiting updateLacpAggregators");
     }
-    public void deleteLacpAggregatorDS ()
+    public void deleteLacpAggregatorDS (InstanceIdentifier instId)
     {
         if (lacpNodeRef.getLacpNodeDeleteStatus() == true)
         {
@@ -864,8 +841,8 @@ public class LacpBond {
         DataBroker dataService = LacpUtil.getDataBrokerService();
         final WriteTransaction write = dataService.newWriteOnlyTransaction();
 
-        LOG.debug ("deleting the agg ds for bond {}", bondInstanceId);
-        write.delete(LogicalDatastoreType.OPERATIONAL, aggInstId);
+        LOG.debug ("deleting/updating the agg ds for bond {} for {}", bondInstanceId, instId);
+        write.delete(LogicalDatastoreType.OPERATIONAL, instId);
         final CheckedFuture result = write.submit();
         Futures.addCallback(result, new FutureCallback()
         {
@@ -883,6 +860,7 @@ public class LacpBond {
     }
     public boolean addActivePort (LacpPort lacpPort)
     {
+        List <LagPorts> lagPortList;
         LOG.debug ("entring addActivePort for {}", lacpPort.getNodeConnectorId());
         if (activePortList.contains (lacpPort))
         {
@@ -891,20 +869,44 @@ public class LacpBond {
         }
         LOG.debug ("adding port {} to bond{} ", lacpPort.getNodeConnectorId(), aggInstId);
         activePortList.add (lacpPort);
-        updateLacpAggregatorsDS();
+        LagPortsBuilder lagPort = new LagPortsBuilder();
+        long portId = lacpPort.slaveGetPortId();
+        lagPort.setKey (new LagPortsKey(portId));
+        lagPort.setLagPortId(portId);
+        NodeConnectorRef ncRef = new NodeConnectorRef (lacpPort.getNodeConnectorId());
+        lagPort.setLagPortRef (ncRef);
+
         if (activePortList.size() <= 1)
         {
             LOG.debug ("creating the logical port and adding lag group ");
             LacpLogPort.createLogicalPort(this);
             lagGroup = lacpGroupTbl.lacpAddGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
             lacpNodeRef.addLacpAggregator(this);
+            LacpAggregator lacpAgg = getActiveAgg();
+
+            MacAddress mac = new MacAddress(HexEncode.bytesToHexStringFormat(lacpAgg.getAggMacAddress()));
+            lacpAggBuilder.setActorAggMacAddress(mac);
+            int actorKey = lacpAgg.getActorOperAggKey();
+            lacpAggBuilder.setActorOperAggKey(actorKey);
+            int partnerKey = lacpAgg.getPartnerOperAggKey();
+            lacpAggBuilder.setPartnerOperAggKey(partnerKey);
+            MacAddress pMac = new MacAddress(HexEncode.bytesToHexStringFormat(lacpAgg.getPartnerSystem()));
+            lacpAggBuilder.setPartnerSystemId(pMac);
+            lacpAggBuilder.setPartnerSystemPriority(lacpAgg.getPartnerSystemPriority());
+    
+            lagPortList = new ArrayList<LagPorts>();
+            lagPortList.add(lagPort.build());
         }
         else
         {
             LOG.debug ("setting NCRef and adding port to lag group");
             lacpPort.setLogicalNCRef(logNodeConnRef);
             lagGroup = lacpGroupTbl.lacpAddPort(true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), lagGroup);
+            lagPortList = lacpAggBuilder.getLagPorts();
+            lagPortList.add(lagPort.build());
         }
+        lacpAggBuilder.setLagPorts(lagPortList);
+        updateLacpAggregatorsDS();
         return true;
     }
     public boolean removeActivePort (LacpPort lacpPort)
@@ -922,14 +924,23 @@ public class LacpBond {
             activePortList.remove (lacpPort);
             LacpLogPort.deleteLogicalPort(this);
             lacpGroupTbl.lacpRemGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
-            deleteLacpAggregatorDS();
+            deleteLacpAggregatorDS(this.aggInstId);
             LOG.debug ("cleaned up the aggregator info for agg {}", aggInstId);
         }
         else
         {
             activePortList.remove (lacpPort);
-            updateLacpAggregatorsDS();
-	    lagGroup = lacpGroupTbl.lacpRemPort (lagGroup, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true);
+    	    lagGroup = lacpGroupTbl.lacpRemPort (lagGroup, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true);
+            InstanceIdentifier<Node> nodeId = lacpNodeRef.getNodeId();
+            NodeId nId = nodeId.firstKeyOf(Node.class, NodeKey.class).getId();
+            long portId = lacpPort.slaveGetPortId();
+            InstanceIdentifier instId = InstanceIdentifier.builder(Nodes.class)
+                .child (Node.class, new NodeKey (nId))
+                .augmentation(LacpNode.class)
+                .child (LacpAggregators.class, new LacpAggregatorsKey(bondInstanceId))
+                .child (LagPorts.class, new LagPortsKey(portId)).toInstance();
+
+            deleteLacpAggregatorDS(instId);
         }
         synchronized (lacpNodeRef)
         {
@@ -995,6 +1006,4 @@ public class LacpBond {
         this.slaveCnt = 0;
         bondStateMachineUnlock();
    }
-
-    
 }

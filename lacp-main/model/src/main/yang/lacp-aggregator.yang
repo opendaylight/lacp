@@ -1,9 +1,12 @@
-/*								  	
- * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
- */
-
+/* 
+Copyright (c) 2014 Dell Inc. and others.  All rights reserved. 
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v1.0 which accompanies this distribution,
+and is available at http://www.eclipse.org/legal/epl-v10.html
+*/								  	
 module lacp-aggregator {
     namespace "urn:opendaylight:lacp:aggregator";
+    yang-version 1;
     prefix lacpagg;
     import yang-ext {prefix ext; revision-date "2013-07-09";}
     import opendaylight-inventory {prefix inv; revision-date "2013-08-19";}
@@ -13,8 +16,18 @@ module lacp-aggregator {
     }
     typedef agg-ref {
 	type instance-identifier;
-    }     
+    }
 
+   grouping lag-ports {
+     leaf lag-port-id {
+        type uint32;
+        description "Uniquely identifies the physical ports that part of the lacp aggregator interface";
+        }
+     leaf lag-port-ref {
+        type inv:node-connector-ref;
+        description "NodeConnector Reference of the physical ports that part of the lag interface";
+        }
+    }     
 
    grouping lacpaggregator {
 	leaf agg-id {
@@ -32,20 +45,13 @@ module lacp-aggregator {
 	    description "The oper key value associated with the aggregator(Assigned by the Actor/Partner)";
 	}
 	
-        list list-of-lag-ports {
-		leaf lacp-port-ref {
-            		type inv:node-connector-ref;
-            		description "The set of ports that belongs to the link aggregation group ";
-		}
-        } 
-
-
-	leaf partner-agg-mac-address {
-	    type yang:mac-address;
-	    description "The Mac address assigned to the aggregator(Assigned by admin/system policy)";
-	}
+    list lag-ports {
+        key "lag-port-id";
+        description "The set of ports that belong to this lag.";
+        uses lag-ports;
+    }
 	
-        leaf partner-system-id {
+    leaf partner-system-id {
 	    type yang:mac-address;
 	    description "The Mac address assigned to the remote system of which this aggregator is connected. If the aggregator has no ports, this variable is set to 0x00-00-00-00-00-00";
 	}
@@ -69,7 +75,6 @@ module lacp-aggregator {
         	type inv:node-ref;
             	description "The set of ports that belongs to the link aggregation group ";
 	}
-
     }
 
 }
