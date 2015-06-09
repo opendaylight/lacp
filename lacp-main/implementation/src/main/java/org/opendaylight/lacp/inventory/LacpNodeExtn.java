@@ -119,9 +119,13 @@ public class LacpNodeExtn
             LOG.debug ("getting a add port indication for LOCAL port. ignoring it");
             return false;
         }
-
-        if (this.nonLacpPortList.contains(port))
+        LacpPortType pType = this.containsPort(port);
+        if (pType != LacpPortType.NONE)
         {
+            if (pType == LacpPortType.LACP_PORT)
+            {
+                LOG.warn ("getting add non-lacp port for an lacp port without removing from lacp port list");
+            }
             return false;
         }
         this.nonLacpPortList.add(port);
