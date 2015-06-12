@@ -85,10 +85,6 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         LacpNodeListener nodeListener = LacpNodeListener.getNodeListenerInstance();
         portStatusListener = notificationService.registerNotificationListener(nodeListener);
 
-
-        LOG.debug("starting to read from data store");
-        lacpSystem.readDataStore(dataService);
-
         lacpPacketHandler = new LacpPacketHandler();
         LacpPacketHandler.setDataBrokerService(dataService);
         lacpPacketHandler.updateQueueId(LacpRxQueue.getLacpRxQueueId());
@@ -110,6 +106,9 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 	for (int i=0; i<6; i++) {
 		TxThrExecutor.submit(new TxProcessor(queueId,packetProcessingService));
 	}
+
+        LOG.debug("starting to read from data store");
+        lacpSystem.readDataStore(dataService);
 
         final class CloseLacpResources implements AutoCloseable {
         @Override

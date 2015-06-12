@@ -180,6 +180,12 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             boolean addResult = false;
             LOG.debug ("entering handleNodeUpdate");
             InstanceIdentifier<Node> nodeId = lNode;
+            long switchId = LacpUtil.getNodeSwitchId(nodeId);
+            if (switchId == -1L)
+            {
+                LOG.warn ("Node notification obtained {} is not for an openflow enabled node. Not adding it part of lacp system", nodeId);
+                return;
+            }
             LacpNodeExtn lacpNode = null;
             synchronized (LacpSystem.class)
             {
