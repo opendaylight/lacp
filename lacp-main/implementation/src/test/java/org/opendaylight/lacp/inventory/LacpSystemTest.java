@@ -101,7 +101,7 @@ public class LacpSystemTest
     @Test
     public void verifyAdd() throws Exception
     {
-        InstanceIdentifier<Node> nodeId = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("1"))).build();
+        InstanceIdentifier<Node> nodeId = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
         lacpSystem.addLacpNode(nodeId, lacpNode);
         LacpNodeExtn getLacpNode = lacpSystem.getLacpNode(nodeId);
         assertNotNull(getLacpNode);
@@ -109,7 +109,7 @@ public class LacpSystemTest
     @Test
     public void verifyRemove() throws Exception
     {
-        InstanceIdentifier<Node> nodeId = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("1"))).build();
+        InstanceIdentifier<Node> nodeId = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
         lacpSystem.addLacpNode(nodeId, lacpNode);
         LacpNodeExtn lNode = lacpSystem.getLacpNode(nodeId);
         lNode.setLacpNodeDeleteStatus(true);
@@ -148,13 +148,13 @@ public class LacpSystemTest
         nodeConnectors1.add(nc1);
         nodeConnectors1.add(nc2);
 
-        NodeId nodeId1 = new NodeId("1");
+        NodeId nodeId1 = new NodeId("openflow:1");
         Node node1 = new NodeBuilder().setId(nodeId1)
                         .setKey(new NodeKey(nodeId1))
                         .setNodeConnector(nodeConnectors1).build();
                   
         List<NodeConnector> nodeConnectors2 = new ArrayList<NodeConnector>();
-        NodeId nodeId2 = new NodeId("2");
+        NodeId nodeId2 = new NodeId("openflow:2");
         Node node2 = new NodeBuilder().setId(nodeId2)
                         .setKey(new NodeKey(nodeId2))
                         .setNodeConnector(nodeConnectors2).build();
@@ -188,7 +188,7 @@ public class LacpSystemTest
     public void verifyLacpPort() throws Exception
     {
         InstanceIdentifier<NodeConnector> ncId = InstanceIdentifier.builder(Nodes.class)
-                          .child(Node.class, new NodeKey(new NodeId("n1")))
+                          .child(Node.class, new NodeKey(new NodeId("openflow:1")))
                           .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
         LacpPort port = Mockito.mock(LacpPort.class);
         lacpNode.addLacpPort(ncId, port);
@@ -198,7 +198,7 @@ public class LacpSystemTest
     public void verifyNonLacpPort() throws Exception
     {
         InstanceIdentifier<NodeConnector> ncId = InstanceIdentifier.builder(Nodes.class)
-                          .child(Node.class, new NodeKey(new NodeId("n1")))
+                          .child(Node.class, new NodeKey(new NodeId("oepnflow:1")))
                           .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
         
         CheckedFuture result = Mockito.mock(CheckedFuture.class);

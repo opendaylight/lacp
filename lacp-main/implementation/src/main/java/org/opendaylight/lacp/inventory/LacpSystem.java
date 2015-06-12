@@ -148,6 +148,13 @@ public class LacpSystem
         {
             InstanceIdentifier<Node> nodeId 
                     = InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey()).build();
+        
+            Long switchId = LacpUtil.getNodeSwitchId(nodeId);
+            if (switchId.equals(INVALID_SWITCHID))
+            {
+                LOG.warn ("Node obtained {} is not an openflow enabled node. Not adding it part of lacp system", nodeId);
+                continue;
+            }
             LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId); 
             if (lacpNode == null) 
             { 

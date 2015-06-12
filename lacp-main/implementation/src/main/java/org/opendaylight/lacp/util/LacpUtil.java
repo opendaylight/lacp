@@ -48,9 +48,15 @@ public class LacpUtil
     }
     public static Long getNodeSwitchId (InstanceIdentifier<Node> nodeId)
     {
-        Long swId;
+        Long swId = -1L;
         NodeId nId = nodeId.firstKeyOf(Node.class, NodeKey.class).getId();
         String value = nId.getValue().toString();
+        boolean result = value.startsWith(NODE_URI_PREF);
+        if (result == false)
+        {
+            LOG.info ("Couldn't parse the node {}", value);
+            return swId;
+        }
         String num = value.replace(NODE_URI_PREF, "");
         try
         {
@@ -59,7 +65,6 @@ public class LacpUtil
         catch (NumberFormatException e)
         {
             LOG.warn ("Unable to obtain the switch id from the node id {}, switch id {}", nodeId, num);
-            swId = new Long ("-1");
         }
         return swId;
     }
