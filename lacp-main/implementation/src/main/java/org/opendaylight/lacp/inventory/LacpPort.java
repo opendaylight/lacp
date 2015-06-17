@@ -1314,8 +1314,6 @@ public class LacpPort implements Comparable<LacpPort> {
 				 bond.bondAggSelectionLogic();
 			 }
 			 
-		 } else {
-			 LOG.error("lacpDisbalePort: bad aggregator = {}", aggregator);
 		 }
 		isInitialized = false;
 		LOG.debug("Exiting lacpDisablePort for port={}",portId);
