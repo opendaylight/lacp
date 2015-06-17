@@ -917,6 +917,7 @@ public class LacpBond {
             LOG.debug ("port {} is not present. returning false ", lacpPort.getNodeConnectorId());
             return false;
         }
+        List <LagPorts> lagPortList;
         lacpPort.resetLacpParams();
         if (activePortList.size() == 1)
         {
@@ -926,6 +927,7 @@ public class LacpBond {
             lacpGroupTbl.lacpRemGroup (true, new NodeConnectorRef(lacpPort.getNodeConnectorId()), aggGrpId);
             deleteLacpAggregatorDS(this.aggInstId);
             LOG.debug ("cleaned up the aggregator info for agg {}", aggInstId);
+            lagPortList = new ArrayList<LagPorts>();
         }
         else
         {
@@ -934,6 +936,13 @@ public class LacpBond {
             InstanceIdentifier<Node> nodeId = lacpNodeRef.getNodeId();
             NodeId nId = nodeId.firstKeyOf(Node.class, NodeKey.class).getId();
             long portId = lacpPort.slaveGetPortId();
+            LagPortsBuilder lagPort = new LagPortsBuilder();
+            lagPort.setKey (new LagPortsKey(portId));
+            lagPort.setLagPortId(portId);
+            NodeConnectorRef ncRef = new NodeConnectorRef (lacpPort.getNodeConnectorId());
+            lagPort.setLagPortRef (ncRef);
+            lagPortList = lacpAggBuilder.getLagPorts();
+            lagPortList.remove(lagPort.build());
             InstanceIdentifier instId = InstanceIdentifier.builder(Nodes.class)
                 .child (Node.class, new NodeKey (nId))
                 .augmentation(LacpNode.class)
@@ -942,6 +951,7 @@ public class LacpBond {
 
             deleteLacpAggregatorDS(instId);
         }
+        lacpAggBuilder.setLagPorts(lagPortList);
         synchronized (lacpNodeRef)
         {
             lacpNodeRef.removeLacpPort(lacpPort.getNodeConnectorId(), false);
