@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.opendaylight.lacp</groupId>
     <artifactId>lacp-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-Lithium</version>
     <relativePath>../parent</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -14,13 +14,13 @@
   <artifactId>features-lacp</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0-Lithium</version>
   <description>Opendaylight Link Aggregation</description>
   <properties>
     <features.file>features.xml</features.file>
     <maven.test.skip>${skipTests}</maven.test.skip>
-    <openflow.plugin.version>0.1.0-SNAPSHOT</openflow.plugin.version>
-    <dlux.version>0.2.0-SNAPSHOT</dlux.version>
+    <openflow.plugin.version>0.1.0-Lithium</openflow.plugin.version>
+    <dlux.version>0.2.0-Lithium</dlux.version>
   </properties>
   <dependencies>
     <dependency>
@@ -72,13 +72,13 @@
     <dependency>
       <groupId>org.opendaylight.odlparent</groupId>
       <artifactId>features-test</artifactId>
-      <version>1.5.0-SNAPSHOT</version>
+      <version>1.5.0-Lithium</version>
     </dependency>
     <!-- dependency for opendaylight-karaf-empty for use by testing -->
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>opendaylight-karaf-empty</artifactId>
-      <version>1.5.0-SNAPSHOT</version>
+      <version>1.5.0-Lithium</version>
       <type>zip</type>
     </dependency>
   </dependencies>
@@ -133,7 +133,7 @@
           <systemPropertyVariables>
             <karaf.distro.groupId>org.opendaylight.controller</karaf.distro.groupId>
             <karaf.distro.artifactId>opendaylight-karaf-empty</karaf.distro.artifactId>
-            <karaf.distro.version>1.5.0-SNAPSHOT</karaf.distro.version>
+            <karaf.distro.version>1.5.0-Lithium</karaf.distro.version>
           </systemPropertyVariables>
           <dependenciesToScan>
            <dependency>org.opendaylight.odlparent:features-test</dependency>
