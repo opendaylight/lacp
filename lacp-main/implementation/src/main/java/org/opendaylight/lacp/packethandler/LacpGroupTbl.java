@@ -78,6 +78,7 @@ public class LacpGroupTbl
     private SalGroupService salGroupService;
     private DataBroker dataService;
     private final AtomicLong txNum = new AtomicLong();
+    private boolean removeDrop = false;
 
 
     public LacpGroupTbl (SalGroupService salGroupService, DataBroker dataService)
@@ -281,6 +282,7 @@ public class LacpGroupTbl
 			       Group origGroup) {
 
 	NodeKey nodeKey = new NodeKey(nodeId);
+	long bucketId = 1;
 
 
          GroupBuilder groupBuilder = new GroupBuilder();
@@ -302,12 +304,7 @@ public class LacpGroupTbl
         groupBuilder.setGroupName("LACP" + groupId);
         groupBuilder.setBarrier(false);
 
-        BucketsBuilder bucketBuilder = new BucketsBuilder();
         List<Bucket> bucketList = Lists.newArrayList();
-        BucketBuilder bucket = new BucketBuilder();
-        bucket.setBucketId(new BucketId((long) 1));
-        bucket.setKey(new BucketKey(new BucketId((long) 1)));
-        List<Action> bucketActionList = Lists.newArrayList();
 
 	Buckets origbuckets = origGroup.getBuckets();
 	NodeConnectorId origncId;
@@ -315,6 +312,12 @@ public class LacpGroupTbl
         /* put output action to the bucket */
         /* set order for new action and add to action list */
 	for (Bucket origbucket : origbuckets.getBucket()) {
+        	List<Action> bucketActionList = Lists.newArrayList();
+        	BucketsBuilder bucketBuilder = new BucketsBuilder();
+        	BucketBuilder bucket = new BucketBuilder();
+        	bucket.setBucketId(new BucketId((long) bucketId));
+        	bucket.setKey(new BucketKey(new BucketId((long) bucketId)));
+		bucketId++;
 		List<Action> origbucketActions = origbucket.getAction();
 		for (Action action : origbucketActions) {
 			if (action.getAction() instanceof OutputActionCase) {
@@ -334,8 +337,26 @@ public class LacpGroupTbl
 			}
 
 		   }
+
+		   if (!((bucketId == 2) && (removeDrop == true)))
+		   {
+        	   	bucket.setAction(bucketActionList);
+        	   	bucketList.add(bucket.build());
+		    }
 	    }
+
+	if (removeDrop == true)
+	{
+		removeDrop = false;
+	}
 				
+       	List<Action> bucketActionList = Lists.newArrayList();
+       	BucketsBuilder bucketBuilder = new BucketsBuilder();
+       	BucketBuilder bucket = new BucketBuilder();
+       	bucket.setBucketId(new BucketId((long) bucketId));
+       	bucket.setKey(new BucketKey(new BucketId((long) bucketId)));
+
+
          /* Create output action for this ncId*/
         OutputActionBuilder oab = new OutputActionBuilder();
        	oab.setOutputNodeConnector(ncId);
@@ -418,9 +439,9 @@ public class LacpGroupTbl
 
 	NodeKey nodeKey = new NodeKey(nodeId);
 
-    LOG.debug ("entering populatedelGroup");
+    	LOG.debug ("entering populatedelGroup");
 	GroupBuilder groupBuilder = new GroupBuilder();
-
+	long bucketId = 1;
 
 
          if (isUnicastGrp == true)
@@ -439,14 +460,17 @@ public class LacpGroupTbl
 	NodeConnectorId origncId;
 	BucketsBuilder bucketBuilder = new BucketsBuilder();
 	List<Bucket> bucketList = Lists.newArrayList();
-	BucketBuilder bucket = new BucketBuilder();
-	bucket.setBucketId(new BucketId((long) 1));
-	bucket.setKey(new BucketKey(new BucketId((long) 1)));
 
-        /* put output action to the bucket */
-	List<Action> bucketActionList = Lists.newArrayList();
 	/* set order for new action and add to action list */
 	for (Bucket origbucket : origbuckets.getBucket()) {
+        	/* put output action to the bucket */
+		boolean toRemove=false;
+		List<Action> bucketActionList = Lists.newArrayList();
+		BucketBuilder bucket = new BucketBuilder();
+		bucket.setBucketId(new BucketId((long) bucketId));
+		bucket.setKey(new BucketKey(new BucketId((long) bucketId)));
+		bucketId++;
+
 		List<Action> origbucketActions = origbucket.getAction();
 		for (Action action : origbucketActions) {
 			if (action.getAction() instanceof OutputActionCase) {
@@ -454,6 +478,7 @@ public class LacpGroupTbl
 				origncId = (NodeConnectorId) opAction.getOutputAction().getOutputNodeConnector();
 				if (opAction.getOutputAction().getOutputNodeConnector().equals(ncId)) {
 					LOG.info("Port is removed");
+					toRemove=true;
 				} else {
          				OutputActionBuilder oab = new OutputActionBuilder();
         				oab.setOutputNodeConnector(origncId);
@@ -466,10 +491,26 @@ public class LacpGroupTbl
 			}
 
 		   }
+		   if (toRemove == false)
+		   {
+        	   	bucket.setAction(bucketActionList);
+        	   	bucketList.add(bucket.build());
+		   }
 		
 	}
-        bucket.setAction(bucketActionList);
-        bucketList.add(bucket.build());
+
+	if (bucketId < 3)
+	{
+		List<Action> bucketActionList = Lists.newArrayList();
+		BucketBuilder bucket = new BucketBuilder();
+		bucket.setBucketId(new BucketId((long) 1));
+		bucket.setKey(new BucketKey(new BucketId((long) 1)));
+           	bucket.setAction(bucketActionList);
+           	bucketList.add(bucket.build());
+		removeDrop = true;
+	} 
+
+
         bucketBuilder.setBucket(bucketList);
         groupBuilder.setBuckets(bucketBuilder.build());
 	return(groupBuilder.build());
