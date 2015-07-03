@@ -364,6 +364,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 }
                 if (lacpNode == null)
                 {
+                    LOG.debug ("node not found returning here");
                     return;
                 }
                 synchronized (lacpNode)
@@ -473,11 +474,24 @@ public class LacpNodeListener implements OpendaylightInventoryListener
             }
             if (lacpNode != null)
             {
-                if(enqueuePortStatus(ncId, 2, hardReset))
+                LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
+                Long swId = lacpNode.getSwitchId();
+                if (pduQueue.isLacpQueuePresent(swId) == true)
                 {
-                    LOG.debug("port {} with state DOWN is enqued succesfully for port state procesing", ncId);
-                }else{
-                    LOG.warn("port {} enque failed", ncId);
+                    if(enqueuePortStatus(ncId, 2, hardReset))
+                    {
+                        LOG.debug("port {} with state DOWN is enqued succesfully for port state procesing", ncId);
+                    }else{
+                        LOG.warn("port {} enque failed", ncId);
+                    }
+                }
+                else
+                {
+                    LOG.debug ("giving port delete to the node directly");
+                    if (lacpNode.removeNonLacpPort(ncId) == false)
+                    {
+                        LOG.debug ("port is not available with the node {}", ncId);
+                    }
                 }
             }
             else
