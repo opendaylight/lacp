@@ -6,13 +6,35 @@
   <artifactId>lacp</artifactId>
   <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <prerequisites>
-    <maven>4.0</maven>
-  </prerequisites>
+
   <modules>
     <module>parent</module>
     <module>lacp-main</module>
     <module>features</module>
     <module>distribution/karaf</module>
   </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>3.1.1</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
