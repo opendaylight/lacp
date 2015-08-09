@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 import static org.junit.Assert.*;
 
 import org.junit.After;
@@ -14,7 +22,7 @@ import org.opendaylight.lacp.timer.Utils;
 public class LacpTimerQueueTest {
         private LacpTimerQueue tmrInst, tmrInst1;
         private TimerExpiryMessage  obj5,obj6,obj7,obj8,obj9,obj10,obj11,obj12,obj13,obj14,obj15,obj16;
-        
+
         @BeforeClass
         public static void setUpBeforeClass() throws Exception {
         }
@@ -51,7 +59,7 @@ public class LacpTimerQueueTest {
                  obj15 = new TimerExpiryMessage(3,30,
                                 Utils.timerWheeltype.PERIODIC_TIMER);
                  obj16 = new TimerExpiryMessage(4,40,
-                                Utils.timerWheeltype.PERIODIC_TIMER);           
+                                Utils.timerWheeltype.PERIODIC_TIMER);
         }
 
         @After
@@ -84,11 +92,11 @@ public class LacpTimerQueueTest {
                 tmrInst.enqueue(1L, obj10);
                 tmrInst.enqueue(1L, obj11);
                 tmrInst.enqueue(1L, obj12);
-                
+
                 tmrInst.enqueue(1L, obj13);
                 tmrInst.enqueue(1L, obj14);
                 tmrInst.enqueue(1L, obj15);
-                tmrInst.enqueue(1L, obj16);             
+                tmrInst.enqueue(1L, obj16);
 
 		assertNotNull(tmrInst.isLacpQueuePresent(1L));
         }
@@ -107,7 +115,7 @@ public class LacpTimerQueueTest {
                 tmrInst.addLacpQueue(2L);
                 tmrInst.addLacpQueue(3L);
                 tmrInst.addLacpQueue(4L);
-                tmrInst.addLacpQueue(5L);               
+                tmrInst.addLacpQueue(5L);
         }
 
         @Test
@@ -115,7 +123,7 @@ public class LacpTimerQueueTest {
                 tmrInst.deleteLacpQueue(1L);
                 tmrInst.deleteLacpQueue(2L);
                 tmrInst.deleteLacpQueue(3L);
-                tmrInst.deleteLacpQueue(4L);            
+                tmrInst.deleteLacpQueue(4L);
         }
 
         @Test

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 import static org.junit.Assert.*;
 
 import org.junit.After;
@@ -14,7 +22,7 @@ import org.mockito.Mockito;
 public class LacpPDUQueueTest {
         private LacpPDUQueue pduQueue, pduInst;
         private LacpPDUPortStatusContainer obj1,obj2,obj3,obj4, obj5;
-		
+
 
         @BeforeClass
         public static void setUpBeforeClass() throws Exception {
@@ -33,7 +41,7 @@ public class LacpPDUQueueTest {
          obj4 = Mockito.mock(LacpPDUPortStatusContainer.class);
          obj5 = Mockito.mock(LacpPDUPortStatusContainer.class);
 	 pduQueue.addLacpQueue(1L);
-	 pduQueue.enqueue(1L, obj1); 		
+	 pduQueue.enqueue(1L, obj1);
         }
 
         @After
@@ -58,7 +66,7 @@ public class LacpPDUQueueTest {
         public void testRead() throws Exception{
                 assertTrue(pduQueue.read(1L) != null);
         }
-	
+
 
         @Test
         public void testEnqueueLongLacpPDUPortStatusContainer() throws Exception{
@@ -98,8 +106,8 @@ public class LacpPDUQueueTest {
 		assertNotNull(pduQueue.isLacpQueuePresent(1L));
 		assertNotNull(pduQueue.isLacpQueuePresent(2L));
 		assertNotNull(pduQueue.isLacpQueuePresent(3L));
-		assertNotNull(pduQueue.isLacpQueuePresent(4L));		
-		assertNotNull(pduQueue.isLacpQueuePresent(5L));		
+		assertNotNull(pduQueue.isLacpQueuePresent(4L));
+		assertNotNull(pduQueue.isLacpQueuePresent(5L));
         }
 
         @Test

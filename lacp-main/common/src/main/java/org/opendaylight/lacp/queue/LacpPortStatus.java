@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.lacp.queue;
 
 import org.opendaylight.lacp.queue.LacpPDUPortStatusContainer.MessageType;
@@ -9,7 +17,7 @@ public class LacpPortStatus implements LacpPDUPortStatusContainer{
     private int portID;
     private int portStatus;
     public static final int PORT_STATUS_UP = 1;
-    public static final int PORT_STATUS_DOWN = 2; 
+    public static final int PORT_STATUS_DOWN = 2;
     private boolean resetFlag;
     private InstanceIdentifier<NodeConnector> ncId;
 
@@ -32,7 +40,7 @@ public class LacpPortStatus implements LacpPDUPortStatusContainer{
 
       public int getPortStatus(){
           return portStatus;
-      }  
+      }
     public boolean getPortResetStatus()
     {
         return this.resetFlag;

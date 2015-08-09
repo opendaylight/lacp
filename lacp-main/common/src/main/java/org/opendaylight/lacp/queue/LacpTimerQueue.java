@@ -1,5 +1,12 @@
-package org.opendaylight.lacp.queue;
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
+package org.opendaylight.lacp.queue;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +30,7 @@ public  class LacpTimerQueue {
 
     /*
      * Validity method to check if the queue is created or not.
-     */  
+     */
     public boolean isLacpQueuePresent(long switchId){
 
         boolean result = false;
@@ -37,7 +44,7 @@ public  class LacpTimerQueue {
     /*
      * The utility method enqueues the data to the Timer queue.
      * It creates the queue if it is not created.
-     */  
+     */
     public boolean enqueue(long switchId, TimerExpiryMessage pdu){
         boolean result = false;
         LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LACP_TIMER_QUEUE_MAP.get(switchId);
@@ -50,14 +57,14 @@ public  class LacpTimerQueue {
         synchronized(this.LACP_TIMER_QUEUE_MAP.get(switchId)){
             LACP_TIMER_QUEUE_MAP.get(switchId).enqueue(pdu);
             result = true;
-        }	
+        }
 
         return result;
     }
 
     /*
      * Dequeues the data from the Timer queue
-     */  
+     */
     public TimerExpiryMessage dequeue(long switchId){
         TimerExpiryMessage obj = null;
         LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LACP_TIMER_QUEUE_MAP.get(switchId);
@@ -71,8 +78,8 @@ public  class LacpTimerQueue {
         }
 
         /*
-         * Adds a new Timer queue	 
-         */ 	
+         * Adds a new Timer queue
+         */
         public boolean addLacpQueue(long switchId){
             boolean result = true;
             LacpQueue<TimerExpiryMessage> lacpTimerQueueId = LACP_TIMER_QUEUE_MAP.get(switchId);
@@ -88,7 +95,7 @@ public  class LacpTimerQueue {
          * Deletes all the enties in the Timer queue.
          * It also cleans the hash map entry for the
          * corresponding PDU queue.
-         */ 	 
+         */
         public boolean deleteLacpQueue(long switchId){
             boolean result = false;
 
@@ -118,7 +125,7 @@ public  class LacpTimerQueue {
 
         /*
          * Utility Method to find the size of the queue
-         */ 	 
+         */
         public long getLacpQueueSize(long switchId){
 
             long size = 0;

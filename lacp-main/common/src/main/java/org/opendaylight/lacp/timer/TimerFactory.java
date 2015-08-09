@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.lacp.timer;
 
 import java.util.concurrent.TimeUnit;
@@ -12,19 +20,19 @@ import java.util.HashMap;
 import io.netty.util.TimerTask;
 
 	public final class TimerFactory {
-		
+
         private static Map<Utils.timerWheeltype, LacpWheelTimer> timerWheelStore =
 								new HashMap<Utils.timerWheeltype, LacpWheelTimer>();
 	public static final class LacpWheelTimer {
-	    	
+
 	private Timer currentWhileTimerWheel = null;
 	private Timer waitWhileTimerWheel = null;
 	private Timer periodicTimerWheel = null;
-			
-			
+
+
 	private LacpWheelTimer(Utils.timerWheeltype wheelTimerType) {
-	        	
-	        	
+
+
 		        switch(wheelTimerType){
 		        	case CURRENT_WHILE_TIMER:
 		        	{
@@ -47,15 +55,15 @@ import io.netty.util.TimerTask;
 		        	}
 		        }
 	}
-	        
+
 	public static LacpWheelTimer getInstance(Utils.timerWheeltype wheelTimerType) {
-	    	
+
 	    	synchronized (TimerFactory.class) {
-	   	
+
 	    		LacpWheelTimer instance = null;
 	    		instance = timerWheelStore.get(wheelTimerType);
 		        switch(wheelTimerType){
-		      	
+
 		        	case CURRENT_WHILE_TIMER:
 		        	{
 		        		if(instance == null){
@@ -71,7 +79,7 @@ import io.netty.util.TimerTask;
 		        			timerWheelStore.put(Utils.timerWheeltype.WAIT_WHILE_TIMER, instance);
 		        		}else {
 		        		}
-		        		
+
 		        		break;
 		        	}
 		        	case PERIODIC_TIMER:
@@ -88,11 +96,11 @@ import io.netty.util.TimerTask;
 		        	}
 
 		        } //end of switch
-	        	return instance;	            
+	        	return instance;
 	        } //end of synchronized block
-	    	
+
 	    } //end of getInstance
-	    
+
 	    public Timeout registerPortForCurrentWhileTimer(TimerTask task, long delay, TimeUnit unit){
 		if(currentWhileTimerWheel != null){
 			synchronized(currentWhileTimerWheel) {
@@ -101,9 +109,9 @@ import io.netty.util.TimerTask;
 		}
 		return null;
 	    }
-	    
+
 	    public Timeout registerPortForWaitWhileTimer(TimerTask task, long delay, TimeUnit unit){
-	    	
+
 		if(waitWhileTimerWheel != null){
 	    		synchronized(waitWhileTimerWheel){
 				return waitWhileTimerWheel.newTimeout(task, delay, unit);
@@ -111,7 +119,7 @@ import io.netty.util.TimerTask;
 	    	}
 		return null;
 	    }
-	    
+
 	    public Timeout registerPortForPeriodicTimer(TimerTask task, long delay, TimeUnit unit){
 		if(periodicTimerWheel != null){
 	    		synchronized(periodicTimerWheel){
@@ -149,6 +157,6 @@ import io.netty.util.TimerTask;
 		    		}
 	    		}
 		}
-	    }    
+	    }
 	}
 }

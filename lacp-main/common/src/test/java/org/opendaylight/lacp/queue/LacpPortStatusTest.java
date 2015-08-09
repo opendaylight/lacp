@@ -1,4 +1,10 @@
-
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 import static org.junit.Assert.*;
 
@@ -30,7 +36,7 @@ public class LacpPortStatusTest {
 	InstanceIdentifier<NodeConnector> nodeConnectorId;
         LacpQueue<LacpPDUPortStatusContainer> lacpQ;
         LacpPDUPortStatusContainer obj1, obj2, obj3, obj4;
-        
+
         @BeforeClass
         public static void setUpBeforeClass() throws Exception {
         }
@@ -71,16 +77,16 @@ public class LacpPortStatusTest {
         public void testgetPortResetStatus() throws Exception {
                 assertTrue(portStatus.getPortResetStatus() == true);
         }
-        
+
         @Test
         public void testgetNodeConnectorInstanceId() throws Exception {
                 assertTrue(portStatus.getNodeConnectorInstanceId() == nodeConnectorId);
-        } 
-        
+        }
+
 
         @Test
         public void testgetgetMessageType() throws Exception {
                 assertTrue(portStatus.getMessageType() == LacpPDUPortStatusContainer.MessageType.LACP_PORT_STATUS_MSG);
-        }  
+        }
 
 }

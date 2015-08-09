@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 import static org.junit.Assert.*;
 
@@ -14,7 +21,7 @@ import org.opendaylight.lacp.timer.TimerFactory.LacpWheelTimer;
 
 public class TimerFactoryTest {
 	LacpWheelTimer instance1, instance2, instance3;
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -42,12 +49,12 @@ public class TimerFactoryTest {
 		obj=instance1.registerPortForWaitWhileTimer(objPort, 5, TimeUnit.SECONDS);
 //		obj.cancel();
 		instance1.CancelPortForWaitWhileTimer(obj);
-	
+
 		PortPeriodicTimerRegister objPort1 = new PortPeriodicTimerRegister((short)10,1L);
 		obj=instance1.registerPortForWaitWhileTimer(objPort1, 5, TimeUnit.SECONDS);
 //		obj.cancel();
 		instance1.CancelPortForPeriodicTimer(obj);
-		
+
 		PortCurrentWhileTimerRegister objPort2 = new PortCurrentWhileTimerRegister((short)10,1L);
 		obj=instance1.registerPortForWaitWhileTimer(objPort2, 5, TimeUnit.SECONDS);
 		instance1.CancelCurrentWhileTimer(obj);

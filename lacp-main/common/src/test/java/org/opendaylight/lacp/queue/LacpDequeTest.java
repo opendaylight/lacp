@@ -1,4 +1,10 @@
-
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 import static org.junit.Assert.*;
 
@@ -15,7 +21,7 @@ import org.mockito.Mockito;
 public class LacpDequeTest {
         LacpDeque<LacpPDUPortStatusContainer> lacpQ;
         LacpPDUPortStatusContainer obj1, obj2, obj3, obj4;
-        
+
         @BeforeClass
         public static void setUpBeforeClass() throws Exception {
         }
@@ -49,13 +55,13 @@ public class LacpDequeTest {
                 lacpQ.enqueue(obj3);
                 lacpQ.enqueue(obj4);
         }
-		
+
 	@Test
 	public void testAddFirst() throws Exception {
                 lacpQ.enqueue(obj2);
                 lacpQ.enqueue(obj3);
 		lacpQ.addFirst(obj4);
-		assertTrue(lacpQ.dequeue() == obj4);	
+		assertTrue(lacpQ.dequeue() == obj4);
 	}
 
         @Test

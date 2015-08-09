@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.lacp.queue;
 
 import java.util.Map;
@@ -14,7 +22,7 @@ public  class LacpPDUQueue {
 
     /*
      * The LacpPDUqueue is a singleton class.
-     */	
+     */
     public static LacpPDUQueue getLacpPDUQueueInstance(){
         return INSTANCE;
     }
@@ -34,7 +42,7 @@ public  class LacpPDUQueue {
     /*
      * The utility method enqueues the data to the PDU queue.
      * It creates the queue if it is not created.
-     */	
+     */
     public boolean enqueue(Long switchId, LacpPDUPortStatusContainer pdu){
         boolean result = false;
         LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId;
@@ -50,7 +58,7 @@ public  class LacpPDUQueue {
 
     /*
      * Dequeues the data from the PDU queue
-     */ 	
+     */
     public LacpPDUPortStatusContainer dequeue(Long switchId){
         LacpPDUPortStatusContainer obj = null;
         LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId = LACP_PDU_QUEUE_MAP.get(switchId);
@@ -63,7 +71,7 @@ public  class LacpPDUQueue {
         return obj;
     }
 
-    //Adds a new PDU queue	
+    //Adds a new PDU queue
     public boolean addLacpQueue(long switchId){
         boolean result = true;
         LacpDeque<LacpPDUPortStatusContainer> lacpPDUQueueId = LACP_PDU_QUEUE_MAP.get(switchId);
@@ -77,9 +85,9 @@ public  class LacpPDUQueue {
 
     /*
      * Deletes all the enties in the PDU queue.
-     * It also cleans the hash map entry for the 
+     * It also cleans the hash map entry for the
      * corresponding PDU queue.
-     */ 	
+     */
     public boolean deleteLacpQueue(long switchId){
         boolean result = false;
 
@@ -118,7 +126,7 @@ public  class LacpPDUQueue {
                 obj = LACP_PDU_QUEUE_MAP.get(switchId).read();
             }
         }
-        return obj;	
+        return obj;
     }
 
     //Size of the queue

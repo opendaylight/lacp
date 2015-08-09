@@ -1,11 +1,19 @@
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.lacp.queue;
 
 import java.util.ArrayList;
 import org.opendaylight.lacp.queue.LacpPortInfo;
 
 public  class LacpTxQueue {
-    private static final ArrayList<LacpQueue<LacpPortInfo>>  LACP_TX_QUEUE_ARR = 
-        new ArrayList<LacpQueue<LacpPortInfo>>();					
+    private static final ArrayList<LacpQueue<LacpPortInfo>>  LACP_TX_QUEUE_ARR =
+        new ArrayList<LacpQueue<LacpPortInfo>>();
     private static final LacpTxQueue INSTANCE = new LacpTxQueue();
 
     public static enum QueueType
@@ -27,7 +35,7 @@ public  class LacpTxQueue {
 
     /*
      * The LacpTxQueue is a singleton class.
-     */  
+     */
     public static LacpTxQueue getLacpTxQueueInstance()
     {
         return INSTANCE;
@@ -54,15 +62,15 @@ public  class LacpTxQueue {
 
     /*
      * Validity method to check if the queue is created or not.
-     */ 
+     */
     public boolean isLacpQueuePresent(QueueType queueType)
     {
         boolean result = false;
 
-        if((!LACP_TX_QUEUE_ARR.isEmpty()) && 
+        if((!LACP_TX_QUEUE_ARR.isEmpty()) &&
                 LACP_TX_QUEUE_ARR.get(getQueueId(queueType)) != null){
             result = true;
-        }           
+        }
         return result;
     }
 
@@ -106,8 +114,8 @@ public  class LacpTxQueue {
     }
 
     /*
-     * Adds a new Transmit queue 
-     */ 
+     * Adds a new Transmit queue
+     */
     public boolean addLacpQueue(QueueType queueType){
         boolean result = true;
         LacpQueue<LacpPortInfo> lacpTxQueue = new LacpQueue<LacpPortInfo>();
@@ -118,9 +126,9 @@ public  class LacpTxQueue {
 
     /*
      * Deletes all the enties in the Tx queue.
-     * It also cleans the arraylist entry for the 	
+     * It also cleans the arraylist entry for the
      * corresponding PDU queue.
-     */ 
+     */
     public boolean deleteLacpQueue(QueueType queueType){
         boolean result = false;
 
