@@ -1,10 +1,10 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   * This program and the accompanying materials are made available under the
- *    * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *     * and is available at http://www.eclipse.org/legal/epl-v10.html
- *      *
- *       */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.lacp.core;
 
@@ -17,18 +17,18 @@ public class LacpSysKeyInfo {
 	private static final Logger LOG = LoggerFactory.getLogger(LacpSysKeyInfo.class);
 	byte[] systemId;
 	short lacpKey;
-	
+
 	public LacpSysKeyInfo() {
 		this.systemId = new byte[LacpConst.ETH_ADDR_LEN];
 		this.lacpKey = 1;
 	}
-	
+
 	public LacpSysKeyInfo(byte[] systemId, short lacpKey) {
 		super();
 		this.systemId = Arrays.copyOf(systemId, LacpConst.ETH_ADDR_LEN);
 		this.lacpKey = lacpKey;
 	}
-	
+
 	public byte[] getSystemId() {
 		return systemId;
 	}
@@ -41,7 +41,7 @@ public class LacpSysKeyInfo {
 	public void setLacpKey(short lacpKey) {
 		this.lacpKey = lacpKey;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "LacpSysKeyInfo [systemId=" + LacpConst.toHex(systemId)

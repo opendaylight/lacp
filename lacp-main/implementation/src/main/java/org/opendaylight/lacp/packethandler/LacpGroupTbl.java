@@ -1,10 +1,10 @@
 /*
- *  * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   *
- *    * This program and the accompanying materials are made available under the
- *     * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *      * and is available at http://www.eclipse.org/legal/epl-v10.html
- *       */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.lacp.grouptbl;
 
@@ -109,7 +109,7 @@ public class LacpGroupTbl
 		LOG.warn("LACP: lacpAddGroup Node Connector ID is NULL");
 		return null;
 	}
-	
+
 	InstanceIdentifier<Node> nodeInstId = ncInstId.firstIdentifierOf(Node.class);
 	NodeId nodeId = InstanceIdentifier.keyOf(nodeInstId).getId();
 	if (nodeId == null)
@@ -124,8 +124,8 @@ public class LacpGroupTbl
     }
 
 
-    //private boolean addGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId, 
-    private Group addGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId, 
+    //private boolean addGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId,
+    private Group addGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId,
 			     NodeConnectorId ncId, GroupId groupId) {
 
         boolean isGroupAdded = true, retry=false;
@@ -207,13 +207,13 @@ public class LacpGroupTbl
 				retgrp.setBarrier(groupBuilder.isBarrier());
 				retgrp.setBuckets(groupBuilder.getBuckets());
 				return retgrp.build();
-               		}	
+               		}
                		else {
                    		LOG.error("LACP: Group Additon Failed.");
                     		isGroupAdded = false;
 	 			trials++;
                		}
-        	}	
+        	}
          	catch (InterruptedException | ExecutionException | TimeoutException e)
          	{
              		LOG.error("received interrupt{} " + e.toString());
@@ -228,14 +228,14 @@ public class LacpGroupTbl
 
 
 
-    public Group lacpAddPort(boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef, 
+    public Group lacpAddPort(boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef,
 			   Group  origGroup) {
 
         if (nodeConnectorRef == null)
             return null;
 	if (origGroup == null)
         {
-		LOG.warn("lacpAddPort: origGroup is NULL"); 
+		LOG.warn("lacpAddPort: origGroup is NULL");
                 return null;
         }
         LOG.info("LACP: lacpAddPort {}", nodeConnectorRef);
@@ -250,7 +250,7 @@ public class LacpGroupTbl
 		LOG.warn("LACP: lacpAddPort Node Connector ID is NULL");
 		return null;
 	}
-	
+
 	InstanceIdentifier<Node> nodeInstId = ncInstId.firstIdentifierOf(Node.class);
 	NodeId nodeId = InstanceIdentifier.keyOf(nodeInstId).getId();
 	if (nodeId == null)
@@ -264,8 +264,8 @@ public class LacpGroupTbl
 
         InstanceIdentifier<Group> lacpGId = InstanceIdentifier.builder(Nodes.class).child(Node.class, nodeKey).augmentation(FlowCapableNode.class).child(Group.class, groupkey).toInstance();
 
-	Group updGroup = populateGroup(isUnicastGrp, nodeRef, nodeId, ncId, 
-				groupId, origGroup); 
+	Group updGroup = populateGroup(isUnicastGrp, nodeRef, nodeId, ncId,
+				groupId, origGroup);
 	if (updGroup == null){
 		LOG.warn("lacpAddPort: updGroup is NULL");
 	}
@@ -349,7 +349,7 @@ public class LacpGroupTbl
 	{
 		removeDrop = false;
 	}
-				
+
        	List<Action> bucketActionList = Lists.newArrayList();
        	BucketsBuilder bucketBuilder = new BucketsBuilder();
        	BucketBuilder bucket = new BucketBuilder();
@@ -388,10 +388,10 @@ public class LacpGroupTbl
 	}
 	LOG.warn("readgrp returning null");
 	return null;
-		
+
    }
 
-   public Group lacpRemPort(Group origGroup, NodeConnectorRef nodeConnectorRef, 
+   public Group lacpRemPort(Group origGroup, NodeConnectorRef nodeConnectorRef,
 				boolean isUnicastGrp) {
         if (nodeConnectorRef == null){
             return null;
@@ -413,7 +413,7 @@ public class LacpGroupTbl
 		LOG.info("LACP: lacpRemPort Node Connector ID is NULL");
 		return null;
 	}
-	
+
 	InstanceIdentifier<Node> nodeInstId = ncInstId.firstIdentifierOf(Node.class);
 	NodeId nodeId = InstanceIdentifier.keyOf(nodeInstId).getId();
 	if (nodeId == null)
@@ -426,15 +426,15 @@ public class LacpGroupTbl
         GroupKey groupkey = new GroupKey(groupId);
 
         InstanceIdentifier <Group> lacpGId = InstanceIdentifier.create(Nodes.class).child(Node.class, nodeKey).augmentation(FlowCapableNode.class).child(Group.class, groupkey);
-	Group updGroup = populatedelGroup(isUnicastGrp, nodeRef, nodeId, ncId, 
+	Group updGroup = populatedelGroup(isUnicastGrp, nodeRef, nodeId, ncId,
 						groupId, origGroup);
 	updateGroup(lacpGId, origGroup, updGroup , nodeInstId);
 	return updGroup;
 
     }
 
-    public Group populatedelGroup(boolean isUnicastGrp, NodeRef nodeRef, 
-				  NodeId nodeId, NodeConnectorId ncId, 
+    public Group populatedelGroup(boolean isUnicastGrp, NodeRef nodeRef,
+				  NodeId nodeId, NodeConnectorId ncId,
 				  GroupId groupId, Group origGroup) {
 
 	NodeKey nodeKey = new NodeKey(nodeId);
@@ -496,7 +496,7 @@ public class LacpGroupTbl
         	   	bucket.setAction(bucketActionList);
         	   	bucketList.add(bucket.build());
 		   }
-		
+
 	}
 
 	if (bucketId < 3)
@@ -508,7 +508,7 @@ public class LacpGroupTbl
            	bucket.setAction(bucketActionList);
            	bucketList.add(bucket.build());
 		removeDrop = true;
-	} 
+	}
 
 
         bucketBuilder.setBucket(bucketList);
@@ -536,8 +536,8 @@ public class LacpGroupTbl
 		LOG.debug("updateGroup: orig group is not null setting it");
         	groupBuilder.setOriginalGroup((new OriginalGroupBuilder(origGroup)).build());
 	}
-	
-	
+
+
         try {
              	Future<RpcResult<UpdateGroupOutput>>  result = salGroupService.updateGroup(groupBuilder.build());
                	if (result.get (5, TimeUnit.SECONDS).isSuccessful () == true)
@@ -574,7 +574,7 @@ public class LacpGroupTbl
 		LOG.warn("LACP: lacpRemGroup Node Connector ID is NULL");
 		return;
 	}
-	
+
 	InstanceIdentifier<Node> nodeInstId = ncInstId.firstIdentifierOf(Node.class);
 	NodeId nodeId = InstanceIdentifier.keyOf(nodeInstId).getId();
 	if (nodeId == null)
@@ -588,7 +588,7 @@ public class LacpGroupTbl
     }
 
 
-    private boolean remGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId, 
+    private boolean remGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId,
 			     NodeConnectorId ncId, GroupId  groupId ) {
 
 

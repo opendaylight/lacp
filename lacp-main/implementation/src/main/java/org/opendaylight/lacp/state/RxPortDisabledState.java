@@ -1,10 +1,10 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   * This program and the accompanying materials are made available under the
- *    * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *     * and is available at http://www.eclipse.org/legal/epl-v10.html
- *      *
- *       */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.lacp.state;
 
@@ -28,11 +28,11 @@ public class RxPortDisabledState extends RxState {
 		obj.setState(this);
 		LOG.debug("Exiting RxPortDisabledState executeStateAction method");
 	}
-	
+
 	public LacpConst.RX_STATES getStateFlag(){
 		return stateFlag;
 	}
-	
+
 	public void setStateFlag(LacpConst.RX_STATES state){
 		stateFlag = state;
 	}

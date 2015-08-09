@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.lacp.state;
 
 import static org.junit.Assert.*;
@@ -20,7 +28,7 @@ public class MuxDetachedStateTest {
 	MuxContext context;
 	MuxDetachedState muxState;
 	MuxState stateObj;
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -61,6 +69,6 @@ public class MuxDetachedStateTest {
 
 	@Test
 	public void testMuxDetachedState() throws Exception {
-		assertEquals(LacpConst.MUX_STATES.MUX_DETACHED, muxState.getStateFlag());			
+		assertEquals(LacpConst.MUX_STATES.MUX_DETACHED, muxState.getStateFlag());
 	}
 }

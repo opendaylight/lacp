@@ -1,5 +1,12 @@
-package org.opendaylight.lacp.state;
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
+package org.opendaylight.lacp.state;
 
 import static org.junit.Assert.*;
 
@@ -38,7 +45,7 @@ public class RxPortDisabledStateTest {
         context = new RxContext();
         rxState = new RxPortDisabledState();
         stateObj = new RxState();
-	stateObj.setStateFlag(LacpConst.RX_STATES.RX_PORT_DISABLED);		
+	stateObj.setStateFlag(LacpConst.RX_STATES.RX_PORT_DISABLED);
 	}
 
 	@After
@@ -60,7 +67,7 @@ public class RxPortDisabledStateTest {
 	public void testExecuteStateAction() throws Exception {
 		stateObj.setStateFlag(LacpConst.RX_STATES.RX_PORT_DISABLED);
 		context.setState(stateObj);
-//		rxState.executeStateAction(context, port,bpdu);		
+//		rxState.executeStateAction(context, port,bpdu);
 	}
 
 	@Test

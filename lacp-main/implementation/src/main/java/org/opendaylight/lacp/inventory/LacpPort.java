@@ -1,8 +1,9 @@
 /*
- *  Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *  This program and the accompanying materials are made available under the
- *  terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *  and is available at http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
 package org.opendaylight.lacp.inventory;
@@ -51,7 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 
 import org.opendaylight.lacp.grouptbl.LacpGroupTbl;
- 
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.AggRef;
 import org.opendaylight.lacp.queue.LacpTxQueue;
 import org.opendaylight.lacp.queue.LacpPortInfo;
@@ -62,7 +63,7 @@ import org.opendaylight.lacp.core.LacpConst;
 import org.opendaylight.lacp.core.LagIdElem;
 
 public class LacpPort implements Comparable<LacpPort> {
-		
+
 	private short actorPortNumber;
 	private int actorPortPriority;
 	private short actorPortAggregatorIdentifier;
@@ -77,64 +78,64 @@ public class LacpPort implements Comparable<LacpPort> {
 
 	private static int id = 1;
 	private short lacpPortId;
-	private long swId;       
-	private short portId;  
-	private byte duplex;	
-	private int speed;  
+	private long swId;
+	private short portId;
+	private byte duplex;
+	private int speed;
 	private short instanceId;
 	private byte link;
-	
+
 	boolean isInitialized;
-	private int portPriority;	
+	private int portPriority;
 	private LagId  lagId;
-	private byte[] actorSystem;              
-	private int actorSystemPriority;       
+	private byte[] actorSystem;
+	private int actorSystemPriority;
 	private boolean isEnabled;
 	protected Date activeSince;
-    
+
 	protected LacpBond bond;
 	private LacpAggregator portAggregator;
 	private LacpBpduInfo portTxLacpdu;
-    
-	private short stateMachineBitSet;   
-	
-	private ReentrantLock portLock;	
-	
+
+	private short stateMachineBitSet;
+
+	private ReentrantLock portLock;
+
         //Context objexts for respective state machines
         private RxContext rxContext;
         private MuxContext muxContext;
         private PeriodicTxContext periodicTxContext;
-    
+
         //Rx States
         private RxCurrentState rxCurrentState;
-        private RxDefaultedState rxDefaultedState; 
+        private RxDefaultedState rxDefaultedState;
         private RxExpiredState rxExpiredState;
         private RxInitializeState rxInitializeState;
         private RxLacpDisabledState rxLacpDisabledState;
         public  RxPortDisabledState rxPortDisabledState;
-    
+
         //Periodic States
         public  PeriodicTxFastState periodicTxFastState;
         private PeriodicTxNoPeriodicState periodicTxNoPeriodicState;
         private PeriodicTxPeriodicState periodicTxPeriodicState;
         private PeriodicTxSlowState periodicTxSlowState;;
-    
+
         //Mux States
         private MuxDetachedState muxDetachedState;
         private MuxWaitingState muxWaitingState;
         private MuxAttachedState muxAttachedState;
         private MuxCollectingDistributingState muxCollectingDistributingState;
-     
+
         //Timers
         private PortCurrentWhileTimerRegister currentWhileTimer;
         private PortPeriodicTimerRegister periodicTimer;
         private PortWaitWhileTimerRegister waitWhileTimer;
-    
+
         //TimeoutHandle to cancel the respective timers
         private Timeout currWhileTimeout;
         private Timeout periodicTimeout;
         private Timeout waitWhileTimeout;
-    
+
         private static final Logger LOG = LoggerFactory.getLogger(LacpPort.class);
 	private LacpNodeConnectorBuilder lacpNCBuilder;
 	private InstanceIdentifier ncId;
@@ -163,7 +164,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			return state;
 		}
 	}
- 
+
  	public class PortParams {
 
 		byte[] system;
@@ -189,14 +190,14 @@ public class LacpPort implements Comparable<LacpPort> {
 
 		@Override
 		public String toString() {
-			return "PortParams [system=" + HexEncode.bytesToHexString(system) + ", systemPriority=" + 
-						String.format("%04x", this.systemPriority) + ", key=" + String.format("%04x", this.key) + 
+			return "PortParams [system=" + HexEncode.bytesToHexString(system) + ", systemPriority=" +
+						String.format("%04x", this.systemPriority) + ", key=" + String.format("%04x", this.key) +
 						", portNumber=" + String.format("%04x", this.portNumber) + ", portPriority="
-						 + String.format("%04x", this.portPriority) + ", portState=" + 
+						 + String.format("%04x", this.portPriority) + ", portState=" +
 						getPortStateString((byte)this.portState) + "]";
 		}
-		
-		
+
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -244,7 +245,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			}
 			return true;
 		}
-		
+
 
 
 		public void intializePortParams() {
@@ -255,7 +256,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			portState = 1;
 			Arrays.fill(system, (byte) 0);
 		}
-		
+
 		public void setValue(PortParams params) {
 			this.systemPriority = params.systemPriority;
 			this.key = params.key;
@@ -268,7 +269,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		private LacpPort getOuterType() {
 			return LacpPort.this;
 		}
-		
+
 		public byte[] getSystem() {
 			return system;
 		}
@@ -322,18 +323,18 @@ public class LacpPort implements Comparable<LacpPort> {
 	public byte[] portPartnerAdminGetSystem() {
 		return this.partnerAdmin.system;
 	}
-	
+
 	public void portPartnerAdminSetSystem(byte[] system) {
 		this.partnerAdmin.system = Arrays.copyOf(system,LacpConst.ETH_ADDR_LEN);
 	}
-	
+
 	public int portPartnerAdminGetSystemPriority() {
 		return this.partnerAdmin.systemPriority;
 	}
 	public void portPartnerAdminsetSystemPriority(int val) {
 		this.partnerAdmin.systemPriority = val;
 	}
-	
+
 	public short portPartnerAdminGetKey() {
 		return this.partnerAdmin.key;
 	}
@@ -341,7 +342,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.partnerAdmin.key = val;
 	}
 	public short portPartnerAdminGetPortNumber() {
-	
+
 		return this.partnerAdmin.portNumber;
 	}
 	public void portPartnerAdminSetPortNumber(short val) {
@@ -353,39 +354,39 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void portPartnerAdminSetPortPriority(int val) {
 		this.partnerAdmin.portPriority = val;
 	}
-	
+
 	public short portPartnerAdminGetPortState() {
 		return this.partnerAdmin.portState;
 	}
 	public void portPartnerAdminSetPortState(short val) {
 		this.partnerAdmin.portState = val;
-	}	
+	}
  	//partner admin
-	
+
 	//partner oper
 	public byte[] portPartnerOperGetSystem() {
 		return this.partnerOper.system;
 	}
-	
+
 	public void portPartnerOperSetSystem(byte[] system) {
 		this.partnerOper.system = Arrays.copyOf(system,LacpConst.ETH_ADDR_LEN);
 	}
-	
+
 	public int portPartnerOperGetSystemPriority() {
 		return this.partnerOper.systemPriority;
 	}
 	public void portPartnerOperSetSystemPriority(int val) {
 		this.partnerOper.systemPriority = val;
 	}
-	
+
 	public short portPartnerOperGetKey() {
 		return this.partnerOper.key;
 	}
-	
+
 	public void portPartnerOperSetKey(short val) {
 		this.partnerOper.key = val;
 	}
-	
+
 	public short portPartnerOperGetPortNumber() {
 			return this.partnerOper.portNumber;
 	}
@@ -398,16 +399,16 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void portPartnerOperSetPortPriority(int val) {
 		this.partnerOper.portPriority = val;
 	}
-	
+
 	public short portPartnerOperGetPortState() {
 		return this.partnerOper.portState;
 	}
 	public void portPartnerOperSetPortState(short val) {
 		this.partnerOper.portState = val;
-	}	
+	}
 	//partner oper
-	
-	 
+
+
     public short getLacpPortId() {
 		return lacpPortId;
 	}
@@ -415,31 +416,31 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void setLacpPortId(short id) {
 		this.lacpPortId = id;
 	}
-	
+
 	public short getActorPortNumber() {
 		return actorPortNumber;
 	}
-	
+
 	public void setActorPortNumber(short portNumber) {
 		this.actorPortNumber = portNumber;
 	}
-	
+
 	public int getActorPortPriority() {
 		return actorPortPriority;
 	}
-	
+
 	public void setActorPortPriority(int portPriority) {
 		actorPortPriority = portPriority;
 	}
-	
+
 	public short getactorPortAggregatorIdentifier(){
 		return actorPortAggregatorIdentifier;
 	}
-	
+
 	public void setactorPortAggregatorIdentifier(short aggIdentifier){
 		actorPortAggregatorIdentifier = aggIdentifier;
 	}
-	
+
 	public short getActorAdminPortKey() {
 		return actorAdminPortKey;
 	}
@@ -447,7 +448,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void setActorAdminPortKey(short actorAdminPortKey) {
 		this.actorAdminPortKey = actorAdminPortKey;
 	}
-	
+
 	public short getActorOperPortKey() {
 		return actorOperPortKey;
 	}
@@ -455,7 +456,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void setActorOperPortKey(short actorOperPortKey) {
 		this.actorOperPortKey = actorOperPortKey;
 	}
-	
+
 	public byte getActorAdminPortState() {
 		return actorAdminPortState;
 	}
@@ -473,12 +474,12 @@ public class LacpPort implements Comparable<LacpPort> {
 			return ((LacpBond)bond).checkAggSelectTimer();
 		}
 		return 0;
-	}	
-	
+	}
+
 	public boolean getEnabled(boolean isEnabled) {
 		return isEnabled;
 	}
-	
+
 	public void setEnabled(boolean isEnabled) {
 		this.isEnabled = isEnabled;
 	}
@@ -489,39 +490,39 @@ public class LacpPort implements Comparable<LacpPort> {
 
 	void setIsLacpEnabled(boolean enabled) {
 		if (this.isLacpEnabled()!= enabled) {
-			
+
 			if (enabled) {
 				this.setLacpEnabled(true);
 	        		setStateMachineBitSet((short)(getStateMachineBitSet() | LacpConst.PORT_LACP_ENABLED));
 				LOG.debug("Setting port={} to PORT_LACP_ENABLED to true", portId);
-				
+
 			} else {
 				this.setLacpEnabled(false);
 				setStateMachineBitSet((short)(getStateMachineBitSet() & ~LacpConst.PORT_LACP_ENABLED));
 				LOG.debug("Setting port={} to PORT_LACP_ENABLED to false", portId);
 			}
-	        	setStateMachineBitSet((short)(getStateMachineBitSet() | LacpConst.PORT_BEGIN));				
+	        	setStateMachineBitSet((short)(getStateMachineBitSet() | LacpConst.PORT_BEGIN));
 			LOG.debug("Setting port={} to PORT_BEGIN", portId);
-		}	
+		}
 	}
-	
+
 	public LagId portGetLagId() {
     		return lagId;
     	}
-	
+
 	public LacpAggregator getPortAggregator() {
 		return portAggregator;
 	}
-	
+
 	public void portSetAggregator(LacpAggregator agg) {
 		this.setPortAggregator(agg);
-		
+
 	}
-	
+
 	public void setPortAggregator(LacpAggregator portAggregator) {
 		this.portAggregator = portAggregator;
 	}
-	
+
 	private short getPortAggregatorId() {
 		if (this.portAggregator != null){
 			LOG.debug("getPortAggregatorId returning agg id={}",portAggregator.getAggId());
@@ -540,7 +541,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void portSetActorPortAggregatorIdentifier(short val) {
 		this.setActorPortAggregatorIdentifier(val);
 	}
-	
+
 	public void setActorPortAggregatorIdentifier(short actorPortAggregatorIdentifier) {
 		this.actorPortAggregatorIdentifier = actorPortAggregatorIdentifier;
 	}
@@ -551,7 +552,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void slaveSetDuplex(byte duplex) {
 		setDuplex(duplex);
 	}
-	
+
 	public byte getDuplex() {
 		return duplex;
 	}
@@ -559,7 +560,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void setDuplex(byte duplex) {
 		this.duplex = duplex;
 	}
-	
+
 	public byte getActorOperPortState() {
 		return actorOperPortState;
 	}
@@ -576,7 +577,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void setStateMachineBitSet(short stateMachineBitSet) {
 		this.stateMachineBitSet = stateMachineBitSet;
 	}
-	
+
 	public byte[] getActorSystem() {
 		return actorSystem;
 	}
@@ -599,14 +600,14 @@ public class LacpPort implements Comparable<LacpPort> {
 
 	public void setNtt(boolean ntt) {
 		this.ntt = ntt;
-		
+
 	}
 
 	public short getInstanceId() {
 		return this.instanceId;
 	}
 
-	
+
 	public int getPortPriority() {
 		return portPriority;
 	}
@@ -618,8 +619,8 @@ public class LacpPort implements Comparable<LacpPort> {
 	public int getSpeed() {
 		return speed;
 	}
-	
-	
+
+
 	public void slaveSetSpeed(int speed) {
 		setSpeed(speed);
 	}
@@ -636,11 +637,11 @@ public class LacpPort implements Comparable<LacpPort> {
 		return link;
 	}
 
-	
+
 	public LacpBond slaveGetBond() {
 		return this.bond;
 	}
-	
+
 
 	public void slaveSetBond(LacpBond bond) {
 		this.bond = bond;
@@ -653,7 +654,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	public long getLacpSwId(){
 		return swId;
 	}
-	
+
 	public short slaveGetPortId() {
 		return portId;
 	}
@@ -689,41 +690,41 @@ public class LacpPort implements Comparable<LacpPort> {
 
 		bond.setSlaveCnt(getInstanceId());
 		setPortLock(new ReentrantLock(true));
-		
+
 		this.portPriority = portPriority;
 		this.setActorSystem(new byte[LacpConst.ETH_ADDR_LEN]);
 		this.partnerAdmin = new PortParams();
-		this.partnerOper = new PortParams();		
+		this.partnerOper = new PortParams();
 		this.setNtt(false);
-		portTxLacpdu = bpduInfo;		
+		portTxLacpdu = bpduInfo;
 
 		rxContext = new RxContext();
 		muxContext = new MuxContext();
-		periodicTxContext = new PeriodicTxContext(); 
-		
+		periodicTxContext = new PeriodicTxContext();
+
 		currentWhileTimer = new PortCurrentWhileTimerRegister(portId,swId);
 		waitWhileTimer = new PortWaitWhileTimerRegister(portId,swId);
 		periodicTimer = new PortPeriodicTimerRegister(portId,swId);
-			
-		
+
+
 	        rxCurrentState = new RxCurrentState();
 	        rxDefaultedState = new RxDefaultedState();
 	        rxExpiredState = new RxExpiredState();
 	        rxInitializeState = new RxInitializeState();
 	        rxLacpDisabledState = new RxLacpDisabledState();
 	        rxPortDisabledState = new RxPortDisabledState();
-	    
+
 	        periodicTxFastState = new PeriodicTxFastState();
 	        periodicTxNoPeriodicState = new PeriodicTxNoPeriodicState();
 	        periodicTxPeriodicState = new PeriodicTxPeriodicState();
 	        periodicTxSlowState = new PeriodicTxSlowState();
-	    
+
 	        muxDetachedState = new MuxDetachedState();
 	        muxWaitingState = new MuxWaitingState();
 	        muxAttachedState = new MuxAttachedState();
 	        muxCollectingDistributingState =  new MuxCollectingDistributingState();
-	     
-	       portAssignSlave(bond.getBondSystemId(), bond.getLacpFast(), bond.bondGetSysPriority(), this.portPriority, bond.getAdminKey());			
+
+	       portAssignSlave(bond.getBondSystemId(), bond.getLacpFast(), bond.bondGetSysPriority(), this.portPriority, bond.getAdminKey());
                ncId = bpduInfo.getNCRef().getValue();
                lacpNCBuilder = new LacpNodeConnectorBuilder();
                lacpNCBuilder.setActorPortNumber(this.actorPortNumber);
@@ -758,13 +759,13 @@ public class LacpPort implements Comparable<LacpPort> {
         this.slaveSetDuplex(duplex);
         short key = (short)(result >> LacpConst.DUPLEX_KEY_BITS);
         this.setActorAdminPortKey(key);
-        
+
         FlowCapableNodeConnector flowCapNodeConn = portNC.getAugmentation(FlowCapableNodeConnector.class);
         ncMac = flowCapNodeConn.getHardwareAddress();
         LOG.debug("Exiting LacpPort constructor for switchid={} port={}",portId, swId);
 	}
-	
-	
+
+
 	public Timeout setCurrentWhileTimer(long delay){
 	       LOG.debug("Entering setCurrentWhileTimer for switchid={} port={}",swId,portId);
 
@@ -777,7 +778,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	        LOG.debug("Exiting setCurrentWhileTimer for switchid={} port={}",swId,portId);
 		return currWhileTimeout;
 	}
-	
+
 	public Timeout setWaitWhileTimer(long delay){
 	       LOG.debug("Entering setWaitWhileTimer for switchid={} port={}",swId,portId);
 
@@ -790,7 +791,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	        LOG.debug("Exiting setWaitWhileTimer for switchid={} port={}",swId,portId);
 		return waitWhileTimeout;
 	}
-	
+
 	public Timeout setPeriodicWhileTimer(long delay){
 
 	        LOG.debug("Entering setPeriodicWhileTimer for switchid={} port={}",swId,portId);
@@ -803,12 +804,12 @@ public class LacpPort implements Comparable<LacpPort> {
 	        LOG.debug("Exiting setPeriodicWhileTimer for switchid={} port={}",swId,portId);
 		return periodicTimeout;
 	}
-	
+
 	public Timeout getPeriodicWhileTimer(){
 		return periodicTimeout;
 	}
 
-	
+
 	@Override
 	public int compareTo(LacpPort arg0) {
 		if (this.lagId == arg0.lagId){
@@ -822,7 +823,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		}
 		return this.lagId.compareTo(arg0.lagId);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -861,7 +862,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "LacpPort [swId=" + swId + ", portId=" + portId
@@ -883,7 +884,7 @@ public class LacpPort implements Comparable<LacpPort> {
 				+ partnerOper + ", lagId=" + lagId
 				+ "]";
 	}
-	
+
 	public String getPortStateString(byte state) {
     	byte val = state;
     	String result="";
@@ -897,7 +898,7 @@ public class LacpPort implements Comparable<LacpPort> {
     		token = "";
     		if ((val & 0x01)!=0) {
     			switch (seq) {
-    			case ACT: 
+    			case ACT:
     				token = "ACT";
     				break;
     			case TMO:
@@ -915,21 +916,21 @@ public class LacpPort implements Comparable<LacpPort> {
     			case DIS:
     				token = "DIS";
     				break;
-    			case DEF: 
+    			case DEF:
     				token = "DEF";
     				break;
-    			case EXP: 
+    			case EXP:
     				token = "EXP";
     				break;
     			}
-    			result = result+" "+token; 
+    			result = result+" "+token;
     		}
     		i++;
     		val = (byte) ((val >> 1) & value);
     	}
     	return result;
     }
-	
+
     public String getStmStateString(short state) {
     	short val = state;
     	String result="";
@@ -943,7 +944,7 @@ public class LacpPort implements Comparable<LacpPort> {
     		token = "";
     		if ((val & 0x01)!=0) {
     			switch (seq) {
-    			case BEG: 
+    			case BEG:
     				token = "BEG";
     				break;
     			case ENA:
@@ -961,49 +962,49 @@ public class LacpPort implements Comparable<LacpPort> {
     			case RDYN:
     				token = "RDYN";
     				break;
-    			case MAT: 
+    			case MAT:
     				token = "MAT";
     				break;
-    			case STA: 
+    			case STA:
     				token = "STA";
     				break;
-    			case SEL: 
+    			case SEL:
     				token = "SEL";
     				break;
-    			case MOV: 
+    			case MOV:
     				token = "MOV";
     				break;
-    				
+
     			}
-    			result = result+" "+token; 
+    			result = result+" "+token;
     		}
     		i++;
     		val = (short) ((val >> 1) & value);
     	}
     	return result;
     }
-    
+
 	 public String getSpeedString(byte speed) {
 		 LOG.debug("Entering getSpeedString for port={} and speed is={}",portId,speed);
 		 String result="";
 		 byte val = speed;
 		 switch (val) {
-		 case LacpConst.LINK_SPEED_BITMASK_10MBPS: 
+		 case LacpConst.LINK_SPEED_BITMASK_10MBPS:
 			 result = "10M";
 			 break;
-		 case LacpConst.LINK_SPEED_BITMASK_100MBPS: 
+		 case LacpConst.LINK_SPEED_BITMASK_100MBPS:
 			 result = "100M";
 			 break;
-		 case LacpConst.LINK_SPEED_BITMASK_1000MBPS: 
+		 case LacpConst.LINK_SPEED_BITMASK_1000MBPS:
 			 result = "1G";
 			 break;
-		 case LacpConst.LINK_SPEED_BITMASK_10000MBPS: 
+		 case LacpConst.LINK_SPEED_BITMASK_10000MBPS:
 			 result = "10G";
 			 break;
-		 case LacpConst.LINK_SPEED_BITMASK_40000MBPS: 
+		 case LacpConst.LINK_SPEED_BITMASK_40000MBPS:
 			 result = "40G";
 			 break;
-		 case LacpConst.LINK_SPEED_BITMASK_100000MBPS: 
+		 case LacpConst.LINK_SPEED_BITMASK_100000MBPS:
 			 result = "100G";
 			 break;
 		 }
@@ -1011,15 +1012,15 @@ public class LacpPort implements Comparable<LacpPort> {
 		 return result;
 	 }
 
-		
+
 	public PortParams getPartnerAdmin() {
 		return partnerAdmin;
 	}
-	
+
 	public PortParams getPartnerOper() {
 		return partnerOper;
 	}
-	
+
 	public void setPartnerAdmin(byte[] system, short key, int systemPriority, short portNum, int portPriority, short portState) {
 		this.partnerAdmin = new PortParams( system,  systemPriority,  key, portNum,  portPriority,  portState);
 	}
@@ -1036,15 +1037,15 @@ public class LacpPort implements Comparable<LacpPort> {
 		LOG.debug("Entering/Exiting LacpPort newInstance() method for sw={} port={} priority={}",swId,portId,portPri);
 		return new LacpPort(swId, portId, bond, portPri,bpduInfo);
 	}
-	
+
 	public void attachBondToAgg() {
-		
+
 	}
-	
+
 	public void detachBondFromAgg() {
-		
+
 	}
-	
+
 	public void lacpInitPort(int lacpFast)
 	{
 		LOG.debug("Entering lacpInitPort for port={}",portId);
@@ -1058,7 +1059,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.actorOperPortKey = 1;
 		this.setLacpEnabled(false);
 
-		
+
 		this.setActorAdminPortState((byte)(LacpConst.PORT_STATE_AGGREGATION | LacpConst.PORT_STATE_LACP_ACTIVITY ));
 		this.setActorOperPortState(this.getActorAdminPortState());
 		this.partnerAdmin.intializePortParams();
@@ -1082,8 +1083,8 @@ public class LacpPort implements Comparable<LacpPort> {
 	public LacpBpduInfo getLacpBpduInfo(){
 		return portTxLacpdu;
 	}
-	
-	void setPortsReady(int val) 
+
+	void setPortsReady(int val)
 	{
 		LOG.debug("Entering setPortsReady for port={}",portId);
 		if (val>0) {
@@ -1097,7 +1098,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		LOG.debug("Exiting setPortsReady for port={}",portId);
 	}
 
-	int getPortsReady() 
+	int getPortsReady()
 	{
 		if ((this.getStateMachineBitSet() & LacpConst.PORT_READY_N) == 0){
 			return(0);
@@ -1111,7 +1112,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		}
 		return((short)this.getSpeed());
 	}
-	
+
 	public byte get_Duplex() {
 		LOG.debug("Entering get_Duplex for port={}",portId);
 		if (getLink() != LacpConst.BOND_LINK_UP){
@@ -1127,12 +1128,12 @@ public class LacpPort implements Comparable<LacpPort> {
 	void setPortAdminPortKey(short val) {
 		this.setActorAdminPortKey(val);
 	}
-	
+
 	public static short toUnsigned(byte b) {
 	    int val = 256;
 	    return (short) (b >= 0 ? b : val + b);
 	}
-	
+
 	public LacpPacketPdu updateLacpFromPortToLacpPacketPdu(){
 
 		this.slavePSMLock();
@@ -1141,7 +1142,7 @@ public class LacpPort implements Comparable<LacpPort> {
                 try {
 			LOG.debug("Entering updateLacpFromPortToLacpPacketPdu for port= {}, {}",swId, portId);
 
-			obj = new LacpPacketPduBuilder();		
+			obj = new LacpPacketPduBuilder();
 
 			obj.setIngressPort(portTxLacpdu.getNCRef());
 			obj.setSrcAddress(getSwitchHardwareAddress());
@@ -1168,7 +1169,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			actorInfoBuilder.setInfoLen(Short.valueOf(LacpConst.ACTOR_INFO_LEN));
 			actorInfoBuilder.setReserved(Integer.valueOf(LacpConst.RESERVED));
 			actorInfoBuilder.setReserved1(Short.valueOf((short)LacpConst.RESERVED));
-		
+
 
 			final PortParams partner = this.partnerOper;
 			PartnerInfoBuilder partnerInfoBuilder = new PartnerInfoBuilder();
@@ -1187,7 +1188,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			partnerInfoBuilder.setInfoLen(Short.valueOf(LacpConst.PARTNER_INFO_LEN));
 			partnerInfoBuilder.setReserved(Integer.valueOf(LacpConst.RESERVED));
 			partnerInfoBuilder.setReserved1(Short.valueOf((short)LacpConst.RESERVED));
-		
+
 			obj.setActorInfo(actorInfoBuilder.build());
 			obj.setPartnerInfo(partnerInfoBuilder.build());
 
@@ -1220,7 +1221,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		LOG.debug("Exiting lacpduSend for port={}", portId);
 		return 0;
 	}
-	
+
 	boolean isPortAttDist() {
 		LOG.debug("Entering isPortAttDist for port={}",portId);
 		if (((this.getActorOperPortState() & LacpConst.PORT_STATE_COLLECTING) > 0) || ((this.getActorOperPortState() & LacpConst.PORT_STATE_DISTRIBUTING) > 0)){
@@ -1231,7 +1232,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		LOG.debug("Exiting isPortAttDist for port={}",portId);
 		return false;
 	}
-	
+
 	boolean isPortSelected() {
 		LOG.debug("Entering isPortSelected for port={}",portId);
 		if ((this.getStateMachineBitSet() & LacpConst.PORT_SELECTED) > 0){
@@ -1239,18 +1240,18 @@ public class LacpPort implements Comparable<LacpPort> {
 			return true;
 		}
 		LOG.debug("isPortSelected is returning PORT_SELECTED=false");
-		return false;			
+		return false;
 	}
-	
-	
+
+
 	public void slavePSMLock() {
 		getPortLock().lock();
 	}
-	
+
 	public void slavePSMUnlock() {
 		getPortLock().unlock();
 	}
-		
+
 	public LacpAggregator slaveGetFreeAgg() {
 		return (((LacpBond)bond).bondGetFreeAgg());
 	}
@@ -1263,19 +1264,19 @@ public class LacpPort implements Comparable<LacpPort> {
 			this.slavePSMUnlock();
 		}
 	}
-	
+
 	public void portSetActorOperPortState(byte val) {
 		this.setActorOperPortState(val);
 	}
-	
+
 	public byte portGetActorOperPortState() {
 		return this.getActorOperPortState();
 	}
-	
+
 	public short portGetActorPortAggregatorIdentifier() {
 		return getActorPortAggregatorIdentifier();
 	}
-	
+
 	public int portGetActorPortPriority() {
 		return getActorPortPriority();
 	}
@@ -1283,7 +1284,7 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void portSetActorPortPriority(int val) {
 		this.setActorPortPriority(val);
 	}
-	
+
 	public int portGetActorSystemPriority() {
 		return getActorSystemPriority();
 	}
@@ -1291,9 +1292,9 @@ public class LacpPort implements Comparable<LacpPort> {
 	public void portSetActorSystemPriority(int val) {
 		this.setActorSystemPriority(val);
 	}
-	
-	void lacpDisablePort() 
-	{	 
+
+	void lacpDisablePort()
+	{
 		LOG.debug("Entering lacpDisablePort for port={}",portId);
 		 boolean selectNewActiveAgg = false;
 
@@ -1302,7 +1303,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		 }
 
 		 LacpAggregator aggregator = this.getPortAggregator();
-		 
+
 		 portSetActorOperPortState((byte)(this.portGetActorOperPortState() & (~LacpConst.PORT_STATE_AGGREGATION)));
 
 		 if (aggregator != null && aggregator.aggHasPort(this)) {
@@ -1310,15 +1311,15 @@ public class LacpPort implements Comparable<LacpPort> {
 				 selectNewActiveAgg = aggregator.getIsActive() > 0 ? true :  false;
 			 }
 			 aggregator.rmPortFromAgg(this);
-			 if (selectNewActiveAgg){ 
+			 if (selectNewActiveAgg){
 				 bond.bondAggSelectionLogic();
 			 }
-			 
+
 		 }
 		isInitialized = false;
 		LOG.debug("Exiting lacpDisablePort for port={}",portId);
 	}
-			 
+
 	void slavePortPriorityChange(int priority) {
 
 		LOG.debug("Entering slavePortPriorityChange for port={}",portId);
@@ -1333,7 +1334,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		 }
 		LOG.debug("Exiting slavePortPriorityChange for port={}",portId);
 	 }
-	 
+
 	 void slaveSystemPriorityChange(int priority) {
 		LOG.debug("Entering slaveSystemPriorityChange for port={}",portId);
 		 slavePSMLock();
@@ -1357,7 +1358,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		}
 		LOG.debug("Exiting slaveHandleLinkChange for port={}",portId);
 	}
-	
+
 
 	public int slaveRxLacpBpduReceived(LacpBpduInfo lacpdu)
 	{
@@ -1368,7 +1369,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			  LOG.warn("in method slaveRxLacpBpduReceived() - lacp pdu not processed as link is down for switch {} port {}", lacpdu.getSwId(), lacpdu.getPortId());
 			 return ret;
 		}
-	
+
 		if (!this.isInitialized) {
 			  LOG.warn("in method slaveRxLacpBpduReceived() - lacp pdu not processed as port is not initialized for switch {} port {}", lacpdu.getSwId(), lacpdu.getPortId());
 			return ret;
@@ -1381,10 +1382,10 @@ public class LacpPort implements Comparable<LacpPort> {
 
 		LOG.debug("Exiting slaveRxLacpBpduReceived for port={}, {}",swId, portId);
 		return ret;
-	}	
-	
+	}
+
 	public void slaveUpdateLacpRate(int lacpFast) {
-		
+
 		LOG.debug("Entering slaveUpdateLacpRate for port={}",portId);
 		if ( !isInitialized){
 			return;
@@ -1396,7 +1397,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			if (lacpFast>0){
 				portSetActorOperPortState((byte)(portGetActorOperPortState() | LacpConst.PORT_STATE_LACP_TIMEOUT));
 				LOG.debug("setting actor oper state to PORT_STATE_LACP_TIMEOUT");
-			}	
+			}
         		else{
 				portSetActorOperPortState((byte)(portGetActorOperPortState() & (~LacpConst.PORT_STATE_LACP_TIMEOUT)));
 				LOG.debug("setting actor oper state to ~PORT_STATE_LACP_TIMEOUT");
@@ -1406,20 +1407,20 @@ public class LacpPort implements Comparable<LacpPort> {
 		}
 		LOG.debug("Exiting slaveUpdateLacpRate for port={}",portId);
         }
-	
+
 	public void portPortPriorityChange(int priority) {
 		LOG.debug("Entering portPortPriorityChange for port={}",portId);
 		if (!isInitialized){
 			return;
 		}
 		this.setActorPortPriority(priority);
-		portSetLagId();			 
-		setStateMachineBitSet((short)(getStateMachineBitSet() | LacpConst.PORT_BEGIN));				
+		portSetLagId();
+		setStateMachineBitSet((short)(getStateMachineBitSet() | LacpConst.PORT_BEGIN));
 		LOG.debug("setting state machine vars to PORT_BEGIN for port={}",portId);
 		LOG.debug("Exiting portPortPriorityChange for port={}",portId);
-	}		
-	 
-	 
+	}
+
+
 	void portSystemPrioriyChange(int priority)
 	{
 
@@ -1428,12 +1429,12 @@ public class LacpPort implements Comparable<LacpPort> {
 			return;
 		}
 		portSetActorSystemPriority(priority);
-		portSetLagId();			 
+		portSetLagId();
 		setStateMachineBitSet((short)(getStateMachineBitSet() | LacpConst.PORT_BEGIN));
 		LOG.debug("setting state machine vars to PORT_BEGIN for port={}",portId);
 		LOG.debug("Exiting portSystemPrioriyChange for port={}",portId);
 	}
-	
+
     public int slaveSendBpdu(LacpTxQueue.QueueType qType)
     {
         LOG.debug("Entering slaveSendBpdu for switch{}, port={}",this.swId, this.portId);
@@ -1448,19 +1449,19 @@ public class LacpPort implements Comparable<LacpPort> {
 		LOG.debug("slaveSendBpdu sucessfully put the portId onto queue for port={}",portId);
 		return 0;
 	}
-	
+
 	public void runProtocolStateMachine(LacpBpduInfo lacpBpdu, TimerExpiryMessage tmExpMsg) {
-		
+
 		LOG.debug("Entering runProtocolStateMachine for port={}, {}",swId, portId);
 
 		if((lacpBpdu != null) || ((tmExpMsg != null) && (tmExpMsg.getTimerWheelType() == Utils.timerWheeltype.CURRENT_WHILE_TIMER))){
 			this.portRxStateMachine(lacpBpdu,tmExpMsg);
 		}
-		
+
 		if((lacpBpdu != null) || ((tmExpMsg != null) && (tmExpMsg.getTimerWheelType() == Utils.timerWheeltype.PERIODIC_TIMER))){
 			this.portPeriodicStateMachine(lacpBpdu,tmExpMsg);
 		}
-		
+
 		this.portSelectionLogic();
 
 		if ((lacpBpdu != null)
@@ -1473,10 +1474,10 @@ public class LacpPort implements Comparable<LacpPort> {
                           this.setStateMachineBitSet((short) (this.getStateMachineBitSet() & ~LacpConst.PORT_AGG_RESELECT));
                      }
 		}
-		
+
 		//timer expiry is passed to Tx state m/c just to check on which queue the port object needs to be enqued
 		this.portTxStateMachine(tmExpMsg);
-		
+
 		// turn off the BEGIN bit, since we already handled it
 	        if ((this.getStateMachineBitSet() & LacpConst.PORT_BEGIN) > 0){
                      this.setStateMachineBitSet((short)(this.getStateMachineBitSet() & ~LacpConst.PORT_BEGIN));
@@ -1484,7 +1485,7 @@ public class LacpPort implements Comparable<LacpPort> {
 
 		LOG.debug("Exiting runProtocolStateMachine for port={}, {}",swId, portId);
 	}
-	
+
 	public void disableCollectingDistributing(short portId, LacpAggregator agg) {
 		LOG.debug("Entering disableCollectingDistributing for port={}, {}",swId, portId);
 		this.activeSince = null;
@@ -1514,7 +1515,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		boolean timerExpiredFlag = false;
 		LacpConst.RX_STATES lastState;
 		lastState = rxContext.getState().getStateFlag();
-		
+
 		if((this.getStateMachineBitSet() & LacpConst.PORT_BEGIN) > 0){
 				rxContext.setState(rxInitializeState);
 				LOG.debug("portRxStateMachine setting port={} to rxInitializeState",portId);
@@ -1522,16 +1523,16 @@ public class LacpPort implements Comparable<LacpPort> {
 		else if ((this.getStateMachineBitSet() & LacpConst.PORT_BEGIN) == 0 && !this.isEnabled && ((this.getStateMachineBitSet() & LacpConst.PORT_MOVED)==0)){
 				rxContext.setState(rxPortDisabledState);
 				LOG.debug("portRxStateMachine setting port={} to rxPortDisabledState",portId);
-		}else if((lacpdu!=null) 
+		}else if((lacpdu!=null)
 				 && ((rxContext.getState().getStateFlag() == LacpConst.RX_STATES.RX_EXPIRED)
-				 ||  (rxContext.getState().getStateFlag() == LacpConst.RX_STATES.RX_DEFAULTED) 
+				 ||  (rxContext.getState().getStateFlag() == LacpConst.RX_STATES.RX_DEFAULTED)
 				 ||  (rxContext.getState().getStateFlag() == LacpConst.RX_STATES.RX_CURRENT))){
-				
+
 			if(!currWhileTimeout.isExpired()){
 				currWhileTimeout.cancel();
 			}
 			setCurrentWhileTimer(LacpConst.LONG_TIMEOUT_TIME);
-                        
+
                         if (rxContext.getState().getStateFlag() == LacpConst.RX_STATES.RX_DEFAULTED)
                         {
                             /* Lacp Pdu received in defaulted state. move to current.
@@ -1565,14 +1566,14 @@ public class LacpPort implements Comparable<LacpPort> {
 					}else{
 						//log
 					}
-		}else { 
+		}else {
 			switch (rxContext.getState().getStateFlag()) {
 			case RX_PORT_DISABLED:
 				if ((this.getStateMachineBitSet() & LacpConst.PORT_MOVED)>0){
 					rxContext.setState(rxInitializeState);
 					LOG.debug("portRxStateMachine setting port={} to rxInitializeState",portId);
 				}else if (this.isEnabled && ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED)>0)) {
-					rxContext.setState(rxExpiredState);      
+					rxContext.setState(rxExpiredState);
 					LOG.debug("portRxStateMachine setting port={} to rxExpiredState",portId);
 					LOG.debug("RX Machine Port=" + this.portId + " lastState=" + lastState +" state setting to RX_EXPIRED");
 				} else if (this.isEnabled && ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED)== 0)){
@@ -1580,17 +1581,17 @@ public class LacpPort implements Comparable<LacpPort> {
 					LOG.debug("portRxStateMachine setting port={} to rxLacpDisabledState",portId);
 				}
 				break;
-			default:    
+			default:
 				break;
 			}
 		}
-		
+
 		if ((rxContext.getState().getStateFlag() != lastState) || (lacpdu!=null) || (timerExpiredFlag == true)) {
 			LOG.debug("portRxStateMachine - calling executeStateAction method");
 			rxContext.getState().executeStateAction(rxContext, this,lacpdu);
 			slaveGetBond().setDirty(true);
 		}
-		
+
 		LOG.debug("RX Machine Port=" + this.portId + " lastState=" + lastState + " currentState=" + rxContext.getState().getStateFlag() + " PDU = "+ lacpdu);
 		LOG.debug("Exiting portRxStateMachine for port={}, {}",swId, portId);
 	}
@@ -1599,15 +1600,15 @@ public class LacpPort implements Comparable<LacpPort> {
 
 	void portPeriodicStateMachine(LacpBpduInfo lacpdu,TimerExpiryMessage timerExpired)
 	{
-	
+
 		LOG.debug("Entering portPeriodicStateMachine for port={}, {}",swId, portId);
 		LacpConst.PERIODIC_STATES lastState;
 		// keep current state machine state to compare later if it was changed
 		lastState = periodicTxContext.getState().getStateFlag();
-		
+
 		if ((((this.getStateMachineBitSet() & LacpConst.PORT_BEGIN) > 0) || ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED)==0)) ||
-				(((this.getActorOperPortState() & LacpConst.PORT_STATE_LACP_ACTIVITY)==0) && 
-						((this.partnerOper.portState & LacpConst.PORT_STATE_LACP_ACTIVITY)==0))) 
+				(((this.getActorOperPortState() & LacpConst.PORT_STATE_LACP_ACTIVITY)==0) &&
+						((this.partnerOper.portState & LacpConst.PORT_STATE_LACP_ACTIVITY)==0)))
 		{
 			periodicTxContext.setState(periodicTxNoPeriodicState);
 			LOG.debug("portPeriodicStateMachine setting port={} to periodicTxNoPeriodicState",portId);
@@ -1621,7 +1622,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			LOG.debug("1. portPeriodicStateMachine setting port={} to periodicTxPeriodicState",portId);
 		}
 		else if ((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.SLOW_PERIODIC) &&
-						((this.partnerOper.getPortState() & LacpConst.SHORT_TIMEOUT)==0) || 
+						((this.partnerOper.getPortState() & LacpConst.SHORT_TIMEOUT)==0) ||
 								(((timerExpired != null) && (timerExpired.getTimerWheelType() == Utils.timerWheeltype.PERIODIC_TIMER)))){
 			periodicTxContext.setState(periodicTxPeriodicState);
 			LOG.debug("2. portPeriodicStateMachine setting port={} to periodicTxPeriodicState",portId);
@@ -1644,7 +1645,7 @@ public class LacpPort implements Comparable<LacpPort> {
 		}
 		LOG.debug("Exiting portPeriodicStateMachine for port={}, {}",swId, portId);
 	}
-	
+
 	void portSelectionLogic()
 	{
 
@@ -1653,14 +1654,14 @@ public class LacpPort implements Comparable<LacpPort> {
 		LacpAggregator freeAgg = null;
 		LacpAggregator tempAgg = null;
 		LacpAggregator foundAgg = null;
-		
+
 		if ((this.getStateMachineBitSet() & LacpConst.PORT_SELECTED) > 0){
 			LOG.debug("portSelectionLogic is returing without further processing as the port={} is already PORT_SELECTED",portId);
 			return;
 		}
 
 		foundAgg =  (bond!= null ? bond.findLacpAggByFitPort(this) : null);
-		
+
 		if (this.getPortAggregator() !=null) {
 			if (foundAgg!=null && foundAgg == this.getPortAggregator() && ((this.getStateMachineBitSet() & LacpConst.PORT_STANDBY)>0)) {
 				if (!foundAgg.canMoveToSelList(this)) {
@@ -1687,7 +1688,7 @@ public class LacpPort implements Comparable<LacpPort> {
 				tempAgg.rmPortFromAggStandBy(this);
 				this.setPortAggregator(null);
 				this.setStateMachineBitSet((short)(this.getStateMachineBitSet() & (~LacpConst.PORT_STANDBY)));
-				this.setActorPortAggregatorIdentifier((short)0);					
+				this.setActorPortAggregatorIdentifier((short)0);
                                 this.setStateMachineBitSet((short)(this.getStateMachineBitSet() | LacpConst.PORT_AGG_RESELECT));
 			}
 		}
@@ -1709,12 +1710,12 @@ public class LacpPort implements Comparable<LacpPort> {
 					LOG.info(
 							"Port[{}] selects Aggregator[ID={}] ",
 							HexEncode.longToHexString((long)this.portId),
-				  					HexEncode.longToHexString((long)foundAgg.getAggId()));				    		  
+				  					HexEncode.longToHexString((long)foundAgg.getAggId()));
 			  		this.setPortAggregator(foundAgg);
 			  		this.setActorPortAggregatorIdentifier(foundAgg.getAggId());
 			  		this.getPortAggregator().addPortToAgg(this);
 		    	  		this.setStateMachineBitSet((short)(this.getStateMachineBitSet() | LacpConst.PORT_SELECTED));
-		      		}	
+		      		}
 		      } else {
 				freeAgg = this.slaveGetFreeAgg();
 				if (freeAgg!=null) {
@@ -1733,7 +1734,7 @@ public class LacpPort implements Comparable<LacpPort> {
 							HexEncode.longToHexString((long)this.portId));
 					return;
 				}
-		     } 
+		     }
 		} else {
 			freeAgg = this.slaveGetFreeAgg();
 			if (freeAgg!=null) {
@@ -1751,7 +1752,7 @@ public class LacpPort implements Comparable<LacpPort> {
 						"Port[{}] can't find suitable aggregator",
 						 HexEncode.longToHexString((long)this.portId));
 				return;
-			}						
+			}
 		}
 
 		this.getPortAggregator().setAggPortsReady(this.getPortAggregator().getAggPortsReady());
@@ -1762,15 +1763,15 @@ public class LacpPort implements Comparable<LacpPort> {
 		}
 		LOG.debug("Exiting portSelectionLogic for port={}, {}",swId, portId);
 	}
-	
-	
+
+
 	void portMuxStateMachine(TimerExpiryMessage timerExpired){
-		
+
 		LOG.debug("Entering portMuxStateMachine for port={}, {}",swId, portId);
 
 		LacpConst.MUX_STATES lastState;
 		lastState = muxContext.getState().getStateFlag();
-		
+
 		if((this.getStateMachineBitSet() & LacpConst.PORT_BEGIN) > 0){
 			muxContext.setState(muxDetachedState);
 			LOG.debug("portMuxStateMachine setting port={} to muxDetachedState",portId);
@@ -1783,14 +1784,14 @@ public class LacpPort implements Comparable<LacpPort> {
 				}
 			}
 			else if((muxContext.getState().getStateFlag() == LacpConst.MUX_STATES.MUX_WAITING)){
-				
+
 				if((this.getStateMachineBitSet() & LacpConst.PORT_SELECTED) == 0){
 					this.setStateMachineBitSet((short)(this.getStateMachineBitSet() & ~(LacpConst.PORT_READY_N)));
 					this.getPortAggregator().setAggPortsReady(this.getPortAggregator().getAggPortsReady());
 					muxContext.setState(muxDetachedState);
 					LOG.debug("portMuxStateMachine setting port={} to muxDetachedState",portId);
-				}else{					
-					
+				}else{
+
 					if(timerExpired!= null){
 						if(timerExpired.getTimerWheelType() == Utils.timerWheeltype.WAIT_WHILE_TIMER){
 							//this.getPortAggregator().setAggPortsReady(this.getPortAggregator().getAggPortsReady());
@@ -1800,21 +1801,21 @@ public class LacpPort implements Comparable<LacpPort> {
 					// if the waitWhileTimer expired, and the port is in READY state, move to ATTACHED state
 					if (((this.getStateMachineBitSet() & LacpConst.PORT_READY) > 0)
 							&& ((timerExpired != null) && timerExpired.getTimerWheelType() == Utils.timerWheeltype.WAIT_WHILE_TIMER)) {
-						muxContext.setState(muxAttachedState); 
+						muxContext.setState(muxAttachedState);
 						LOG.debug("portMuxStateMachine wait while timer expired for port={}",portId);
 						LOG.debug("portMuxStateMachine setting port={} to muxAttachedState",portId);
 					}
 				}
 			}else if (muxContext.getState().getStateFlag() == LacpConst.MUX_STATES.MUX_ATTACHED){
-			
-				if (((this.getStateMachineBitSet() & LacpConst.PORT_SELECTED) > 0) && 
+
+				if (((this.getStateMachineBitSet() & LacpConst.PORT_SELECTED) > 0) &&
 							((this.partnerOper.portState & LacpConst.PORT_STATE_SYNCHRONIZATION) > 0) ) {
-					    
+
 						muxContext.setState(muxCollectingDistributingState);
 						LOG.debug("portMuxStateMachine setting port={} to muxCollectingDistributingState",portId);
-					
-				} else if (((this.getStateMachineBitSet() & LacpConst.PORT_SELECTED) == 0) || 
-								((this.getStateMachineBitSet() & LacpConst.PORT_STANDBY) > 0)) {    
+
+				} else if (((this.getStateMachineBitSet() & LacpConst.PORT_SELECTED) == 0) ||
+								((this.getStateMachineBitSet() & LacpConst.PORT_STANDBY) > 0)) {
 						this.setStateMachineBitSet((short)(this.getStateMachineBitSet() & ~LacpConst.PORT_READY_N));
 
 						this.getPortAggregator().setAggPortsReady(this.getPortAggregator().getAggPortsReady());
@@ -1824,11 +1825,11 @@ public class LacpPort implements Comparable<LacpPort> {
 			}else if (muxContext.getState().getStateFlag() == LacpConst.MUX_STATES.MUX_COLLECTING_DISTRIBUTING){
 				if (((this.getStateMachineBitSet() & LacpConst.PORT_SELECTED)==0) || ((this.getStateMachineBitSet() & LacpConst.PORT_STANDBY) > 0) ||
 						((this.partnerOper.portState & LacpConst.PORT_STATE_SYNCHRONIZATION))==0) {
-					 
+
 						muxContext.setState(muxAttachedState);
 						LOG.debug("portMuxStateMachine setting port={} to muxAttachedState",portId);
 						short aggrId = 0;
-						
+
 						try {
 							LacpAggregator lacpAggr = this.getPortAggregator();
 							aggrId = lacpAggr.getAggId();
@@ -1841,13 +1842,13 @@ public class LacpPort implements Comparable<LacpPort> {
 							LOG.error(errStr);
 							LOG.error(e.getMessage());
 						}
-				} 
+				}
 			}else{
 				//no-op
 			}
-			
+
 		}
-		
+
 		if(muxContext.getState().getStateFlag() != lastState) {
 			LOG.debug("portMuxStateMachine calling executeStateAction for port={}, {}",swId, portId);
 			LOG.debug("The Mux State Flag is : " + muxContext.getState().getStateFlag());
@@ -1855,7 +1856,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			slaveGetBond().setDirty(true);
 		}
 	}
-		
+
 
 	void portTxStateMachine(TimerExpiryMessage timerExpired)
 	{
@@ -1883,21 +1884,21 @@ public class LacpPort implements Comparable<LacpPort> {
 		// this LOG.c only applies when we are operating in fast periodic time...
 		// currently we operate only in slow periodic time....
 		*/
-	 
+
 		// check if there is something to put on tx queue
 		if ((this.isNtt()) && ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED)>0)) {
 				LOG.debug("portTxStateMachine putting port={}, {} on to tx queue, setting Ntt false ",swId, portId);
 				lacpduSend(qType);
 				this.setNtt(false);
 		}
-		
+
 		LOG.debug("Exiting portTxStateMachine for port={}, {}",swId, portId);
 	}
-		
+
 
 	void portHandleLinkChange(byte link)
 	{
-				
+
 		LOG.debug("Entering portHandleLinkChange for port={}, {}",swId, portId);
 		if (link == LacpConst.BOND_LINK_UP) {
 			isEnabled = true;
@@ -1911,20 +1912,20 @@ public class LacpPort implements Comparable<LacpPort> {
                  	if (this.isPortAttDist()) {
                 	 	LOG.debug("Port is distribution mode for delete before sending update");
                 	 	disableCollectingDistributing(this.portId,this.getPortAggregator());
-                 	}	
+                 	}
 
         	}
 		portSetLagId();
         	setStateMachineBitSet((short)(getStateMachineBitSet() | LacpConst.PORT_BEGIN));
 		LOG.debug("Exiting portHandleLinkChange for port={}, {}",swId, portId);
 	}
-	
+
 	void portAssignSlave(byte[] sysMacAddr, int lacpFast, int sysPri, int portPri, short adminKey) {
-		
+
 		LOG.debug("Entering portAssignSlave for port={}, {}",swId, portId);
 		lacpInitPort(lacpFast);
 		this.isInitialized = true;
-		
+
 		setActorPortNumber(portId);
 		actorOperPortKey = getActorAdminPortKey();
 		this.setActorSystemPriority(sysPri);
@@ -1934,24 +1935,24 @@ public class LacpPort implements Comparable<LacpPort> {
 			setStateMachineBitSet((short)(getStateMachineBitSet() & ~LacpConst.PORT_LACP_ENABLED));
 			LOG.debug("portAssignSlave - setting port={} to PORT_LACP_ENABLED FALSE",portId);
 		}
-		
+
 		setActorSystem(Arrays.copyOf(sysMacAddr, LacpConst.ETH_ADDR_LEN));
 		portSetLagId();
 		LOG.debug("Exiting portAssignSlave for port={}",portId);
 	}
-	
+
 	public byte portGetPortStatus() {
 		return (this.getLink());
 	}
-	
+
 	public void portSetLagId() {
-		
+
 		LOG.debug("Entering portSetLagId for port={}",portId);
 		int result;
 		LagId current;
-		LagIdElem self = new LagIdElem(this.getActorSystemPriority(),this.getActorSystem(), this.actorOperPortKey, 
+		LagIdElem self = new LagIdElem(this.getActorSystemPriority(),this.getActorSystem(), this.actorOperPortKey,
 				this.getActorPortPriority(), this.getActorPortNumber());
-		LagIdElem partner = new  LagIdElem(this.partnerOper.systemPriority,this.partnerOper.system, 
+		LagIdElem partner = new  LagIdElem(this.partnerOper.systemPriority,this.partnerOper.system,
 				this.partnerOper.key, this.partnerOper.portPriority, this.partnerOper.portNumber);
 		result = self.compareTo(partner);
 		if (result!=0) {
@@ -2003,7 +2004,7 @@ public class LacpPort implements Comparable<LacpPort> {
         return this.ncId;
     }
     public void setLogicalNCRef (NodeConnectorRef ref)
-    {  
+    {
         lacpNCBuilder.setLogicalNodeconnectorRef(ref);
         updateNCLacpInfo();
     }

@@ -1,9 +1,11 @@
 /*
-  * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
-  * This program and the accompanying materials are made available under the
-  *   * terms of the Eclipse Public License v1.0 which accompanies this distribution,
-  *     * and is available at http://www.eclipse.org/legal/epl-v10.html
-  *     */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.lacp.packethandler;
 
 import java.math.BigInteger;
@@ -78,14 +80,14 @@ public class PduQueueHandler {
         }
 
 	InstanceIdentifier port = packetReceived.getIngress().getValue();
-        if((lacpNodeExtn != null) && 
+        if((lacpNodeExtn != null) &&
 	   (lacpNodeExtn.containsPort(port)) == LacpPortType.NONE){
                 LOG.debug ("LacpNodeconnector {} is yet to be created. Drop the packets and return", packetReceived.getIngress().getValue());
                 return;
 
 	}
 
-	
+
 
         // Decode the received Packet.
         LacpPacketPduBuilder builder = decodeLacp(packetReceived);
@@ -142,9 +144,9 @@ public class PduQueueHandler {
         int bitOffset = 0;
 	int offsetLenEight = 8;
 	int offsetLenSixteen = 16;
-	int offsetLenThirtyTwo = 32; 
-	int offsetLenFortyEight = 48; 
-	int offsetLenFourHundred = 400; 
+	int offsetLenThirtyTwo = 32;
+	int offsetLenFortyEight = 48;
+	int offsetLenFourHundred = 400;
         byte[] data = packetReceived.getPayload();
 
         LacpPacketPduBuilder builder = new LacpPacketPduBuilder();

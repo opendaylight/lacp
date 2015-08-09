@@ -1,10 +1,10 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   * This program and the accompanying materials are made available under the
- *    * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *     * and is available at http://www.eclipse.org/legal/epl-v10.html
- *      *
- *       */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.lacp.core;
 import org.slf4j.Logger;
@@ -14,8 +14,8 @@ public class LagIdPort implements Comparable<LagIdPort> {
 	final int portPriority;
 	final short portNumber;
 	private static final Logger LOG = LoggerFactory.getLogger(LagIdPort.class);
-	
-	
+
+
 	public LagIdPort(int portPri, short portNum) {
 		super();
 		this.portPriority = portPri;
@@ -24,10 +24,10 @@ public class LagIdPort implements Comparable<LagIdPort> {
 
 	public LagIdPort(LagIdPort arg0) {
 		this(arg0.portPriority,arg0.portNumber);
-	}	
-	
-	
-	
+	}
+
+
+
 	public int getPort_priority() {
 		return portPriority;
 	}
@@ -53,13 +53,13 @@ public class LagIdPort implements Comparable<LagIdPort> {
 		}
 		val1 = this.portNumber & 0xffff;
 		val2 = arg0.portNumber & 0xffff;
-		
+
 		if (val1 < val2){
 			return -1;
 		}
 		else if (val1 > val2){
 			return 1;
-		}		
+		}
 		return 0;
 	}
 

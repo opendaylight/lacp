@@ -1,10 +1,10 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   * This program and the accompanying materials are made available under the
- *    * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *     * and is available at http://www.eclipse.org/legal/epl-v10.html
- *      *
- *       */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.lacp.state;
 
@@ -15,12 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RxLacpDisabledState extends RxState {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(RxLacpDisabledState.class);
 	public RxLacpDisabledState(){
 		stateFlag = LacpConst.RX_STATES.RX_LACP_DISABLED;
 	}
-	
+
 	public void executeStateAction(RxContext obj, LacpPort portObjRef,LacpBpduInfo pdu){
 		/*
 		1. Selected = UNSELECTED
@@ -28,7 +28,7 @@ public class RxLacpDisabledState extends RxState {
 		3. Partner_Oper_Port_State.Aggregation = FALSE
 		4. Actor_Oper_Port_State.Expired = FALSE
 		*/
-		
+
 		LOG.debug("Entering RxLacpDisabledState executeStateAction");
 		stateFlag = LacpConst.RX_STATES.RX_LACP_DISABLED;
 		portObjRef.setStateMachineBitSet((short)(portObjRef.getStateMachineBitSet() & ~LacpConst.PORT_SELECTED));
@@ -44,7 +44,7 @@ public class RxLacpDisabledState extends RxState {
 	public LacpConst.RX_STATES getStateFlag(){
 		return stateFlag;
 	}
-	
+
 	public void setStateFlag(LacpConst.RX_STATES state){
 		stateFlag = state;
 	}

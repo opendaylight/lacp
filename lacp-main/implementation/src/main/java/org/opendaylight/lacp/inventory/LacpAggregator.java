@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
- *
  */
 
 package org.opendaylight.lacp.inventory;
@@ -23,7 +23,7 @@ import org.opendaylight.lacp.inventory.LacpPort;
 
 public class LacpAggregator implements Comparable<LacpAggregator> {
 
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(LacpAggregator.class);
 
 	private static int id = 1;
@@ -36,9 +36,9 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 	private int partnerSystemPriority;
 	private short partnerOperAggKey;
 	short receiveState;
-	short transmitState; 
+	short transmitState;
 	private List<LacpPort> lagPortList;
-	
+
 	private List<LacpPort> standByPorts;
 	private LagId aggLagId;  /* Operational LagId */
 	private short numOfPorts;
@@ -46,7 +46,7 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 	private short isActive;
 	private boolean reselect;
 	private LacpBond bond;
-	
+
 	public boolean isReselect() {
 		return reselect;
 	}
@@ -67,7 +67,7 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 	public short aggGetPartnerOperAggKey() {
 		return getPartnerOperAggKey();
 	}
-	
+
 	public LacpBond aggGetBond() {
 		return getBond();
 	}
@@ -77,28 +77,28 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 	}
 
 
-	
+
 	public List<LacpPort> getLagPorts() {
 		return getLagPortList();
 	}
-	
+
 
 	public short getNumOfPorts() {
 		return numOfPorts;
 	}
 
 	private  LacpAggregator() {
-		
+
 			this.setAggId((short) id);
 			if (++id > 0xffff) {
 				id = 1;
 			}
 	}
-	
+
 	public static LacpAggregator newInstance() {
 		return new LacpAggregator();
 	}
-	
+
 	public boolean aggHasPartner() {
 		if (getPartnerSystem()==null){
 			return false;
@@ -108,8 +108,8 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		}
 		return false;
 	}
-	
-	
+
+
 	public boolean aggPartnerIsNullMac() {
 		if (getPartnerSystem() == null){
 			 return false;
@@ -119,34 +119,34 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		}
 		return false;
 	}
-	
+
 	public boolean aggHasPort(LacpPort port) {
 		if (getLagPortList() != null && getLagPortList().contains(port)){
 			return true;
 		}
 		return false;
 	}
-	
+
 	public boolean aggHasStandbyPort(LacpPort port) {
 		if (getStandByPorts() != null && getStandByPorts().contains(port)){
 			return true;
 		}
 		return false;
 	}
-	
+
 	public short getAggId() {
 		return (this.aggId);
 	}
-	
+
 	boolean getIsIndiv() {
 		return this.isIndiv();
 	}
-	
+
 	void setIsIndiv(boolean val) {
 		this.setIndiv(val);
 	}
-	
-	void setAggPortsReady(int val) 
+
+	void setAggPortsReady(int val)
 	{
 		if (getLagPortList() == null){
 		 return;
@@ -164,12 +164,12 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 			if (port.getPortsReady() == 0) {
 				return(0);
 			}
-		}		
+		}
 		return(1);
 	}
-	
-	
-	
+
+
+
 	int getAggBandwidth() {
 		int bandwidth = 0;
 		LacpPort port = null;
@@ -192,20 +192,20 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 					bandwidth = this.getNumOfPorts() * 40000;
 					break;
 				default:
-					bandwidth = 0; 
+					bandwidth = 0;
 			}
 		}
 		return  bandwidth;
 	}
-	
+
 	public short getIsActive() {
 		return this.isActive;
 	}
-	
+
 	public void setIsActive(short val) {
 		this.isActive = val;
 	}
-	
+
 	void rmPortFromAgg(LacpPort port) {
 		if (getLagPortList() != null && getLagPortList().size()> 0) {
 			getLagPortList().remove(port);
@@ -216,29 +216,29 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 			}else{
 				Collections.sort(getLagPortList());
 			}
-		}		
+		}
 	}
-	
+
 	void addPortToAgg(LacpPort port) {
 		if (getLagPortList() == null) {
-			setLagPortList(new ArrayList<LacpPort>());		
+			setLagPortList(new ArrayList<LacpPort>());
 		}
 		if (getLagPortList().contains(port)){
 			LOG.debug("Port is already present in the aggregator");
 			return;
-		}			
+		}
 		getLagPortList().add(port);
 		this.setNumOfPorts((short)(this.getNumOfPorts() + 1));
 		Collections.sort(getLagPortList());
 	}
-	
-	
+
+
 	void addPortToAggStandBy(LacpPort port) {
 		if (getStandByPorts() == null) {
-			setStandbyPorts(new ArrayList<LacpPort>());		
+			setStandbyPorts(new ArrayList<LacpPort>());
 		}
 		if (getStandByPorts().contains(port)){
-			LOG.debug("LacpAggregator addPortToAggStandBy port={} is already present as a standby", 
+			LOG.debug("LacpAggregator addPortToAggStandBy port={} is already present as a standby",
 					port.slaveGetPortId());
 			return;
 		}
@@ -254,9 +254,9 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 			LOG.debug("Remove port={} from agg standby", port.slaveGetPortId());
 			this.setNumOfStandbyPort((short)(this.getNumOfStandbyPort() - 1));
 			Collections.sort(getStandByPorts());
-		}		
-	}		
-	
+		}
+	}
+
 	LacpPort getLastPortFromAggStandBy() {
 		if (getStandByPorts() != null && getStandByPorts().size() > 0) {
 			LOG.debug("LacpAggregator getLastPortFromAggStandBy returning - last port from standby");
@@ -267,7 +267,7 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 			return null;
 		}
 	}
-	
+
 	LacpPort getLastPortFromAgg() {
 		if (getLagPortList() != null && getLagPortList().size() > 0) {
 			LOG.debug("LacpAggregator getLastPortFromAgg returning - last port from agg");
@@ -278,7 +278,7 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 			return null;
 		}
 	}
-	
+
 	void clearAgg() {
 		setIndiv(false);
 		setActorAdminAggregatorKey((short)0);
@@ -291,18 +291,18 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		setLagPortList(new ArrayList<LacpPort>());
 		setStandbyPorts(new ArrayList<LacpPort>());
 		isActive = 0;
-		setNumOfPorts((short)0);	
+		setNumOfPorts((short)0);
 		setNumOfStandbyPort((short)0);
 		reselect = false;
 		this.setAggLagId(null);
 	}
-	
+
 	void initAgg() {
 		clearAgg();
 		setAggMacAddress(Arrays.copyOf(LacpConst.NULL_MAC_ADDRESS, LacpConst.ETH_ADDR_LEN));
 	}
-	
-	void copyAggInfoFromPort(LacpPort port) 
+
+	void copyAggInfoFromPort(LacpPort port)
 	{
 		this.setIndiv(port.get_Duplex()> 0 ? false : true);
 		this.setActorAdminAggregatorKey(port.getActorAdminPortKey());
@@ -315,10 +315,10 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		this.setLagPortList(new ArrayList<LacpPort>());
 		this.setStandbyPorts(new ArrayList<LacpPort>());
 		this.setNumOfStandbyPort((short)0);
-		this.setAggLagId(new LagId(port.portGetLagId()));			
+		this.setAggLagId(new LagId(port.portGetLagId()));
 	}
-	
-	boolean isPortFitToAgg(LacpPort port) 
+
+	boolean isPortFitToAgg(LacpPort port)
 	{
 		if (this.getAggLagId() != null && this.getAggLagId().compareToPartial(port.portGetLagId())==0 && port.portGetLagId().isNeighborFound() && (!this.isIndiv())) {
 			LOG.debug("isPortFitToAgg returned true");
@@ -329,8 +329,8 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		return false;
 
 	}
-	
-	boolean aggDevUp() 
+
+	boolean aggDevUp()
 	{
 		Byte status;
 		if (this.getLagPortList() != null && this.getLagPortList().size()> 0) {
@@ -347,8 +347,8 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		LOG.debug("aggDevUp returned false");
 		return false;
 	}
-	
-	
+
+
 	static LacpAggregator aggregatorSelection(LacpAggregator aggBest,LacpAggregator aggCurrent)
 	{
 
@@ -390,21 +390,21 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
        	      }
 	   return aggBest;
 	}
-	
-	
+
+
 	void setAggBond(LacpBond bond) {
-		
+
 		initAgg();
 		setAggMacAddress(Arrays.copyOf(bond.getSysMacAddr(), LacpConst.ETH_ADDR_LEN));
 		this.setBond(bond);
 		this.isActive = 0;
-		this.setNumOfPorts((short)0);	
+		this.setNumOfPorts((short)0);
 		this.reselect = false;
 	}
-	
-	
+
+
 	static void copyAggfromOriginAgg(LacpAggregator dest,LacpAggregator origin) {
-		
+
 		dest.setIndiv(origin.isIndiv());
 		dest.setActorAdminAggregatorKey(origin.getActorAdminAggregatorKey());
 		dest.setActorOperAggKey(origin.getActorOperAggKey());
@@ -414,10 +414,10 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		dest.setReceiveState(origin.getReceiveState());
 		dest.setTransmitState(origin.getTransmitState());
 		dest.isActive = origin.isActive;
-		dest.setNumOfPorts(origin.getNumOfPorts());	
+		dest.setNumOfPorts(origin.getNumOfPorts());
 		dest.getLagPortList().clear();
 		dest.reselect = false;
-		
+
 		for (LacpPort port : origin.getLagPortList()) {
 			dest.getLagPortList().add(port);
 			port.portSetAggregator(dest);
@@ -447,7 +447,7 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 
 		short portNumber;
 		int count = 0;
-		
+
 		if (port == null){
 			 return false;
 		}
@@ -464,8 +464,8 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		LOG.debug("IsPortReachMaxCount - returned false");
 		return false;
 	}
-	
-	
+
+
 	public boolean canMoveToSelList(LacpPort port) {
 		if (port == null){
 		  return false;
@@ -487,9 +487,9 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 			return true;
 		}
 		return false;
-		
+
 	}
-	
+
 	public boolean existPortwithDist() {
 		for (LacpPort port: this.getLagPortList()) {
 			if (port.isPortAttDist()){

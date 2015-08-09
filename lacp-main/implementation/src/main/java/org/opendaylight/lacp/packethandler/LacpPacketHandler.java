@@ -1,9 +1,11 @@
-/* 
- * Copyright (c) 2014 Dell Inc. and others.  All rights reserved. 
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.lacp.packethandler;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
@@ -53,7 +55,7 @@ public class LacpPacketHandler implements PacketProcessingListener {
             MacAddress destMac = new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 0, 48)));
             int ethType = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 96, 16));
 
-            if ((ethType == LacpUtil.LACP_ETHTYPE) && (destMac.equals(LacpUtil.LACP_MAC) == true)) 
+            if ((ethType == LacpUtil.LACP_ETHTYPE) && (destMac.equals(LacpUtil.LACP_MAC) == true))
             {
                 /* receive packets only on external ports */
                 if (verifyExternalPort(packetReceived.getIngress()) == true)

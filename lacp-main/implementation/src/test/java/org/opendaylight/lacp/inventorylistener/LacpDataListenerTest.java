@@ -1,9 +1,11 @@
 /*
- * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.lacp.inventorylistener;
 
 import org.junit.Before;
@@ -41,7 +43,7 @@ import java.util.HashSet;
 
 public class LacpDataListenerTest {
     private LacpDataListener listener;
-    @MockitoAnnotations.Mock 
+    @MockitoAnnotations.Mock
     private DataBroker dataBroker;
 
     @Before
@@ -96,7 +98,7 @@ public class LacpDataListenerTest {
             .setSource(new SourceBuilder().setSourceNode(new NodeId("openflow:2")).setSourceTp(new TpId("openflow:2")).build())
             .setDestination(new DestinationBuilder().setDestNode(new NodeId("openflow:2")).setDestTp(new TpId("openflow:2")).build())
             .build();
-        
+
         AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChange = Mockito.mock(AsyncDataChangeEvent.class);
         Map<InstanceIdentifier<?>, DataObject> create = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Link> id1 = InstanceIdentifier.create(Link.class);
@@ -119,7 +121,7 @@ public class LacpDataListenerTest {
             .setSource(new SourceBuilder().setSourceNode(new NodeId("openflow:2")).setSourceTp(new TpId("openflow:2")).build())
             .setDestination(new DestinationBuilder().setDestNode(new NodeId("host:2")).setDestTp(new TpId("host:2")).build())
             .build();
-        
+
         AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChange = Mockito.mock(AsyncDataChangeEvent.class);
         Map<InstanceIdentifier<?>, DataObject> create = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Link> id1 = InstanceIdentifier.create(Link.class);
@@ -142,7 +144,7 @@ public class LacpDataListenerTest {
             .setSource(new SourceBuilder().setSourceNode(new NodeId("openflow:2")).setSourceTp(new TpId("openflow:2")).build())
             .setDestination(new DestinationBuilder().setDestNode(new NodeId("host:2")).setDestTp(new TpId("host:2")).build())
             .build();
-        
+
         AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChange = Mockito.mock(AsyncDataChangeEvent.class);
         Map<InstanceIdentifier<?>, DataObject> original = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Link> id1 = InstanceIdentifier.create(Link.class);
@@ -168,7 +170,7 @@ public class LacpDataListenerTest {
             .setSource(new SourceBuilder().setSourceNode(new NodeId("openflow:2")).setSourceTp(new TpId("openflow:2")).build())
             .setDestination(new DestinationBuilder().setDestNode(new NodeId("host:2")).setDestTp(new TpId("host:2")).build())
             .build();
-        
+
         AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChange = Mockito.mock(AsyncDataChangeEvent.class);
         Map<InstanceIdentifier<?>, DataObject> create = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Link> id1 = InstanceIdentifier.create(Link.class);

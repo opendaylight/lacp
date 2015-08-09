@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -111,7 +112,7 @@ public class RSMThread implements Runnable
 	short portId = lacpBpdu.getPortId();
 
 	bond = lacpList.get(portId);
-		
+
 	boolean newEntry = false;
         LacpSysKeyInfo sysKeyInfo = null;
 
@@ -126,11 +127,11 @@ public class RSMThread implements Runnable
 		bond = findLacpBondByPartnerMacKey(sysId, key);
 		if (bond == null) {
 			LOG.debug("handleLacpBpdu - couldn't find lacpBond for partner with sysId={} key={}", sysId, key);
-			bond = lacpSysKeyList.get(sysKeyInfo);	
+			bond = lacpSysKeyList.get(sysKeyInfo);
 		}else{
 			LOG.debug("handleLacpBpdu - bond found by partner mac key partner with sysId={} key={}", sysId, key);
-		} 
-		
+		}
+
 		if (bond!= null ) {
 			int bondPriority = (bond.bondGetSysPriority() & INT_PRIORITY);
 			LOG.debug("handleLacpBpdu - LACP Bond is found sysId={}, key={}, priority={} ", LacpConst.toHex(sysId),
@@ -144,7 +145,7 @@ public class RSMThread implements Runnable
 				String.format("0x%04x",priority), String.format("0x%04x",portId), HexEncode.longToHexString(swId));
 
 				bond.bondUpdateSystemPriority(((priority >>1) & INT_PRIORITY) );
-			} 
+			}
 			bond.bondUpdateLinkUpSlave(swId,portId);
 			if (lacpList.putIfAbsent(portId, bond) == null) {
 				newEntry = true;
@@ -176,10 +177,10 @@ public class RSMThread implements Runnable
 			sysKeyInfo = new LacpSysKeyInfo(sysId,key);
 			lacpBond = lacpSysKeyList.putIfAbsent(sysKeyInfo,bond);
 			if( lacpBond != null) {
-				LOG.debug("handleLacpBpdu - Exception: bond {} with sysKey {} already exist", bond.toString(), 
+				LOG.debug("handleLacpBpdu - Exception: bond {} with sysKey {} already exist", bond.toString(),
 											sysKeyInfo.toString());
 			}
-		} 
+		}
 	}
 	if(bond != null){
 		doRxPktProcess(swId,portId,lacpBpdu,bond);
@@ -193,29 +194,29 @@ public class RSMThread implements Runnable
 	bond.bondStateMachineLock();
 	try {
 		Iterator<LacpPort> iter = bond.getSlaveList().iterator();
-		while(iter.hasNext()) { 
+		while(iter.hasNext()) {
 			LacpPort lacpPort = iter.next();
-			if (lacpPort.slaveGetPortId() == portId && 
+			if (lacpPort.slaveGetPortId() == portId &&
 					lacpPort.getLacpSwId() == switchId) {
 
 				lacpPort.slavePSMLock();
 				try {
 					LOG.debug("doRxPktProcess - retrieved LacpPort object for portId={}",portId);
 					lacpPort.slaveRxLacpBpduReceived(bpduInfo);
-				}	 
+				}
 				finally {
 					lacpPort.slavePSMUnlock();
-				}	
-			}	
+				}
+			}
 		}
-	}	 
+	}
 	finally {
 		bond.bondStateMachineUnlock();
 	}
 	LOG.debug("doRxPktProcess - Exit...");
     }
 
-    
+
     public void handlePortTimeout(TimerExpiryMessage tmExpiryMsg){
 	LOG.debug("handlePortTimeout - Entry... ");
 
@@ -227,31 +228,31 @@ public class RSMThread implements Runnable
 	LacpBond bond = lacpList.get(portId);
 
 	if(bond != null){
-		
+
 		bond.bondStateMachineLock();
 		try {
 			Iterator<LacpPort> iter = bond.getSlaveList().iterator();
-			while(iter.hasNext()) { 
+			while(iter.hasNext()) {
 				LacpPort lacpPort = iter.next();
-				if (lacpPort.slaveGetPortId() == portId && 
+				if (lacpPort.slaveGetPortId() == portId &&
 						lacpPort.getLacpSwId() == switchId) {
 
 					lacpPort.slavePSMLock();
 					try {
 						LOG.debug("handlePortTimeout - retrieved LacpPort object for portId={}",portId);
 						lacpPort.runProtocolStateMachine(lacpdu,tmExpiryMsg);
-					}	 
+					}
 					finally {
 						lacpPort.slavePSMUnlock();
-					}	
-				}	
+					}
+				}
 			}
-		}	 
+		}
 		finally {
 			bond.bondStateMachineUnlock();
 		}
 	}else{
-		//LOG.message	
+		//LOG.message
 	}
 	LOG.debug("handlePortTimeout - Exit... ");
     }
@@ -267,9 +268,9 @@ public class RSMThread implements Runnable
 	short portId = (short)portState.getPortID();
     boolean resetStatus = portState.getPortResetStatus();
         InstanceIdentifier<NodeConnector> ncId = portState.getNodeConnectorInstanceId();
-	
-	bond = lacpList.get(portId);	
-	
+
+	bond = lacpList.get(portId);
+
 	if(bond != null)
         {
 		if(portState.getPortStatus()==1){
@@ -280,9 +281,9 @@ public class RSMThread implements Runnable
                     lacpPort = bond.getSlavePortObject(portId);
                     if( lacpPort != null)
                     {
-                        lacpPort.setPortOperStatus(false); 
+                        lacpPort.setPortOperStatus(false);
                         lacpPort.setResetStatus(resetStatus);
-                        LOG.debug("in handleLacpPortState - setting timeout to true"); 
+                        LOG.debug("in handleLacpPortState - setting timeout to true");
                     }
 		    bond.bondUpdateLinkDownSlave(swId,portId);
                     if( lacpPort != null){
@@ -424,7 +425,7 @@ public class RSMThread implements Runnable
                 //if node del msg free queues
 		if(pduElem.getMessageType() == LacpPDUPortStatusContainer.MessageType.LACP_PDU_MSG){
 			handleLacpBpdu((LacpBpduInfo)pduElem);
-		}else if(pduElem.getMessageType() == 
+		}else if(pduElem.getMessageType() ==
 				LacpPDUPortStatusContainer.MessageType.LACP_PORT_STATUS_MSG){
 			LOG.debug("Got LACP_PORT_STATUS_MSG message");
 			handleLacpPortState((LacpPortStatus)pduElem);
@@ -460,7 +461,7 @@ public class RSMThread implements Runnable
 			    }
 		    }
 	    }
-            
+
         }
 
     }

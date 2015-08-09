@@ -1,9 +1,11 @@
 /*
-/ * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
-  * This program and the accompanying materials are made available under the
-  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
-  * and is available at http://www.eclipse.org/legal/epl-v10.html
-*/
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.lacp.packethandler;
 
 import org.slf4j.Logger;
@@ -166,7 +168,7 @@ public class TxUtils {
 		bb.put(convertStringtoByte((new String (Integer.toHexString(lacpPDU.getTerminatorInfoLen()).toString()))));
 		bb.put(padExtraZeroes(convertStringtoByte((new String (lacpPDU.getTerminatorReserved()))),50));
 		bb.put(padExtraZeroes(convertStringtoByte((new String ((lacpPDU.getFCS()).toString()))),4));
-		
+
 		StringBuffer sb4 = new StringBuffer();
                 for (int i=0;i<bdata.length;i++) {
                         sb4.append(Integer.toHexString((int) bdata[i]));
@@ -175,8 +177,8 @@ public class TxUtils {
 		return(bdata);
 	}
 
-	public static void dispatchPacket(byte[] payload, NodeConnectorRef ingress, 
-					  MacAddress srcMac, MacAddress destMac, 
+	public static void dispatchPacket(byte[] payload, NodeConnectorRef ingress,
+					  MacAddress srcMac, MacAddress destMac,
 					  PacketProcessingService pServ) {
 
 		NodeConnectorRef destNodeConnector = ingress;
@@ -204,10 +206,10 @@ public class TxUtils {
 				 return;
 			}
 			InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
-			TransmitPacketInput input = new TransmitPacketInputBuilder() 
-				.setPayload(payload) 
-				.setNode(new NodeRef(egressNodePath)) 
-				.setEgress(egress) 
+			TransmitPacketInput input = new TransmitPacketInputBuilder()
+				.setPayload(payload)
+				.setNode(new NodeRef(egressNodePath))
+				.setEgress(egress)
 				.build();
 
 			if(pServ != null){

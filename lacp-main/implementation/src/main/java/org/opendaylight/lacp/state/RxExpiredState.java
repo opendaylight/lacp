@@ -1,10 +1,10 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   * This program and the accompanying materials are made available under the
- *    * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *     * and is available at http://www.eclipse.org/legal/epl-v10.html
- *      *
- *       */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.lacp.state;
 
@@ -26,7 +26,7 @@ public class RxExpiredState extends RxState {
 		3. start current_while_timer(Short Timeout)
 		4. Actor_Oper_Port_State.Expired = TRUE
 		*/
-		
+
 
 		LOG.debug("Entering RxExpiredState executeStateAction");
 		stateFlag = LacpConst.RX_STATES.RX_EXPIRED;
@@ -40,7 +40,7 @@ public class RxExpiredState extends RxState {
 		obj.setState(this);
 		LOG.debug("Exiting RxExpiredState executeStateAction");
 	}
-	
+
 	public LacpConst.RX_STATES getStateFlag(){
 		return stateFlag;
 	}

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.lacp.Utils;
 
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -26,7 +34,7 @@ public class NodePort
             LacpSystem lacpSystem = LacpSystem.getLacpSystem();
             LacpNodeExtn lacpNode = lacpSystem.getLacpNode(node);
             /* If the port is already available in the lacpPortList in the lacpNode,
-             *  return the port id, else obtain the portId from the flowCapableNC 
+             *  return the port id, else obtain the portId from the flowCapableNC
              *  augmentation information */
             if (lacpNode != null)
             {

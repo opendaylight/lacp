@@ -1,10 +1,10 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   * This program and the accompanying materials are made available under the
- *    * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *     * and is available at http://www.eclipse.org/legal/epl-v10.html
- *      *
- *       */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.lacp.state;
 
@@ -22,9 +22,9 @@ public class MuxAttachedState extends MuxState {
 		stateFlag = LacpConst.MUX_STATES.MUX_ATTACHED;
 		LOG.debug("Exiting MuxAttachedState constructor");
 	}
-	
+
 	public void executeStateAction(MuxContext obj, LacpPort portObjRef){
-		
+
 	/*
  	*Attach_Mux_To_Aggregator
 	*Actor.Sync = TRUE
@@ -33,14 +33,14 @@ public class MuxAttachedState extends MuxState {
  	*Actor.Distributing = FALSE
  	* NTT = TRUE
  	*/
-		
+
 		stateFlag = LacpConst.MUX_STATES.MUX_ATTACHED;
 		LOG.debug("MuxAttachedState-executeStateAction Entry");
 		portObjRef.attachBondToAgg();
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState() | LacpConst.PORT_STATE_SYNCHRONIZATION));
 		try {
 			portObjRef.disableCollectingDistributing(portObjRef.slaveGetPortId(),portObjRef.getPortAggregator());
-		
+
 			portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 										& ~LacpConst.PORT_STATE_COLLECTING));
 			portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
@@ -60,11 +60,11 @@ public class MuxAttachedState extends MuxState {
 	public LacpConst.MUX_STATES getStateFlag(){
 		return stateFlag;
 	}
-	
+
 	public void setStateFlag(LacpConst.MUX_STATES state){
 		LOG.debug("MuxAttachedState-setStateFlag Entry");
 		stateFlag = state;
 		LOG.debug("MuxAttachedState-setStateFlag Exit");
-		
+
 	}
 }

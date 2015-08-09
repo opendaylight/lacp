@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.lacp.state;
 
 import static org.junit.Assert.*;
@@ -12,7 +20,7 @@ import org.opendaylight.lacp.inventory.LacpPort;
 public class MuxContextTest {
 	MuxContext context;
 	MuxState stateObj;
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -39,13 +47,13 @@ public class MuxContextTest {
 
 	@Test
 	public void testSetState() throws Exception {
-		context.setState(stateObj);		
+		context.setState(stateObj);
 	}
 
 	@Test
 	public void testGetState() throws Exception {
 		assertEquals(LacpConst.MUX_STATES.MUX_ATTACHED, stateObj.getStateFlag());
-		context.setState(stateObj);		
+		context.setState(stateObj);
 		assertEquals(LacpConst.MUX_STATES.MUX_ATTACHED, context.getState().getStateFlag());
 	}
 

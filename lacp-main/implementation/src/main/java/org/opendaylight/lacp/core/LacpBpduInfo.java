@@ -1,15 +1,15 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   * This program and the accompanying materials are made available under the
- *    * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *     * and is available at http://www.eclipse.org/legal/epl-v10.html
- *      *
- *       */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.lacp.core;
 
 import java.util.Date;
- 
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPdu;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.ActorInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.lacp.packet.field.PartnerInfo;
@@ -22,12 +22,12 @@ import org.opendaylight.lacp.queue.*;
 
 
 public class LacpBpduInfo implements LacpPDUPortStatusContainer {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(LacpBpduInfo.class);
 	static final int LACP_BPDU_TYPE= 0;
 	static final int LACP_MARK_REQUEST = 1;
 	static final int LACP_MARK_RESPONSE = 2;
-	
+
 	private long swId;
 	private short portId;
 	private int type;
@@ -199,7 +199,7 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
         if (!this.receivedDate.equals(other.receivedDate)){
         	return false;
 	}
-        return true;	
+        return true;
 	}
 
 

@@ -1,10 +1,10 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   * This program and the accompanying materials are made available under the
- *    * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *     * and is available at http://www.eclipse.org/legal/epl-v10.html
- *      *
- *       */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.lacp.core;
 import org.slf4j.Logger;
@@ -14,20 +14,20 @@ public class LagIdElem implements Comparable<LagIdElem> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(LagIdElem.class);
 	// System MAC + Priority
-	final LagIdSys system;   
+	final LagIdSys system;
 	// Operational Key
-	final short  	 key;   
-	// Port Parameter Number + Priority	
-	final LagIdPort port;  
-	
-	
+	final short  	 key;
+	// Port Parameter Number + Priority
+	final LagIdPort port;
+
+
 	public LagIdElem(int sysPri, byte[] sysMac, short key, int portPri, short portNumber) {
 		super();
 		this.system = new LagIdSys(sysPri, sysMac);
 		this.key = key;
 		this.port = new LagIdPort(portPri, portNumber);
 	}
-	
+
 	public LagIdElem(LagIdSys system, short key, LagIdPort port) {
 		this(system.sysPriority, system.sysMacAddress, key, port.portPriority, port.portNumber);
 	}
@@ -35,17 +35,17 @@ public class LagIdElem implements Comparable<LagIdElem> {
 	public LagIdElem(LagIdElem arg0) {
 		this(arg0.system, arg0.key, arg0.port);
 	}
-	
+
 	public boolean isNeighborFound() {
 		return this.system.isNeighborFound();
 	}
 
 	public boolean isMacAddrEqual(byte[] macAddr) {
-		
+
 		return this.system.isMacAddrEqual(macAddr);
 	}
 	/* Comparison with data except port information */
-	
+
 	public int compareToPartial(LagIdElem arg0) {
 		LOG.debug("Entering/Exiting LagIdElem compareToPartial method");
 		int val1,val2;
@@ -64,9 +64,9 @@ public class LagIdElem implements Comparable<LagIdElem> {
 		else if (val1 > val2){
 			return 1;
 		}
-		return 0;		
+		return 0;
 	}
-	
+
 	@Override
 	public int compareTo(LagIdElem arg0) {
 		// TODO Auto-generated method stub

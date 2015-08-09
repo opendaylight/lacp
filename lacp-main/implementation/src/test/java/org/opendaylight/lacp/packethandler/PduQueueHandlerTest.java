@@ -1,9 +1,11 @@
 /*
-  * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
-  * This program and the accompanying materials are made available under the
-  *   * terms of the Eclipse Public License v1.0 which accompanies this distribution,
-  *     * and is available at http://www.eclipse.org/legal/epl-v10.html
-  *     */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.lacp.packethandler;
 
 import static org.junit.Assert.*;
@@ -74,7 +76,7 @@ public class PduQueueHandlerTest {
 		0x43, (byte)0xf4, 0x01, 0x74, (byte)0x88, 0x09, 0x01, 0x01,
 		0x01, 0x14, (byte)0xff, (byte)0xff, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x11, 0x00, 0x21, 0x00, (byte)0xff, 0x00, 0x02,
-		0x4d, 0x00, 0x00, 0x00, 0x02, 0x14, (byte)0xff, (byte)0xff, 
+		0x4d, 0x00, 0x00, 0x00, 0x02, 0x14, (byte)0xff, (byte)0xff,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
 		0x00, (byte)0xff, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00,
 		0x03, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -148,7 +150,7 @@ public class PduQueueHandlerTest {
    		for(byte b: a)
       			sb.append(String.format("%02x", b & 0xff));
    		return sb.toString();
-	}	
+	}
 
 /*	@Test
 	void test_dispatchPacket(LacpPacketPdu lacpPDU) {
@@ -166,7 +168,7 @@ public class PduQueueHandlerTest {
 //		verify(packetProcessingService, times(1)).transmitPacket(any(TransmitPacketInput.class));
 		verify(txUtils, times(1)).dispatchPacket(payload, nodeConnectorRef, lacpPDU.getSrcAddress(), lacpPDU.getDestAddress());
 
-		
+
 	}  */
 
 
@@ -186,6 +188,6 @@ public class PduQueueHandlerTest {
         return new NodeConnectorRef(portPath);
     }
 
-					
+
 }
 

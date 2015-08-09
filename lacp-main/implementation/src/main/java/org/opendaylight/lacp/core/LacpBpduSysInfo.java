@@ -1,10 +1,10 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   * This program and the accompanying materials are made available under the
- *    * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *     * and is available at http://www.eclipse.org/legal/epl-v10.html
- *      *
- *       */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.lacp.core;
 
@@ -17,7 +17,7 @@ public class LacpBpduSysInfo {
 
 	private static final Logger LOG = LoggerFactory.getLogger(LacpBpduSysInfo.class);
 	private static final byte ETH_ADDR_LEN = 6;
-	private static final byte SYSTEMINFO_SIZE = 15; 
+	private static final byte SYSTEMINFO_SIZE = 15;
 	private int nodeSysPri;
 	private byte[] nodeSysAddr;
 	private short nodeKey;
@@ -33,10 +33,10 @@ public class LacpBpduSysInfo {
 		this.nodeSysPri = (int)0x0000ffff;
 		this.nodePortNum = 1;
 		this.nodePortState = 1;
-		Arrays.fill(this.nodeSysAddr, (byte)0);		
+		Arrays.fill(this.nodeSysAddr, (byte)0);
 	}
 
-	public LacpBpduSysInfo(int priority, byte[] macAddr, short key, int portPriority, short portNumber, byte portState) 
+	public LacpBpduSysInfo(int priority, byte[] macAddr, short key, int portPriority, short portNumber, byte portState)
 	{
 		super();
 		this.nodeSysAddr = Arrays.copyOf(macAddr, ETH_ADDR_LEN);
@@ -46,8 +46,8 @@ public class LacpBpduSysInfo {
 		this.nodePortNum = portNumber;
 		this.nodePortState = portState;
 	}
-		
-	public LacpBpduSysInfo(LacpBpduSysInfo src) 
+
+	public LacpBpduSysInfo(LacpBpduSysInfo src)
 	{
 		this();
 		if (src!= null) {
@@ -56,9 +56,9 @@ public class LacpBpduSysInfo {
 			this.nodeKey = src.nodeKey;
 			this.nodePortPri = src.nodePortPri;
 			this.nodePortNum = src.nodePortNum;
-			this.nodePortState = src.nodePortState;		  
+			this.nodePortState = src.nodePortState;
 		}
-	}		
+	}
 
 	public byte[] serialize() {
 		LOG.debug("Entering LacpBpduSysInfo serialize method");
@@ -73,7 +73,7 @@ public class LacpBpduSysInfo {
 		LOG.debug("Exiting LacpBpduSysInfo serialize method");
 		return data;
 	}
-		
+
 	public LacpBpduSysInfo deserialize(ByteBuffer bb) {
 		this.nodeSysPri = bb.getShort();
 		this.nodeSysAddr = new byte[ETH_ADDR_LEN];
@@ -132,7 +132,7 @@ public class LacpBpduSysInfo {
 	public void setNodePortState(byte nodePortState) {
 		this.nodePortState = nodePortState;
 	}
-		
+
 	@Override
 	public boolean equals(Object obj) {
 
@@ -164,18 +164,18 @@ public class LacpBpduSysInfo {
 	        if (!Arrays.equals(this.nodeSysAddr, other.nodeSysAddr)){
 	        	return false;
 		}
-	        return true;				
+	        return true;
 	}
 
 		@Override
 		public int hashCode() {
-			
+
 			/* Update Prime Number */
 	        final int prime = 1111;
 	        int result = super.hashCode();
 	        result = prime * result + this.nodeSysPri;
 	          if (this.nodeSysAddr != null) {
-	        	  String nodeSysAddrStr = LacpConst.toHex(this.nodeSysAddr); 
+	        	  String nodeSysAddrStr = LacpConst.toHex(this.nodeSysAddr);
 	        	  result = prime * result + nodeSysAddrStr.hashCode();
 	          }
 	        result = prime * result + this.nodeKey;
@@ -184,15 +184,15 @@ public class LacpBpduSysInfo {
 	        result = prime * result + this.nodePortState;
 			return result;
 		}
-		
+
 		@Override
 		public String toString() {
 			return "LacpBpduSysInfo [nodeSysPri="
 					+ String.format("%04x", nodeSysPri) + ", nodeSysAddr="
-					+ (nodeSysAddr!= null ? LacpConst.toHex(nodeSysAddr) : "NULL") + ", nodeKey=" 
+					+ (nodeSysAddr!= null ? LacpConst.toHex(nodeSysAddr) : "NULL") + ", nodeKey="
 					+ String.format("%04x", nodeKey)
 					+ ", nodePortPri=" + String.format("%04x", nodePortPri)
 					+ ", nodePortNum=" + String.format("%04x", nodePortNum) + ", nodePortState="
 					+ String.format("%04x", nodePortState) + "]";
-		}		
+		}
 	}

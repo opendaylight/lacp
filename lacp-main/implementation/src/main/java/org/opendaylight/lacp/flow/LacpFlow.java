@@ -1,5 +1,6 @@
-/* 
- * Copyright (c) 2014 Dell Inc. and others.  All rights reserved. 
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -61,7 +62,7 @@ public class LacpFlow
     private static int flowPriority;
     private static int flowHardTimeout;
     private static int flowIdleTimeout;
-    
+
     public void setSalFlowService (SalFlowService salFlowService)
     {
         Preconditions.checkNotNull(salFlowService, "salFlowService should not be null.");
@@ -150,12 +151,12 @@ public class LacpFlow
 
         Instruction applyActionsInstruction = new InstructionBuilder().setOrder(0)
                 .setInstruction(new ApplyActionsCaseBuilder()
-                                .setApplyActions(applyActions) 
+                                .setApplyActions(applyActions)
                                 .build()).build();
 
-        lFlow.setMatch(match).setInstructions(new InstructionsBuilder() 
-                        .setInstruction(ImmutableList.of(applyActionsInstruction)).build()) 
-                .setPriority(flowPriority).setBufferId(0L) 
+        lFlow.setMatch(match).setInstructions(new InstructionsBuilder()
+                        .setInstruction(ImmutableList.of(applyActionsInstruction)).build())
+                .setPriority(flowPriority).setBufferId(0L)
                 .setHardTimeout(0).setIdleTimeout(0)
                 .setCookie(new FlowCookie(BigInteger.valueOf(lacpCookie.getAndIncrement())))
                 .setFlags(new FlowModFlags(false, false, false, false, false));

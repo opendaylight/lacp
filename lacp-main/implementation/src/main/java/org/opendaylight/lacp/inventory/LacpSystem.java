@@ -1,5 +1,6 @@
-/* 
- * Copyright (c) 2014 Dell Inc. and others.  All rights reserved. 
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -41,11 +42,11 @@ public class LacpSystem
 
     private LacpSystem ()
     {
-    }    
+    }
     public static LacpSystem getLacpSystem ()
     {
         return LACP_SYSTEM;
-    }    
+    }
     public boolean addLacpNode (InstanceIdentifier nodeId, LacpNodeExtn lacpNode)
     {
         Long swId = LacpUtil.getNodeSwitchId(nodeId);
@@ -142,25 +143,25 @@ public class LacpSystem
             LOG.debug("No node is connected yet to controller.");
             return;
         }
-        
+
         LOG.debug("Reading the list of nodes connected to the controller.");
         for (Node node : nodes.getNode())
         {
-            InstanceIdentifier<Node> nodeId 
+            InstanceIdentifier<Node> nodeId
                     = InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey()).build();
-        
+
             Long switchId = LacpUtil.getNodeSwitchId(nodeId);
             if (switchId.equals(INVALID_SWITCHID))
             {
                 LOG.warn ("Node obtained {} is not an openflow enabled node. Not adding it part of lacp system", nodeId);
                 continue;
             }
-            LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId); 
-            if (lacpNode == null) 
-            { 
-                LOG.error("cannot add a lacp node for node {}", nodeId);  
-                return; 
-            } 
+            LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId);
+            if (lacpNode == null)
+            {
+                LOG.error("cannot add a lacp node for node {}", nodeId);
+                return;
+            }
             if (addLacpNode(nodeId, lacpNode) == false)
             {
                 LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
@@ -198,7 +199,7 @@ public class LacpSystem
         /* clear the node and nodeConnectors learnt */
         this.clearLacpNodes();
 
-        // clear the Tx Processor threads 
+        // clear the Tx Processor threads
         TxProcessor.resetLacpLoaded();
         // clear the Tx queues
         LacpTxQueue lacpTxQueue = LacpTxQueue.getLacpTxQueueInstance();

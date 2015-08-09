@@ -1,5 +1,6 @@
-/* 
- * Copyright (c) 2014 Dell Inc. and others.  All rights reserved. 
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -90,7 +91,7 @@ public class LacpSystemTest
         lacpFlow = new LacpFlow();
         LacpNodeExtn.setDataBrokerService(dataBroker);
         LacpUtil.setSalGroupService(salGroup);
-        
+
         lacpFlow.setSalFlowService(salFlow);
         lacpFlow.setLacpFlowTableId((short)0);
         lacpFlow.setLacpFlowPriority(50);
@@ -152,7 +153,7 @@ public class LacpSystemTest
         Node node1 = new NodeBuilder().setId(nodeId1)
                         .setKey(new NodeKey(nodeId1))
                         .setNodeConnector(nodeConnectors1).build();
-                  
+
         List<NodeConnector> nodeConnectors2 = new ArrayList<NodeConnector>();
         NodeId nodeId2 = new NodeId("openflow:2");
         Node node2 = new NodeBuilder().setId(nodeId2)
@@ -169,7 +170,7 @@ public class LacpSystemTest
         when(checkedFuture.get()).thenReturn(optionalNodes);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).thenReturn(checkedFuture);
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
-       
+
         CheckedFuture result = Mockito.mock(CheckedFuture.class);
         WriteTransaction writeOnlyTransaction = Mockito.mock(WriteTransaction.class);
         when(writeOnlyTransaction.submit()).thenReturn(result);
@@ -200,12 +201,12 @@ public class LacpSystemTest
         InstanceIdentifier<NodeConnector> ncId = InstanceIdentifier.builder(Nodes.class)
                           .child(Node.class, new NodeKey(new NodeId("oepnflow:1")))
                           .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
-        
+
         CheckedFuture result = Mockito.mock(CheckedFuture.class);
         WriteTransaction writeOnlyTransaction = Mockito.mock(WriteTransaction.class);
         when(writeOnlyTransaction.submit()).thenReturn(result);
         when(dataBroker.newWriteOnlyTransaction()).thenReturn(writeOnlyTransaction);
-        
+
         lacpNode.addNonLacpPort(ncId);
         boolean res = lacpNode.deletePort(ncId, false);
     }

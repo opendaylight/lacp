@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.lacp.state;
 
 import static org.junit.Assert.*;
@@ -12,7 +20,7 @@ import org.opendaylight.lacp.core.LacpConst;
 import org.opendaylight.lacp.inventory.LacpPort;
 public class PeriodicTxStateTest {
     PeriodicTxState stateObj;
-    
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -34,11 +42,11 @@ public class PeriodicTxStateTest {
 	@Test
 	public void testPeriodicTxState() throws Exception {
 		PeriodicTxState p = new PeriodicTxState();
-		assertEquals(LacpConst.PERIODIC_STATES.PERIODIC_DUMMY, p.getStateFlag());	
+		assertEquals(LacpConst.PERIODIC_STATES.PERIODIC_DUMMY, p.getStateFlag());
 	}
 
 	@Test
-	public void testGetStateFlag() throws Exception {	
+	public void testGetStateFlag() throws Exception {
 		assertEquals(LacpConst.PERIODIC_STATES.PERIODIC_TX, stateObj.getStateFlag());
 	}
 

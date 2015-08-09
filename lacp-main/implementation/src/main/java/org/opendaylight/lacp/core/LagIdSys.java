@@ -1,10 +1,10 @@
 /*
- *  * * Copyright (c) 2014 Dell Inc. and others.  All rights reserved.
- *   * This program and the accompanying materials are made available under the
- *    * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- *     * and is available at http://www.eclipse.org/legal/epl-v10.html
- *      *
- *       */
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 
 package org.opendaylight.lacp.core;
 
@@ -17,7 +17,7 @@ public class LagIdSys implements Comparable<LagIdSys> {
 	private static final Logger LOG = LoggerFactory.getLogger(LagIdSys.class);
 	final int sysPriority;
 	final byte[] sysMacAddress;
-	
+
 	public LagIdSys(int sysPri, byte[] sysMac) {
 		super();
 		this.sysPriority = sysPri;
@@ -26,8 +26,8 @@ public class LagIdSys implements Comparable<LagIdSys> {
 
 	public LagIdSys(LagIdSys arg0) {
 		this(arg0.sysPriority, arg0.sysMacAddress);
-	}	
-	
+	}
+
 	public int getSys_priority() {
 		return sysPriority;
 	}
@@ -43,13 +43,13 @@ public class LagIdSys implements Comparable<LagIdSys> {
 		}
 		return true;
 	}
-	
+
 	public boolean isMacAddrEqual(byte[] macAddr) {
 		if (Arrays.equals(this.sysMacAddress,macAddr)){
 			return true;
 		}
 		return false;
-		
+
 	}
 	@Override
 	public int compareTo(LagIdSys arg0) {
@@ -70,8 +70,8 @@ public class LagIdSys implements Comparable<LagIdSys> {
 			return -1;
 		}
 		if (Arrays.equals(this.sysMacAddress,LacpConst.NULL_MAC_ADDRESS )){
-			return 1;	
-		}	
+			return 1;
+		}
 		for (int i = 0; i < this.sysMacAddress.length; i++) {
 			/* byte f0 < 0 :  we need to compare integer value instead of byte */
 			val1 = this.sysMacAddress[i] & 0xff;
@@ -85,5 +85,5 @@ public class LagIdSys implements Comparable<LagIdSys> {
 		}
 		return 0;
 	}
-		
+
 }
