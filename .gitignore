@@ -3,4 +3,10 @@
 .project
 .classpath
 .settings
-*/target/
+
+# Maven
+target/
+
+# ODL
+yang-gen-code/
+yang-gen-config/
