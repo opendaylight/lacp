@@ -4,13 +4,13 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>odlparent</artifactId>
-    <version>1.5.1-Lithium-SR1</version>
+    <version>1.5.2-SNAPSHOT</version>
     <relativePath></relativePath>
   </parent>
 
   <groupId>org.opendaylight.lacp</groupId>
   <artifactId>lacp-parent</artifactId>
-  <version>1.0.1-Lithium-SR1</version>
+  <version>1.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>lacp</name>
   <prerequisites>
@@ -20,14 +20,14 @@
     <codeGeneratorPath>src/main/yang-gen-code</codeGeneratorPath>
     <configCodeGeneratorPath>src/main/yang-gen-config</configCodeGeneratorPath>
     <nexus_proxy>http://nexus.opendaylight.org/content</nexus_proxy>
-    <mdsal.version>1.2.1-Lithium-SR1</mdsal.version>
-    <yangtools.version>0.7.1-Lithium-SR1</yangtools.version>
+    <mdsal.version>1.2.2-SNAPSHOT</mdsal.version>
+    <yangtools.version>0.7.2-SNAPSHOT</yangtools.version>
     <jung2.version>2.0.1</jung2.version>
-    <config.version>0.3.1-Lithium-SR1</config.version>
-    <openflow.plugin.version>0.1.1-Lithium-SR1</openflow.plugin.version>
-    <dlux.version>0.2.1-Lithium-SR1</dlux.version>
-    <ovsdb.version>1.1.1-Lithium-SR1</ovsdb.version>
-    <l2switch.version>0.2.1-Lithium-SR1</l2switch.version>
+    <config.version>0.3.2-SNAPSHOT</config.version>
+    <openflow.plugin.version>0.1.2-SNAPSHOT</openflow.plugin.version>
+    <dlux.version>0.2.2-SNAPSHOT</dlux.version>
+    <ovsdb.version>1.1.2-SNAPSHOT</ovsdb.version>
+    <l2switch.version>0.2.2-SNAPSHOT</l2switch.version>
     <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
     <config.lacp.main.configfile>93-lacpmain.xml</config.lacp.main.configfile>
   </properties>
@@ -93,7 +93,7 @@
                   <dependency>
                     <groupId>org.opendaylight.controller</groupId>
                     <artifactId>checkstyle</artifactId>
-                    <version>0.1.1-Lithium-SR1</version>
+                    <version>0.1.2-SNAPSHOT</version>
                   </dependency>
                 </dependencies>
                 <executions>
