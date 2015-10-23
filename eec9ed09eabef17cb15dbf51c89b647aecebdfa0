@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_c78f8b22",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpPortTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T11:31:00Z",
+      "side": 1,
+      "message": "Add verification check in these functions. Refer this comment in the below functions also wherever required.",
+      "revId": "eec9ed09eabef17cb15dbf51c89b647aecebdfa0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_e7940f39",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpPortTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 632,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T11:31:00Z",
+      "side": 1,
+      "message": "Remove commented code and dummy functions",
+      "revId": "eec9ed09eabef17cb15dbf51c89b647aecebdfa0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
