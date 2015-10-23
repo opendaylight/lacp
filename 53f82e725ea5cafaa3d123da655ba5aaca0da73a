@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_07f113cd",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpLogPortTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T10:45:52Z",
+      "side": 1,
+      "message": "the nId, nodeId, lacpNode and lacpBond object seems to be re-initialized here. What is the intent of it?",
+      "revId": "53f82e725ea5cafaa3d123da655ba5aaca0da73a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_27ee97ed",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpLogPortTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T10:45:52Z",
+      "side": 1,
+      "message": "what is the purpose of this test case",
+      "revId": "53f82e725ea5cafaa3d123da655ba5aaca0da73a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_e7bf2fcf",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpLogPortTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T10:45:52Z",
+      "side": 1,
+      "message": "Have test cases to verify for a given bond whether a logical port is created, notified and assigned to it member ports.\nSimilarly for deletelogical port, create a logical port and then during delete, verify if the deletion notification is sent for it. \nAlso check what happens when deletelogicalPort is called when lacpNode\u0027d deletionStatus is enabled.",
+      "revId": "53f82e725ea5cafaa3d123da655ba5aaca0da73a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
