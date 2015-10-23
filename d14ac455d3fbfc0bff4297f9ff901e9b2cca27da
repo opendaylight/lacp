@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_271777ef",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/core/LacpConstTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T10:33:47Z",
+      "side": 1,
+      "message": "This function is never used. Remove the function from the file and the associated UT case",
+      "revId": "d14ac455d3fbfc0bff4297f9ff901e9b2cca27da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_c7d30b37",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/core/LacpConstTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T10:33:47Z",
+      "side": 1,
+      "message": "This function is never used. Remove the function from the file and the associated UT case",
+      "revId": "d14ac455d3fbfc0bff4297f9ff901e9b2cca27da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_e7d88f55",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/core/LacpConstTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T10:33:47Z",
+      "side": 1,
+      "message": "This function is never used. Remove the function from the file and the associated UT case",
+      "revId": "d14ac455d3fbfc0bff4297f9ff901e9b2cca27da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_87dd0345",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/core/LacpConstTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T10:33:47Z",
+      "side": 1,
+      "message": "This function is never used. Remove the function from the file and the associated UT case",
+      "revId": "d14ac455d3fbfc0bff4297f9ff901e9b2cca27da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
