@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_07c83373",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/grouptbl/LacpGroupTblTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T11:08:33Z",
+      "side": 1,
+      "message": "why is the dummy functions required for BeforeClass, AfterClass and After",
+      "revId": "c342198ad4fd05b415e04a319b74c64746001209",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_27c5375b",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/grouptbl/LacpGroupTblTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T11:08:33Z",
+      "side": 1,
+      "message": "Do not use _ in the variable / function namings. Instead use the general camelCasing rules for variable and functions",
+      "revId": "c342198ad4fd05b415e04a319b74c64746001209",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_c7a1cbaa",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/grouptbl/LacpGroupTblTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T11:08:33Z",
+      "side": 1,
+      "message": "lacpGroupTbl is an object u have created. It can never be null. This verification is not necessary.",
+      "revId": "c342198ad4fd05b415e04a319b74c64746001209",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_e7a64fc1",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/grouptbl/LacpGroupTblTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T11:08:33Z",
+      "side": 1,
+      "message": "As you are trying to create a Group with the same parameters in the next line. get the Group object in origGroup. Then verify if the obtained origGroup is notNull.",
+      "revId": "c342198ad4fd05b415e04a319b74c64746001209",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_67925f59",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/grouptbl/LacpGroupTblTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T11:08:33Z",
+      "side": 1,
+      "message": "Add verifications for lacpAddGroup, lacpAddPort, lacpRemPort and lacpRemGroup. The SalGroupService is a mock Object. You can add verifications on it for testing.",
+      "revId": "c342198ad4fd05b415e04a319b74c64746001209",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_079fd360",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/grouptbl/LacpGroupTblTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T11:08:33Z",
+      "side": 1,
+      "message": "Here you are trying to remove an incorrect port. See whether it fails/succeeds",
+      "revId": "c342198ad4fd05b415e04a319b74c64746001209",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_279c5769",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/grouptbl/LacpGroupTblTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T11:08:33Z",
+      "side": 1,
+      "message": "Similarly for the multiple lacpRemGroup see what is the outcome for each invocation. \nAlso why is it required to be invoked thrice. Isn\u0027t twice sufficient.",
+      "revId": "c342198ad4fd05b415e04a319b74c64746001209",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
