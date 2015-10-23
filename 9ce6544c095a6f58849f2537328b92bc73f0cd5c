@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_8782e3fe",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/util/LacpUtilTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-23T11:13:34Z",
+      "side": 1,
+      "message": "Have additional valid scenario check to verify if the expected value only is returned by it. Similarly for the next case also.",
+      "revId": "9ce6544c095a6f58849f2537328b92bc73f0cd5c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
