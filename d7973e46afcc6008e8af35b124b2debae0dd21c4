@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_2048bd5a",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/Utils/BitBufferHelperTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-10-24T06:26:49Z",
+      "side": 1,
+      "message": "Change header to Dell Inc.",
+      "range": {
+        "startLine": 2,
+        "startChar": 3,
+        "endLine": 2,
+        "endChar": 12
+      },
+      "revId": "d7973e46afcc6008e8af35b124b2debae0dd21c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
