@@ -97,11 +97,12 @@ public class LacpNodeExtn
         return;
     }
 
-    private String obtainSystemMac()
+    public String obtainSystemMac()
     {
         long id = this.switchId;
-        String sysId = String.format("%02x:%02x:%02x:%02x:%02x:%02x", 0, 0, (id & 0xff0000),
-                                      (id & 0xff00), (id & 0xff), 1);
+               
+        String sysId = String.format("%02x:%02x:%02x:%02x:%02x:%02x", 0, 0, ((id & 0xff0000) >>4),
+                ((id & 0xff00) >> 2), (id & 0xff), 1);
 
         return sysId;
     }
