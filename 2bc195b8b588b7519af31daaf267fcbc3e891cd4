@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dad5f5cf_9119dc24",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpNodeExtnTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-27T11:32:46Z",
+      "side": 1,
+      "message": "Purpose of aug",
+      "revId": "2bc195b8b588b7519af31daaf267fcbc3e891cd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_11ddec42",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpNodeExtnTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-27T11:32:46Z",
+      "side": 1,
+      "message": "Have a mock SalFlowService. verify if the mock object is accessed in the test for a valid node.",
+      "revId": "2bc195b8b588b7519af31daaf267fcbc3e891cd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_31e27004",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpNodeExtnTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-27T11:32:46Z",
+      "side": 1,
+      "message": "have additional case to test add failure.",
+      "revId": "2bc195b8b588b7519af31daaf267fcbc3e891cd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_d1e68416",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpNodeExtnTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-27T11:32:46Z",
+      "side": 1,
+      "message": "have a additional case for failure.\nverify port is successfully added to node.",
+      "revId": "2bc195b8b588b7519af31daaf267fcbc3e891cd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_71bf98d1",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpNodeExtnTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-27T11:32:46Z",
+      "side": 1,
+      "message": "verify port deletion is true or false in each case.",
+      "revId": "2bc195b8b588b7519af31daaf267fcbc3e891cd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_51ba94e2",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpNodeExtnTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-27T11:32:46Z",
+      "side": 1,
+      "message": "verify port is successfully added. have a case for failure",
+      "revId": "2bc195b8b588b7519af31daaf267fcbc3e891cd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_11b40cf1",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpNodeExtnTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-27T11:32:46Z",
+      "side": 1,
+      "message": "verify port deletion return true /false in each case",
+      "revId": "2bc195b8b588b7519af31daaf267fcbc3e891cd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_d1cd2488",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpNodeExtnTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-27T11:32:46Z",
+      "side": 1,
+      "message": "have some verification whether the mock object are hit for salflow/salgroup",
+      "revId": "2bc195b8b588b7519af31daaf267fcbc3e891cd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_f1caa86d",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpNodeExtnTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-27T11:32:46Z",
+      "side": 1,
+      "message": "add verifications in all the below test cases",
+      "revId": "2bc195b8b588b7519af31daaf267fcbc3e891cd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
