@@ -14,7 +14,9 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LacpConst {
+public class LacpConst 
+
+{
 
 	private static final Logger LOG = LoggerFactory.getLogger(LacpConst.class);
 
@@ -153,58 +155,6 @@ public class LacpConst {
 		FAST_PERIODIC,
 		SLOW_PERIODIC,
 		PERIODIC_TX
-	}
-
-
-
-	static public byte[] mapMacAddrFromSwId(long swId) {
-		byte[] longArray = new byte[8];
-		byte[] result = new byte[6];
-		ByteBuffer longArrayBB = ByteBuffer.wrap(longArray);
-		longArrayBB.putLong(swId);
-
-		System.arraycopy(longArray, 2, result, 0, 6);
-		LOG.debug("mac address={} is returned", result);
-		return result;
-	}
-
-	static public long mapLongFromMacAddr(byte[] addr) {
-		ByteBuffer longArrayBB = ByteBuffer.wrap(new byte[] {0, 0, 0, 0, 0, 0, 0, 0});
-		longArrayBB.position(2);
-        	longArrayBB.put(addr);
-        	longArrayBB.rewind();
-        	long result = longArrayBB.getLong();
-		return result;
-	}
-
-	static public String lacpMacString(byte[] content) {
-		if (content!=null){
-			return (String.format("%2x:%2x:%2x:%2x:%2x:%2x", content[0],content[1],content[2],content[3],
-				content[4],content[5]));
-		}
-		else{
-			return ("No MAC");
-		}
-	}
-
-	static public String getStringUpTime(Date activeSince) {
-
-		long uptime;
-		if (activeSince == null) {
-			uptime = 0;
-		}
-		else {
-			uptime = ((new Date()).getTime() -  activeSince.getTime());
-		}
-
-		long diffSeconds = uptime/1000 %60;
-		long diffMinutes = uptime / (60 * 1000) % 60;
-		long diffHours = uptime / (60*60*1000) % 24;
-		long diffDays = uptime / (24*60*60*1000);
-
-		String result = String.format("%d days %02d:%02d:%02d", diffDays,
-				diffHours, diffMinutes, diffSeconds);
-		return result;
 	}
 
 	static public String toHex(byte[] arg) {
