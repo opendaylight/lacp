@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dad5f5cf_5abce96c",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/core/LacpConst.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-29T07:50:35Z",
+      "side": 1,
+      "message": "do not modify the coding style",
+      "revId": "06b96f922a9800b44f563f597d28e823f3b1e295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
