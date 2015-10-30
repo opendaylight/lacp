@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dad5f5cf_ce4a5255",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/util/NetUtilsTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-10-30T08:13:46Z",
+      "side": 1,
+      "message": "correct licence header",
+      "revId": "c5d65fb4c6f300dd4df66597dc7ff2b1067d8e65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
