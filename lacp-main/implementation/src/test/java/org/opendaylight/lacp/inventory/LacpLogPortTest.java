@@ -86,26 +86,26 @@ public class LacpLogPortTest
 		PortFeatures pf = new PortFeatures(false, false, true, false, false, false, false, false, false, false, false, false, false, false, true, false);
 		when(fnc.getCurrentFeature()).thenReturn(pf);
 		when(nc.getAugmentation(FlowCapableNodeConnector.class)).thenReturn(fnc);
-        Optional<NodeConnector> optionalNodes = Optional.of(nc);
+        	Optional<NodeConnector> optionalNodes = Optional.of(nc);
         
-        ReadOnlyTransaction readOnlyTransaction = Mockito.mock(ReadOnlyTransaction.class);
-        CheckedFuture checkedFuture = Mockito.mock(CheckedFuture.class);
-        when(checkedFuture.get()).thenReturn(optionalNodes);
-        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).thenReturn(checkedFuture);
-        when(dataService.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
+       		ReadOnlyTransaction readOnlyTransaction = Mockito.mock(ReadOnlyTransaction.class);
+        	CheckedFuture checkedFuture = Mockito.mock(CheckedFuture.class);
+	        when(checkedFuture.get()).thenReturn(optionalNodes);
+	        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).thenReturn(checkedFuture);
+	        when(dataService.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
         
 
 		LacpNodeExtn.setDataBrokerService(dataService);
-        LacpUtil.setDataBrokerService(dataService);
+	        LacpUtil.setDataBrokerService(dataService);
         
         
-        LacpBpduInfo bpduInfo = mock(LacpBpduInfo.class);
+        	LacpBpduInfo bpduInfo = mock(LacpBpduInfo.class);
  		InstanceIdentifier<NodeConnector> iNc = InstanceIdentifier.builder(Nodes.class)
         		.child(Node.class,new NodeKey(new NodeId("Openflow:2")))
         		.child(NodeConnector.class,new NodeConnectorKey(new NodeConnectorId("NodeCon:2"))).build();
-        when(bpduInfo.getNCRef()).thenReturn(new NodeConnectorRef(iNc));
+        	when(bpduInfo.getNCRef()).thenReturn(new NodeConnectorRef(iNc));
         
-       	lacpPort = LacpPort.newInstance(0, portId, lacpBond, 1,  bpduInfo);
+       		lacpPort = LacpPort.newInstance(0, portId, lacpBond, 1,  bpduInfo);
 		
 		ncId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("openflow:1")))
@@ -121,6 +121,7 @@ public class LacpLogPortTest
 	@Test
 	public void create_LogicalPortTest()
 	{
+		lacpPort.setDataBrokerService(dataService);
 		List<LacpPort> portList = lacpBond.getActivePortList();
 		portList.add(lacpPort);
 		LacpLogPort.createLogicalPort(lacpBond);
@@ -132,6 +133,7 @@ public class LacpLogPortTest
 	@Test
 	public void delete_LogicalPortTest()
 	{
+		lacpPort.setDataBrokerService(dataService);
 		List<LacpPort> portList = lacpBond.getActivePortList();
 		portList.add(lacpPort);
                 //Notify called by createLogicalPort function --> times(1)
