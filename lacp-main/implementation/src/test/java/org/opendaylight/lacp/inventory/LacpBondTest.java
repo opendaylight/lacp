@@ -34,6 +34,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.lacp.Utils.LacpPortProperties;
 import org.opendaylight.lacp.core.LacpBpduInfo;
+import org.opendaylight.lacp.core.LagId;
 import org.opendaylight.lacp.flow.LacpFlow;
 import org.opendaylight.lacp.grouptbl.LacpGroupTbl;
 import org.opendaylight.lacp.util.LacpUtil;
@@ -84,13 +85,13 @@ public class LacpBondTest
 	Date date;
 	
 	private LacpAggregator lag;
-    private List<LacpAggregator>  aggregatorList;
-    private List<LacpPort> slaveList;
-    private List<LacpPort> activePortList;
-    private List<LacpPort> lagPortList;
-    private LinkedHashMap<Short, LacpPort> portSlaveMap;
-    private LinkedHashMap<Long, Short> systemIdMap;
-    private LinkedHashMap<Long, Short> maplist;
+    	private List<LacpAggregator>  aggregatorList;
+	private List<LacpPort> slaveList;
+	private List<LacpPort> activePortList;
+	private List<LacpPort> lagPortList;
+	private LinkedHashMap<Short, LacpPort> portSlaveMap;
+	private LinkedHashMap<Long, Short> systemIdMap;
+	private LinkedHashMap<Long, Short> maplist;
 	private LacpPort lacpPort;
 	private LacpPort slave;
 	private LacpPort slave1;
@@ -107,11 +108,11 @@ public class LacpBondTest
 	private LacpPortProperties lacpPortProperties;
 	
     
-    @MockitoAnnotations.Mock
-    private DataBroker dataService;
+    	@MockitoAnnotations.Mock
+	private DataBroker dataService;
     
-    @MockitoAnnotations.Mock
-    private WriteTransaction write;
+	@MockitoAnnotations.Mock
+	private WriteTransaction write;
     
 	@MockitoAnnotations.Mock
 	private LacpUtil lacpUtil;
@@ -120,13 +121,13 @@ public class LacpBondTest
 	private NotificationProviderService notify;
 	
 	@MockitoAnnotations.Mock
-    private SalFlowService salFlow;
+    	private SalFlowService salFlow;
 	
-    @MockitoAnnotations.Mock
-    private SalGroupService salGroup;
+        @MockitoAnnotations.Mock
+	private SalGroupService salGroup;
     
-    @MockitoAnnotations.Mock
-    private LacpGroupTbl lacpGroupTbl;
+    	@MockitoAnnotations.Mock
+    	private LacpGroupTbl lacpGroupTbl;
 	
 	
 	@Before
@@ -163,11 +164,7 @@ public class LacpBondTest
         when(salGroup.removeGroup(any(RemoveGroupInput.class))).thenReturn(Rm_output);
         
         LacpUtil.setSalGroupService(salGroup);
-        
-        
-        
-        Augmentation<NodeConnector> aug = new Augmentation<NodeConnector>() {
-		};
+     
 		
 		NodeConnector nc = mock(NodeConnector.class);
 		FlowCapableNodeConnector fnc = mock(FlowCapableNodeConnector.class);
@@ -206,20 +203,19 @@ public class LacpBondTest
                 .child(Node.class, new NodeKey(new NodeId("openflow:1")))
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
         
-    		lacpBond.setSlaveList(slaveList);
-    		lacpBond.setPortSlaveMap(portSlaveMap);
-    		lacpBond.setSysPriority(sysPri);
-    		lacpBond.setSystemIdMap(systemIdMap);
-    		lacpBond.setAggregatorList(aggregatorList);
-    		lacpBond.setActiveSince(date);
-    		lacpBond.setMinLinks(a); 
-    		lacpBond.setVirtualSysMacAddr(sysid);
-    		lacpBond.setAdminKey(key);
-    		lacpBond.setDirty(true);
-    		lacpBond.setFailed(true);
-    		lacpBond.bondSetMaxLink(10);
-    		
-    		
+    	lacpBond.setSlaveList(slaveList);
+    	lacpBond.setPortSlaveMap(portSlaveMap);
+    	lacpBond.setSysPriority(sysPri);
+    	lacpBond.setSystemIdMap(systemIdMap);
+    	lacpBond.setAggregatorList(aggregatorList);
+    	lacpBond.setActiveSince(date);
+    	lacpBond.setMinLinks(a); 
+    	lacpBond.setVirtualSysMacAddr(sysid);
+    	lacpBond.setAdminKey(key);
+    	lacpBond.setDirty(true);
+    	lacpBond.setFailed(true);
+    	lacpBond.bondSetMaxLink(10);
+       		
 	}
 	
 	@Test
@@ -247,7 +243,7 @@ public class LacpBondTest
 		lacpBond.toString();
 		portSlaveMap = lacpBond.getPortSlaveMap();
 		portSlaveMap.put((short)1, lacpPort);
-		lacpBond.toString();
+		assertNotNull(lacpBond.toString());
 	}
 	
 	@Test
@@ -278,7 +274,8 @@ public class LacpBondTest
 	public void findLacpAggByFitPortTest()
 	{
 		aggregatorList = lacpBond.getAggregatorList();
-		lacpBond.findLacpAggByFitPort(lacpPort);
+		assertNull(lacpBond.findLacpAggByFitPort(lacpPort));
+		lag.setAggId((short)1);
 		lag.addPortToAgg(lacpPort);
 		lag.setIsActive((short)1);
 		aggregatorList.add(lag);
@@ -293,9 +290,12 @@ public class LacpBondTest
 		int a;
 		slaveList = lacpBond.getSlaveList();
 		slaveList.add(lacpPort);
+		
 		lacpBond.bondUpdateSystemPriority(priority);
 		assertEquals(priority, lacpBond.bondGetSysPriority());
+		
 		lacpBond.bondUpdateSystemPriority(priority);		
+		assertEquals(priority, lacpBond.bondGetSysPriority());
 	}
 	
 	@Test
@@ -365,11 +365,6 @@ public class LacpBondTest
 		lag.setLagPortList(lagPortList);
 		lag.setNumOfPorts(n);
 		
-		
-		/*b = lag.getNumOfPorts();
-		a = (lag.aggDevUp());
-		c = (lag != null);
-		*/
 		lacpBond.bondAggSelectionLogic();
 	}
 	
@@ -451,24 +446,17 @@ public class LacpBondTest
 		lacpBond.bondUpdateLinkUpSlave(swId, portId);
 		assertEquals(0,slave.portGetPortStatus());
 		lacpBond.bondUpdateLinkDownSlave(swId, portId);
-		status  = slave.portGetPortStatus();
 	}
 	
 	@Test
 	public void bondDelMembersFrSwTest()
 	{
-		/*long swId = (long)1;
-		lacpBond.bondDelMembersFrSw(swId);
-		assertEquals(false,lacpBond.bondHasMember(swId));*/
-
 		long swId = slave.slaveGetSwId();
 		systemIdMap = lacpBond.getSystemIdMap();
 		slaveList = lacpBond.getSlaveList();
 		slaveList.add(slave);
 		systemIdMap.put(swId, (short)1);
 		lacpBond.bondDelMembersFrSw(swId);
-		
-
 	}
 	
 	@Test
@@ -529,10 +517,11 @@ public class LacpBondTest
 		portId = slave.getLacpPortId();
 		portPri = slave.getPortPriority();
 		bpduInfo = slave.getLacpBpduInfo();
-		lacpBond.bondAddSlave(swId, portId, portPri, bpduInfo);
-		slaveList = lacpBond.getSlaveList();
-		lacpBond.bondAddSlave(swId, portId, portPri, bpduInfo);
 		systemIdMap = lacpBond.getSystemIdMap();
+		
+		systemIdMap.put((long)10, (short)1);
+		lacpBond.bondAddSlave(swId, portId, portPri, bpduInfo);
+		
 		systemIdMap.put(swId, (short)1);
 		lacpBond.bondAddSlave(swId, portId, portPri, bpduInfo);
 	}
@@ -602,11 +591,10 @@ public class LacpBondTest
 		activePortList.add(lacpPort);
 		
 		//Removing an existing port
-				
-		lacpBond.removeActivePort(lacpPort);
+		assertEquals(true, lacpBond.removeActivePort(lacpPort));
 		activePortList.add(lacpPort);
 		activePortList.add(slave);
-		lacpBond.removeActivePort(lacpPort);
+		assertEquals(true, lacpBond.removeActivePort(lacpPort));
 		
 	} 
 	
@@ -642,3 +630,4 @@ public class LacpBondTest
 		assertEquals(0,lacpBond.getSlaveCnt());
 	}
 }
+
