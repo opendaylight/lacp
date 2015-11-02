@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bada0100_16095c2c",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/grouptbl/LacpGroupTblTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-02T11:28:40Z",
+      "side": 1,
+      "message": "0 is not a valid nodeConnectorId.",
+      "revId": "d4b40e546dc10b6adfcbd7bef5e728cefa436396",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_762b0883",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/grouptbl/LacpGroupTblTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-02T11:28:40Z",
+      "side": 1,
+      "message": "do add a comment, why it is called 3 times.",
+      "revId": "d4b40e546dc10b6adfcbd7bef5e728cefa436396",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_b619707b",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/grouptbl/LacpGroupTblTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-02T11:28:40Z",
+      "side": 1,
+      "message": "The input for this function is used both as node id and node connector id. ideally it should be for the same node with different node connector ids",
+      "revId": "d4b40e546dc10b6adfcbd7bef5e728cefa436396",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
