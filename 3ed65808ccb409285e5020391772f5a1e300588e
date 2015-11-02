@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bada0100_d63994d9",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpPortTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-02T11:53:01Z",
+      "side": 1,
+      "message": "why is this dummy aug block present. Remove all the unrequired commented code",
+      "revId": "3ed65808ccb409285e5020391772f5a1e300588e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_96330cf6",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpPortTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-02T11:53:01Z",
+      "side": 1,
+      "message": "Remove the TODO the nodeConnectorRef has been initialized",
+      "revId": "3ed65808ccb409285e5020391772f5a1e300588e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_76522815",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpPortTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-02T11:53:01Z",
+      "side": 1,
+      "message": "Dont use Sytem.out.println.",
+      "revId": "3ed65808ccb409285e5020391772f5a1e300588e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_b647304b",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpPortTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-02T11:53:01Z",
+      "side": 1,
+      "message": "Have the issue stated in comment as a code issue. Lets re-arrange the checks in the lacpPort.java to achieve coverage for all check.",
+      "revId": "3ed65808ccb409285e5020391772f5a1e300588e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
