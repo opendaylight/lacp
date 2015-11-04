@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bada0100_1a489a2c",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "why is this check done twice? any specific reason. If yes, add it as comments",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_da51b2d9",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "what is the purpose of this if check.\naggregatorList will never be null as we had initialized it and size will always be zero.",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_7a5e86eb",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "here the return value can be checked with lag. They must be equal",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_3a58fef9",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "you can use assertFalse/assertTrue",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_5a5dc2e8",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "add a check whether the given port is returned by this function",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_fa711678",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "add a check if the GetPortStatus now returns down value.",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_5aece2c7",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "check if the lacpBond.slaveList is now empty due to the delete operation invoked",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_fad036f9",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "check the return values for this invocation and next one also",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_dad772ec",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "check if this function returns the 1 (no. of members u have added for bond)",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_7a04467e",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "add a check if the slave list size is 2 as 2 slave ports have been added.",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_3afebe6c",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "have a check here to see whether the delSlave is successful.",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_baf14e97",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "also add verification for addActivePort and removeActivePort to verify the final write operation is hit for it.",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_daee92b4",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-04T09:31:57Z",
+      "side": 1,
+      "message": "is this function not covered in the above addActivePort test case. is a separate test needed for it.\nSimilarly for the deleteLacpAggregatorTest",
+      "revId": "0419faefbbd12a6e2d934ce1f256d31f246639d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
