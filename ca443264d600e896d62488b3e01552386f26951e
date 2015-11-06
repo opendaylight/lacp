@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9adffdf1_cf1fbd08",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/core/RSMManagerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-06T12:06:05Z",
+      "side": 1,
+      "message": "What is the purpose of this while loop",
+      "revId": "ca443264d600e896d62488b3e01552386f26951e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9adffdf1_ef1c0116",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/core/RSMManagerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-06T12:06:05Z",
+      "side": 1,
+      "message": "why wakeupRSM is called twice",
+      "revId": "ca443264d600e896d62488b3e01552386f26951e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9adffdf1_8f19b524",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/core/RSMManagerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-06T12:06:05Z",
+      "side": 1,
+      "message": "the same check is done in line 58. Any specific reason for repeating it.",
+      "revId": "ca443264d600e896d62488b3e01552386f26951e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
