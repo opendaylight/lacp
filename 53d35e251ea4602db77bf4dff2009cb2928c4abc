@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9adffdf1_cff81dc7",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-06T12:00:06Z",
+      "side": 1,
+      "message": "assertNotEquals check is redundant. To check if the value of pId is equal to the one returned by the invoked function is sufficient.",
+      "revId": "53d35e251ea4602db77bf4dff2009cb2928c4abc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9adffdf1_eff5e1cb",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-06T12:00:06Z",
+      "side": 1,
+      "message": "For Link up and link down, use the associated macros available in LacpConst. So even if value changes, tests will not fails.",
+      "revId": "53d35e251ea4602db77bf4dff2009cb2928c4abc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9adffdf1_8f0215b3",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-06T12:00:06Z",
+      "side": 1,
+      "message": "assertFalse is redundant check. The next check will verify this condition also.",
+      "revId": "53d35e251ea4602db77bf4dff2009cb2928c4abc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9adffdf1_4f2c2d4b",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventory/LacpBondTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-06T12:00:06Z",
+      "side": 1,
+      "message": "Initially there are no ports added to bond, so bondHasMember() has to return false. After addition of port it has to return true.",
+      "revId": "53d35e251ea4602db77bf4dff2009cb2928c4abc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
