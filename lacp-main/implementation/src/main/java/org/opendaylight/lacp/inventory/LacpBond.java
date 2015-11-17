@@ -767,7 +767,7 @@ public class LacpBond {
 	public boolean bondHasMember() {
 		this.bondStateMachineLock();
 		try {
-			return (slaveList.isEmpty());
+			return (!(slaveList.isEmpty()));
 		} finally {
 			this.bondStateMachineUnlock();
 		}
