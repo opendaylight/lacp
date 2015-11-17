@@ -309,7 +309,7 @@ public class RSMThread implements Runnable
                                 bond.bondStateMachineUnlock();
                         }
                         lacpList.remove(portId);
-                        if (!bond.bondHasMember()) {
+                        if (bond.bondHasMember()) {
                                 if (key!=0) {
                                         LOG.debug("SW={} Key={} is removed from lacp system key list",
                                                 swId, key);
