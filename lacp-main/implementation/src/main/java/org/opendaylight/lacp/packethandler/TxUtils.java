@@ -109,71 +109,50 @@ public class TxUtils {
 		return newtb;
 	}
 
-	public static byte[] convertLacpPdutoByte( LacpPacketPdu lacpPDU ) {
-		byte[] bdata = new byte[128];
+        public static byte[] convertLacpPdutoByte(LacpPacketPdu lacpPDU ) {
+            byte[] bdata = new byte[128];
+            byte[] padData = new byte[1];
 
-		ByteBuffer bb = ByteBuffer.wrap(bdata);
-		bb.put(HexEncode.bytesFromHexString((new String ((lacpPDU.getDestAddress().getValue())))));
-		String s = macToString(new String ((lacpPDU.getDestAddress().getValue()).toString    ()));
-		byte[] b = new BigInteger(s,16).toByteArray();
-		StringBuffer sb3 = new StringBuffer();
-                for (int i=0;i<b.length;i++) {
-                        sb3.append(Integer.toHexString((int) b[i]));
-                }
+            ByteBuffer bb = ByteBuffer.wrap(bdata);
+            bb.put(HexEncode.bytesFromHexString(lacpPDU.getDestAddress().getValue().toString()));
+            bb.put(HexEncode.bytesFromHexString(lacpPDU.getSrcAddress().getValue().toString()));
+            bb.putShort(lacpPDU.getLenType().shortValue());
+            bb.put((byte)lacpPDU.getSubtype().getIntValue());
+            bb.put((byte)lacpPDU.getVersion().getIntValue());
 
-		bb.put(HexEncode.bytesFromHexString((new String ((lacpPDU.getSrcAddress().getValue())))));
-		StringBuffer sb1 = new StringBuffer();
-                for (int i=0;i<b.length;i++) {
-                        sb1.append(Integer.toHexString((int) b[i]));
-                }
+            ActorInfo actorInfo = lacpPDU.getActorInfo();
+            bb.put((byte)actorInfo.getTlvType().getIntValue());
+            bb.put(actorInfo.getInfoLen().byteValue());
+            bb.putShort(actorInfo.getSystemPriority().shortValue());
+            bb.put(HexEncode.bytesFromHexString(actorInfo.getSystemId().getValue().toString()));
+            bb.putShort(actorInfo.getKey().shortValue());
+            bb.putShort(actorInfo.getPortPriority().shortValue());
+            bb.putShort(actorInfo.getPort().shortValue());
+            bb.put(actorInfo.getState().byteValue());
+            bb.put(padExtraZeroes(padData, 3));
 
-		bytetoString(hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())));
-		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(lacpPDU.getLenType())),2));
-		bb.put(convertStringtoByte((new String (Integer.valueOf((lacpPDU.getSubtype().getIntValue())).toString()))));
-		bb.put(convertStringtoByte((new String (Integer.valueOf((lacpPDU.getVersion().getIntValue())).toString()))));
+            PartnerInfo partnerInfo = lacpPDU.getPartnerInfo();
+            bb.put((byte)partnerInfo.getTlvType().getIntValue());
+            bb.put(partnerInfo.getInfoLen().byteValue());
+            bb.putShort(partnerInfo.getSystemPriority().shortValue());
+            bb.put(HexEncode.bytesFromHexString(partnerInfo.getSystemId().getValue().toString()));
+            bb.putShort(partnerInfo.getKey().shortValue());
+            bb.putShort(partnerInfo.getPortPriority().shortValue());
+            bb.putShort(partnerInfo.getPort().shortValue());
+            bb.put(partnerInfo.getState().byteValue());
+            bb.put(padExtraZeroes(padData, 3));
 
-		ActorInfo actorInfo = lacpPDU.getActorInfo();
-		bb.put(convertStringtoByte((new String (Integer.valueOf((actorInfo.getTlvType().getIntValue())).toString()))));
-		bb.put(convertStringtoByte((new String (Integer.toHexString(actorInfo.getInfoLen()).toString()))));
-		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(actorInfo.getSystemPriority())),2));
-		bb.put(HexEncode.bytesFromHexString((new String ((actorInfo.getSystemId().getValue()).toString()))));
-		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(actorInfo.getKey())),2));
-		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(actorInfo.getPortPriority())),2));
-		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(actorInfo.getPort()).toString()))),2));
-		bb.put(hexStringToByteArray(Integer.toHexString(actorInfo.getState())));
-		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(actorInfo.getReserved()).toString()))),2));
-		bb.put(convertStringtoByte((new String (Integer.toHexString(actorInfo.getReserved1()).toString()))));
+            bb.put((byte)lacpPDU.getCollectorTlvType().getIntValue());
+            bb.put(lacpPDU.getCollectorInfoLen().byteValue());
+            bb.putShort(lacpPDU.getCollectorMaxDelay().shortValue());
+            bb.put(padExtraZeroes(padData, 12));
 
-		PartnerInfo partnerInfo = lacpPDU.getPartnerInfo();
-		bb.put(convertStringtoByte((new String (Integer.valueOf((partnerInfo.getTlvType().getIntValue())).toString()))));
-		bb.put(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getInfoLen()).toString()))));
-		bb.put(padExtraZeroes(hexStringToByteArray(Integer.toHexString(partnerInfo.getSystemPriority()).toString()),2));
-		bb.put(HexEncode.bytesFromHexString((new String ((partnerInfo.getSystemId().getValue()).toString()))));
-		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getKey()).toString()))),2));
-		bb.put(padExtraZeroes(convertStringtoByte(new String (Integer.toHexString(partnerInfo.getPortPriority()).toString())),2));
-		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getPort()).toString()))),2));
-		bb.put(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getState()).toString()))));
-		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getReserved()).toString()))),2));
-		bb.put(convertStringtoByte((new String (Integer.toHexString(partnerInfo.getReserved1()).toString()))));
-
-
-		bb.put(convertStringtoByte((new String (Integer.valueOf((lacpPDU.getCollectorTlvType().getIntValue())).toString()))));
-		bb.put(convertStringtoByte((new String (Integer.toHexString(lacpPDU.getCollectorInfoLen()).toString()))));
-		bb.put(padExtraZeroes(convertStringtoByte((new String (Integer.toHexString(lacpPDU.getCollectorMaxDelay()).toString()))),2));
-		bb.put(padExtraZeroes(convertStringtoByte((new String ((lacpPDU.getCollectorReserved()).toString()))),8));
-		bb.put(padExtraZeroes(convertStringtoByte((new String (Long.toHexString(lacpPDU.getCollectorReserved1()).toString()))),4));
-		bb.put(convertStringtoByte((new String (Integer.valueOf((lacpPDU.getTerminatorTlvType().getIntValue())).toString()))));
-		bb.put(convertStringtoByte((new String (Integer.toHexString(lacpPDU.getTerminatorInfoLen()).toString()))));
-		bb.put(padExtraZeroes(convertStringtoByte((new String (lacpPDU.getTerminatorReserved()))),50));
-		bb.put(padExtraZeroes(convertStringtoByte((new String ((lacpPDU.getFCS()).toString()))),4));
-		
-		StringBuffer sb4 = new StringBuffer();
-                for (int i=0;i<bdata.length;i++) {
-                        sb4.append(Integer.toHexString((int) bdata[i]));
-                }
-
-		return(bdata);
-	}
+            bb.put((byte)lacpPDU.getTerminatorTlvType().getIntValue());
+            bb.put(lacpPDU.getTerminatorInfoLen().byteValue());
+            bb.put(padExtraZeroes(padData, 50));
+            bb.putInt(lacpPDU.getFCS().intValue());
+            return (bdata);
+        }
 
 	public static void dispatchPacket(byte[] payload, NodeConnectorRef ingress, 
 					  MacAddress srcMac, MacAddress destMac, 
