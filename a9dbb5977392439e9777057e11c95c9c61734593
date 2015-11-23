@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "7aade967_9e79d131",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/core/LacpBpduInfoTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-23T10:00:26Z",
+      "side": 1,
+      "message": "will this when, return statements be used in the read in initFnc",
+      "revId": "a9dbb5977392439e9777057e11c95c9c61734593",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7aade967_7e95f53e",
         "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/core/LacpBpduInfoTest.java",
         "patchSetId": 2
