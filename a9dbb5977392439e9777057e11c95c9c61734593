@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_beab6d88",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/core/LacpBpduInfoTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-23T09:56:14Z",
+      "side": 1,
+      "message": "If this was added just to cover LacpBpduInfo(), why should it called in setup, as this is executed for every test and unnecessary allocation in each test. Move it to some other test say testHashCode()",
+      "revId": "a9dbb5977392439e9777057e11c95c9c61734593",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aade967_7e95f53e",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/core/LacpBpduInfoTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-23T09:56:14Z",
+      "side": 1,
+      "message": "removed unnecessary comments and commented code.",
+      "revId": "a9dbb5977392439e9777057e11c95c9c61734593",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
