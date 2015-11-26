@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_1b588855",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventorylistener/LacpNodeDataListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-26T09:27:40Z",
+      "side": 1,
+      "message": "Why is the release threadpool commented?",
+      "revId": "fe3cc56d61dfa61a1f87712840fa71725ddb325b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aade967_fb36cc02",
+        "filename": "lacp-main/implementation/src/test/java/org/opendaylight/lacp/inventorylistener/LacpNodeDataListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-26T09:27:40Z",
+      "side": 1,
+      "message": "Remove the commented code.",
+      "revId": "fe3cc56d61dfa61a1f87712840fa71725ddb325b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
