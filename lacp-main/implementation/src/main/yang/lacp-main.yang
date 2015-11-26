@@ -9,6 +9,7 @@ module lacp-main {
     prefix lacp-main;
     
   import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
+  import opendaylight-entity-ownership-service { prefix entity-ownership-service; }
   import config { prefix config; revision-date 2013-04-05; }
 
   description
@@ -40,7 +41,8 @@ module lacp-main {
       leaf lacp-flow-idle-timeout {
         type uint16;
       }
-        container notification-service {
+
+      container notification-service {
         uses config:service-ref {
           refine type {
             mandatory true;
@@ -53,6 +55,14 @@ module lacp-main {
           refine type {
             mandatory false;
             config:required-identity mdsal:binding-async-data-broker;
+          }
+        }
+      }
+      container ownership-service {
+        uses config:service-ref {
+          refine type {
+            mandatory false;
+            config:required-identity entity-ownership-service:entity-ownership-service;
           }
         }
       }
