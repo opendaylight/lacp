@@ -232,7 +232,7 @@ public class LacpPortTest {
 	public void testLacpInitPort() {
 		lacpPort.setIsLacpEnabled(true);
 		lacpPort.setActorAdminPortKey((short) 15);
-		LacpPort port = LacpPort.newInstance(lacpPort.getLacpSwId(), (short)80, lacpPort.slaveGetBond(), lacpPort.getActorPortPriority(), lacpPort.getLacpBpduInfo());
+		LacpPort port = LacpPort.newInstance(lacpPort.slaveGetSwId(), (short)80, lacpPort.slaveGetBond(), lacpPort.getActorPortPriority(), lacpPort.getLacpBpduInfo());
 		port.setInstanceId(lacpPort.getInstanceId());
 		port.setActorAdminPortKey(lacpPort.getActorAdminPortKey());
 		assertTrue(lacpPort.equals(port));
@@ -326,7 +326,7 @@ public class LacpPortTest {
 		when(agg.getNumOfPorts()).thenReturn((short)1);
 		when(agg.getIsActive()).thenReturn((short)1);
 		doNothing().when(agg).rmPortFromAgg(lacpPort);
-		lacpPort.portSetAggregator(agg);
+		lacpPort.setPortAggregator(agg);
 		doNothing().when(Mbond).bondAggSelectionLogic();
 		lacpPort.slaveSetBond(Mbond);
 		lacpPort.lacpDisablePort();
@@ -728,7 +728,7 @@ public class LacpPortTest {
 		
 		//PortAdminPortkey
 		short key = 0x23;
-		lacpPort.setPortAdminPortKey(key);
+		lacpPort.setActorAdminPortKey(key);
 		assertEquals(key,lacpPort.getActorAdminPortKey());
 		
 		//ActorPortPriority
@@ -746,9 +746,8 @@ public class LacpPortTest {
 		//others
 		assertNotNull(lacpPort.getActorOperPortKey());
 		assertNotNull(lacpPort.portGetLagId());
-		assertNotNull(lacpPort.slaveGetduplex());
+		assertNotNull(lacpPort.getDuplex());
 		assertNotNull(lacpPort.slaveGetSwId());            //Check
-		assertNotNull(lacpPort.getLacpSwId());            //
 		assertNotNull(lacpPort.getLacpBpduInfo());
 		assertNotNull(lacpPort.portGetPortStatus());
 		assertNotNull(lacpPort.getPortOperStatus());

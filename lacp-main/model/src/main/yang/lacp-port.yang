@@ -1,55 +1,71 @@
-/*								  	
- * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
- */
+/*
+Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v1.0 which accompanies this distribution,
+and is available at http://www.eclipse.org/legal/epl-v10.html
+*/
 
 module lacp-port {
     namespace "urn:opendaylight:lacp:port";
     prefix lacpport;
+    yang-version 1;
     import yang-ext {prefix ext; revision-date "2013-07-09";}
     import opendaylight-inventory {prefix inv; revision-date "2013-08-19";}
     import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
-    import lacp-aggregator {prefix lacpagg; revision-date "2015-01-31";}
-    revision "2015-01-31" {
-	    description "Lacp Port";
+    import lacp-aggregator {prefix lacpagg; revision-date "2015-11-25";}
+    revision "2015-11-25" {
+        description "Lacp Port updated to include port priority";
     }
 
-   grouping lag-port {
-       leaf actor-port-number {
-            type int16;	
-            description "The port number assigned to the port (Assigned by admin/system policy)";
+    grouping lag-port {
+        leaf actor-port-number {
+            type int16;
+            description "The port number assigned to the local port";
+            config false;
         }
 
-       leaf periodic-time {
+        leaf periodic-time {
             type uint16;
             description "The number of seconds between periodic transmissions using Short/Long Timeouts.";
             default 10;
-	    config false;
-    	}
-	    	
-	leaf partner-port-number {
+            config false;
+        }
+
+        leaf actor-port-priority {
+            type uint16;
+            description "The port priority assigned to the local port";
+            config false;
+        }
+
+        leaf partner-port-number {
              type int16;
-             description "The port number assigned to the port (Assigned by admin/system policy)";
+             description "The port number assigned to the port in the remote system";
+             config false;
+        }
+
+        leaf partner-port-priority {
+            type uint16;
+            description "The port priority assigned to the port in the remote system.";
+            config false;
         }
 
         leaf lacp-agg-ref {
             type lacpagg:agg-ref;
             description "Reference to the Aggregator";
             config false;
-         } 
+        }
 
- 
         leaf logical-nodeconnector-ref {
-         	type inv:node-connector-ref;
-             	description "Reference to the Node";
-        } 
-   }
+            type inv:node-connector-ref;
+            description "Reference to the Node";
+            config false;
+        }
+    }
 
     augment "/inv:nodes/inv:node/inv:node-connector" {
         ext:augment-identifier "lacp-node-connector";
         uses lag-port;
-    } 
-
+    }
 
 }
-
-

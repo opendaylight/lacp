@@ -21,8 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregators;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev150131.LacpNodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev150131.LacpNodeConnectorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev151125.LacpNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev151125.LacpNodeConnectorBuilder;
 import org.opendaylight.lacp.inventory.LacpPort;
 import org.opendaylight.lacp.inventory.LacpBond;
 import org.opendaylight.lacp.util.LacpUtil;

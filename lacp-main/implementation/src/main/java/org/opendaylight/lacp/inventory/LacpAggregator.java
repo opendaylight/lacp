@@ -109,17 +109,6 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		return false;
 	}
 
-
-	public boolean aggPartnerIsNullMac() {
-		if (getPartnerSystem() == null){
-			 return false;
-		}
-		if (Arrays.equals(getPartnerSystem(),LacpConst.NULL_MAC_ADDRESS)){
-			return true;
-		}
-		return false;
-	}
-
 	public boolean aggHasPort(LacpPort port) {
 		if (getLagPortList() != null && getLagPortList().contains(port)){
 			return true;
@@ -400,30 +389,6 @@ public class LacpAggregator implements Comparable<LacpAggregator> {
 		this.isActive = 0;
 		this.setNumOfPorts((short)0);
 		this.reselect = false;
-	}
-
-
-	static void copyAggfromOriginAgg(LacpAggregator dest,LacpAggregator origin) {
-
-		dest.setIndiv(origin.isIndiv());
-		dest.setActorAdminAggregatorKey(origin.getActorAdminAggregatorKey());
-		dest.setActorOperAggKey(origin.getActorOperAggKey());
-		dest.setPartnerSystem(origin.getPartnerSystem());
-		dest.setPartnerSystemPriority(origin.getPartnerSystemPriority());
-		dest.setPartnerOperAggKey(origin.getPartnerOperAggKey());
-		dest.setReceiveState(origin.getReceiveState());
-		dest.setTransmitState(origin.getTransmitState());
-		dest.isActive = origin.isActive;
-		dest.setNumOfPorts(origin.getNumOfPorts());
-		dest.getLagPortList().clear();
-		dest.reselect = false;
-
-		for (LacpPort port : origin.getLagPortList()) {
-			dest.getLagPortList().add(port);
-			port.portSetAggregator(dest);
-			port.portSetActorPortAggregatorIdentifier(dest.getAggId());
-		}
-		Collections.sort(dest.getLagPortList());
 	}
 
 	@Override

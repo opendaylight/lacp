@@ -87,13 +87,9 @@ public class PduQueueHandler {
 
 	}
 
-
-
         // Decode the received Packet.
         LacpPacketPduBuilder builder = decodeLacp(packetReceived);
-
         LacpPacketPdu lacpPacketPdu = builder.build();
-        ActorInfo actorInfo = builder.getActorInfo();
 
         // Enqueue the decoded LACP Packet to LACP Packet PDU Queue
         LacpBpduInfo lacpBpduInfo = new LacpBpduInfo(lacpPacketPdu);
@@ -138,9 +134,7 @@ public class PduQueueHandler {
         return ret;
     }
 
-        public  LacpPacketPduBuilder decodeLacp(PacketReceived packetReceived) {
-
-
+    public  LacpPacketPduBuilder decodeLacp(PacketReceived packetReceived) {
         int bitOffset = 0;
 	int offsetLenEight = 8;
 	int offsetLenSixteen = 16;
@@ -158,7 +152,6 @@ public class PduQueueHandler {
             builder.setDestAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, offsetLenFortyEight))));
             bitOffset = bitOffset + offsetLenFortyEight;
 
-
             builder.setSrcAddress(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset, offsetLenFortyEight))));
             bitOffset = bitOffset + offsetLenFortyEight;
 
@@ -170,7 +163,6 @@ public class PduQueueHandler {
 
             builder.setVersion(VersionValue.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenEight))));
             bitOffset = bitOffset + offsetLenEight;
-
 
             actorbuilder.setTlvType(TlvTypeOption.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, offsetLenEight))));
             bitOffset = bitOffset + offsetLenEight;
@@ -271,5 +263,4 @@ public class PduQueueHandler {
 
         return(builder);
     }
-
 }

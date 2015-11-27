@@ -211,15 +211,13 @@ public class LacpBondTest
         
     	lacpBond.setSlaveList(slaveList);
     	lacpBond.setPortSlaveMap(portSlaveMap);
-    	lacpBond.setSysPriority(sysPri);
+    	lacpBond.bondSetSysPriority(sysPri);
     	lacpBond.setSystemIdMap(systemIdMap);
     	lacpBond.setAggregatorList(aggregatorList);
     	lacpBond.setActiveSince(date);
     	lacpBond.setMinLinks(a); 
-    	lacpBond.setVirtualSysMacAddr(sysid);
     	lacpBond.setAdminKey(key);
     	lacpBond.setDirty(true);
-    	lacpBond.setFailed(true);
     	lacpBond.setBondId(1);
     	lacpBond.bondSetMaxLink(10);
        	lacpBond.setLacpFast(1);	
@@ -232,14 +230,12 @@ public class LacpBondTest
 		assertEquals(slaveList,lacpBond.getSlaveList());
 		assertEquals(aggregatorList,lacpBond.getAggregatorList());
 		assertEquals(portSlaveMap,lacpBond.getPortSlaveMap());
-		assertEquals(sysPri,lacpBond.getSysPriority());
+		assertEquals(sysPri,lacpBond.bondGetSysPriority());
 		assertEquals(systemIdMap,lacpBond.getSystemIdMap());
 		assertEquals(date,lacpBond.getActiveSince());
 		assertEquals(3,lacpBond.getMinLinks());
-		assertNotNull(lacpBond.getVirtualSysMacAddr());
 		assertEquals(key, lacpBond.getAdminKey());
 		assertEquals(true, lacpBond.isDirty());
-		assertEquals(true, lacpBond.isFailed());
 		assertEquals(10, lacpBond.bondGetMaxLink());
 		assertEquals(1, lacpBond.getBondId());
 	}
@@ -447,18 +443,6 @@ public class LacpBondTest
 		short b = lacpBond.findPortIdByPartnerMacPortId(sysid, portId);
 		assertEquals(b, pId);
 	} 
-	
-	@Test
-	public void getVirtualPortIdTest()
-	{
-		short portNumber = (short)1;
-		long swId = (long)1;
-		short systemId;
-		systemIdMap.put(swId,(short)1);
-		systemId = systemIdMap.get(swId);
-		short res = (short) ((portNumber & 0x0fff) | (systemId << 12 & 0xf000));
-		assertEquals(res,lacpBond.getVirtualPortId(swId, portNumber));
-	}
 	
 	@Test
 	public void bondUpdateLinkUpDownSlaveTest()

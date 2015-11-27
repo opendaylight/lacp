@@ -45,9 +45,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregators;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregatorsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregatorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.lacpaggregator.LagPortsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.lacpaggregator.LagPortsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.lacpaggregator.LagPorts;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev151125.lacpaggregator.LagPortsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev151125.lacpaggregator.LagPortsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev151125.lacpaggregator.LagPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNode;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -59,7 +59,6 @@ import com.google.common.util.concurrent.Futures;
 
 public class LacpBond {
 
-	private static int UniqueId = 1;
 	private int bondInstanceId;
 
 	private static final Logger LOG = LoggerFactory.getLogger(LacpBond.class);
@@ -84,7 +83,6 @@ public class LacpBond {
 	private List<LacpAggregator>  aggregatorList;
 	private boolean isLacpEnabled;
 	private boolean dirty;
-	private boolean failed;
 
     private InstanceIdentifier aggInstId;
     private LacpAggregatorsBuilder lacpAggBuilder;
@@ -95,12 +93,6 @@ public class LacpBond {
     private List<LacpPort> activePortList;
     private Group lagGroup;
 
-	public byte[] getVirtualSysMacAddr() {
-		return virtualSysMacAddr;
-	}
-	public void setVirtualSysMacAddr(byte[] virtualSysMacAddr) {
-		this.virtualSysMacAddr = Arrays.copyOf(virtualSysMacAddr, LacpConst.ETH_ADDR_LEN);
-	}
     public byte[] getBondSystemId()
     {
         byte[] systemId = HexEncode.bytesFromHexString(this.lacpNodeRef.getNodeSystemId().getValue());
@@ -111,9 +103,6 @@ public class LacpBond {
 	}
 	public LinkedHashMap<Short, LacpPort> getPortSlaveMap() {
 		return portSlaveMap;
-	}
-	public int getSysPriority() {
-		return sysPriority;
 	}
 
 	public LinkedHashMap<Long, Short> getSystemIdMap() {
@@ -127,9 +116,6 @@ public class LacpBond {
 	}
 	public void setPortSlaveMap(LinkedHashMap<Short, LacpPort> portSlaveMap) {
 		this.portSlaveMap = portSlaveMap;
-	}
-	public void setSysPriority(int sysPriority) {
-		this.sysPriority = sysPriority;
 	}
 	public void setAdminKey(short adminKey) {
 		this.adminKey = adminKey;
@@ -148,14 +134,6 @@ public class LacpBond {
 		this.dirty = dirty;
 	}
 
-
-
-	public boolean isFailed() {
-		return failed;
-	}
-	public void setFailed(boolean failed) {
-		this.failed = failed;
-	}
 	public Date getActiveSince() {
 		return activeSince;
 	}
@@ -265,8 +243,6 @@ public class LacpBond {
 		systemIdMap = new LinkedHashMap<Long,Short>();
 		aggregatorList = new ArrayList<LacpAggregator>();
 		this.virtualSysMacAddr = new byte[6];
-
-		this.sysPriority = sys_priority;
 
 		this.lacpFast = 0;
 		this.isLacpEnabled = false;
@@ -629,21 +605,6 @@ public class LacpBond {
 			}
 		}
 		return 0;
-	}
-
-	public short getVirtualPortId(long swId, short portNumber) {
-		short result = 0;
-		short systemId;
-
-		if (this.systemIdMap.containsKey(swId)){
-			systemId = systemIdMap.get(swId);
-		}
-		else {
-			return 0;
-		}
-
-		result = (short) ((portNumber & 0x0fff) | (systemId << 12 & 0xf000));
-		return result;
 	}
 
 	public void bondUpdateLinkUpSlave(long swId, short portId)
