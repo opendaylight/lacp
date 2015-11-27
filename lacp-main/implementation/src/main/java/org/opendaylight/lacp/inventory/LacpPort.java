@@ -765,6 +765,9 @@ public class LacpPort implements Comparable<LacpPort> {
         LOG.debug("Exiting LacpPort constructor for switchid={} port={}",portId, swId);
 	}
 
+        public RxContext getRxContextObject(){
+            return rxContext;
+        }
 
 	public Timeout setCurrentWhileTimer(long delay){
 	       LOG.debug("Entering setCurrentWhileTimer for switchid={} port={}",swId,portId);
