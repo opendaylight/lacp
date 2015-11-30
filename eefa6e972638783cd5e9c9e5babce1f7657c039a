@@ -1,0 +1,242 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5aaae553_ae3356f5",
+        "filename": "lacp-main/config/src/main/resources/initial/93-lacpmain.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "Avoid tabs.",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_6eff9e02",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/LacpEntityManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "i suppose year should be only one.\nUpdate it in all the new files",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_4e0e6236",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/LacpEntityManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "Where is this variable used.\nIf used, you can move this to LacpConst.\nalso have it as a final variable and directly assign the string instead of new String();",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_ce5ed212",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/LacpEntityManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "obtain the return value for the registerListener. This listener should also be closed when the feature is uninstalled.",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_cea9f27c",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/LacpEntityManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "First register as a candidate then get the ownership state for the entity then.",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_2eb0c6dc",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/LacpEntityManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "Can you rename this function. We are not relinquishing any ownership control here. Only the registration listeners are closed.",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_0eaceaec",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/LacpEntityManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "why is this entity object required here",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_4eb502cc",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/LacpOwnershipListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "Avoid unused imports. Also in LacpEntityManager",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_8e521a12",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/RoleChangeException.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "What is the purpose of this Exception. Where is it getting used.",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_2e576604",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/RoleChangeException.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "actor",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_8ee21ad4",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/lacp/lacp/main/rev141216/LacpMainModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "where is the isClusterAware enabled. Or will this be an additional configuration parameter",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_ce19f27a",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/lacp/lacp/main/rev141216/LacpMainModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "A separate public setter is not required for the entityOwnershipService.",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_ce3012eb",
+        "filename": "lacp-main/implementation/src/main/yang/lacp-main.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "Generally import a yang with a revision date. Else in future it may lead to incompatibility issues.",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_6e4d5e72",
+        "filename": "lacp-main/implementation/src/main/yang/lacp-main.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T10:26:38Z",
+      "side": 1,
+      "message": "i suppose mandatory argument should be true. Modify this in data-broker container also.",
+      "revId": "eefa6e972638783cd5e9c9e5babce1f7657c039a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
