@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5aaae553_3a17a553",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/core/RSMThread.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T06:44:11Z",
+      "side": 1,
+      "message": "If the RxContext is required only to know the StateFlag, is not required in any other scenarios, then can we directly have a get function to obtain RxContextStateFlag so port\u0027s RxContext is not visible outside.",
+      "revId": "085cc2a7b199440d988ce6c7f4d649c9dbdb8bb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_1a12e962",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/core/RSMThread.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-11-30T06:44:11Z",
+      "side": 1,
+      "message": "myBond !\u003d null the same check is done here and in the prev block.\nInstead can we add this block also with in the prev. block so we can avoid the additional mybond!\u003dnull check here.\nAlso, instead of bondNumMembersInSw, can we use bondHasMember so we are in sync with the other port remove scenarios in this file.",
+      "revId": "085cc2a7b199440d988ce6c7f4d649c9dbdb8bb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
