@@ -4,7 +4,7 @@
 
   <groupId>org.opendaylight.lacp</groupId>
   <artifactId>lacp</artifactId>
-  <version>1.0.3-Lithium-SR3</version>
+  <version>1.0.4-SNAPSHOT</version>
   <packaging>pom</packaging>
   <prerequisites>
     <maven>4.0</maven>
