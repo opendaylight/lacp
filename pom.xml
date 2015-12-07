@@ -6,6 +6,38 @@
   <artifactId>lacp</artifactId>
   <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>
+   OpenDaylight LACP (Link Aggregation Control Protocol) project can be used to
+   aggregate multiple links between OpenDaylight controlled network switches and LACP
+   enabled legacy switches or hosts operating in active LACP mode.
+  </description>
+  <url>https://wiki.opendaylight.org/view/Project_Proposals:Link_Aggregation_Control_Protocol</url>
+  <licenses>
+    <license>
+      <name>The Eclipse Public License, Version 1.0</name>
+      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+        <name>Rajesh Sindagi</name>
+        <email>rajesh_sindagi@Dell.com</email>
+        <organization>Dell</organization>
+        <organizationUrl>http://www.Dell.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>K Kalaiselvi</name>
+      <email>Kalaiselvi_K@Dell.com</email>
+      <organization>Dell</organization>
+      <organizationUrl>http://www.Dell.com</organizationUrl>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git@git.opendaylight.org:lacp/lacp.git</connection>
+    <developerConnection>scm:git:git@git.opendaylight.org:lacp/lacp.git</developerConnection>
+    <url>git@git.opendaylight.org:lacp/lacp.git</url>
+  </scm> 
 
   <modules>
     <module>parent</module>
