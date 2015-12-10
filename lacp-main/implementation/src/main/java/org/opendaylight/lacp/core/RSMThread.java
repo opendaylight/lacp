@@ -28,6 +28,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.lacp.queue.LacpPortStatus;
 import org.opendaylight.lacp.Utils.*;
 
+import org.opendaylight.lacp.state.RxContext;
+import org.opendaylight.lacp.timer.Utils;
+import org.opendaylight.lacp.timer.TimerFactory.LacpWheelTimer;
 
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -224,6 +227,7 @@ public class RSMThread implements Runnable
 	long switchId = tmExpiryMsg.getSwitchID();
 	LacpBpduInfo lacpdu = null;
 	LOG.debug("handlePortTimeout - switchId={} portId={} expiryTimer={}", switchId, portId, tmExpiryMsg.getTimerWheelType());
+        boolean isPortToBeCleanedInDefaultedState = false;
 
 	LacpBond bond = lacpList.get(portId);
 
@@ -241,12 +245,22 @@ public class RSMThread implements Runnable
 					try {
 						LOG.debug("handlePortTimeout - retrieved LacpPort object for portId={}",portId);
 						lacpPort.runProtocolStateMachine(lacpdu,tmExpiryMsg);
+                                                //special handling for a port which moves to defaulted state
+                                                if(tmExpiryMsg.getTimerWheelType() == Utils.timerWheeltype.CURRENT_WHILE_TIMER){
+                                                    if(lacpPort.getRxStateFlag() == LacpConst.RX_STATES.RX_DEFAULTED){
+                                                        isPortToBeCleanedInDefaultedState = true;
+                                                    }
+                                                }
+                                                //special handling for a port which moves to defaulted state
 					}
 					finally {
 						lacpPort.slavePSMUnlock();
 					}
 				}
 			}
+                        if(isPortToBeCleanedInDefaultedState){
+                            portCleanupInDefaultedState(switchId,portId);
+                        }
 		}
 		finally {
 			bond.bondStateMachineUnlock();
@@ -368,7 +382,43 @@ public class RSMThread implements Runnable
         }
         LOG.debug("nodeCleanup Exit");
     }
+    
+    public void portCleanupInDefaultedState(long switchId, short portId)
+    {   
+        LOG.debug("portCleanupInDefaultedState Entry");
+        LacpBond myBond = null;
+        byte[] sysId = null;
+        short key = 0 ; 
 
+        myBond = lacpList.get(portId);
+        if(myBond != null){
+                if (myBond.getActiveAgg() != null)
+                {   
+                    sysId = myBond.getActiveAgg().getPartnerSystem();
+                    key = myBond.getActiveAgg().aggGetPartnerOperAggKey();
+                }  
+                //remove the port from the bond
+                myBond.bondDelSlave(switchId, portId);
+                //remove the portId/bond mapping
+                lacpList.remove(portId);
+                //the timers are already cleaned as part of recordDefault fn in RxDefaultState executeAction method
+                LOG.info("portCleanupInDefaultedState() - Removing port {} from the bond for switch {} as the port has timed out", portId, switchId);
+
+                if(!myBond.bondHasMember()){
+                    if (key!=0)
+                    {
+                        LOG.info("portCleanupInDefaultedState() - No members in the bond for switch {}, hence cleaning up the internal data structures", switchId);
+                        LOG.debug("portCleanupInDefaultedState() - SW={} Key={} is removed from lacp system key list",
+                                   switchId, key);
+                        LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId,key);
+                        //remove syskeyinfo from syskeyinfo-bond map
+                        lacpSysKeyList.remove(sysKeyInfo);
+                    }
+                    myBond.lacpBondCleanup();
+                }
+        }
+        LOG.debug("portCleanupInDefaultedState Exit");
+    }
 
     public void handleLacpNodeDeletion ()
     {
