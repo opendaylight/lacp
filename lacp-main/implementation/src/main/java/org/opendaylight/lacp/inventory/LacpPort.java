@@ -765,6 +765,9 @@ public class LacpPort implements Comparable<LacpPort> {
         LOG.debug("Exiting LacpPort constructor for switchid={} port={}",portId, swId);
 	}
 
+        public LacpConst.RX_STATES getRxStateFlag(){
+            return rxContext.getState().getStateFlag();
+        }
 
 	public Timeout setCurrentWhileTimer(long delay){
 	       LOG.debug("Entering setCurrentWhileTimer for switchid={} port={}",swId,portId);
