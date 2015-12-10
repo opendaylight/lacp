@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa4ed85_d6a9857c",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/core/RSMThread.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-12-10T08:30:59Z",
+      "side": 1,
+      "message": "remove unused import",
+      "revId": "8ec6eb625779894b5013f36ddb56352050841fcc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
