@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1aa4ed85_c9957589",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/core/RSMThread.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-12-10T06:30:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5aaae553_3a17a553",
+      "revId": "085cc2a7b199440d988ce6c7f4d649c9dbdb8bb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5aaae553_1a12e962",
         "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/core/RSMThread.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2015-11-30T06:44:11Z",
       "side": 1,
       "message": "myBond !\u003d null the same check is done here and in the prev block.\nInstead can we add this block also with in the prev. block so we can avoid the additional mybond!\u003dnull check here.\nAlso, instead of bondNumMembersInSw, can we use bondHasMember so we are in sync with the other port remove scenarios in this file.",
+      "revId": "085cc2a7b199440d988ce6c7f4d649c9dbdb8bb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_3bb6c28b",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/core/RSMThread.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-12-10T06:30:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5aaae553_1a12e962",
       "revId": "085cc2a7b199440d988ce6c7f4d649c9dbdb8bb4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
