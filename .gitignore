@@ -10,3 +10,7 @@ target/
 # ODL
 yang-gen-code/
 yang-gen-config/
+
+# IntelliJ
+.idea/
+*.iml
