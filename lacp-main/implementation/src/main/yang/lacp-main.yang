@@ -9,6 +9,7 @@ module lacp-main {
     prefix lacp-main;
     
   import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
+  import opendaylight-entity-ownership-service { prefix entity-ownership-service; revision-date 2015-08-10; }
   import config { prefix config; revision-date 2013-04-05; }
 
   description
@@ -51,8 +52,16 @@ module lacp-main {
       container data-broker {
         uses config:service-ref {
           refine type {
-            mandatory false;
+            mandatory true;
             config:required-identity mdsal:binding-async-data-broker;
+          }
+        }
+      }
+      container ownership-service {
+        uses config:service-ref {
+          refine type {
+            mandatory true;
+            config:required-identity entity-ownership-service:entity-ownership-service;
           }
         }
       }
