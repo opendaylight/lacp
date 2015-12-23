@@ -85,19 +85,6 @@ public class RSMThreadTest {
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 	}
 
-
-	@Test
-	public void testHandleLacpBpduNodeCleanup() {
-		LacpBpduInfo bpduInfo = LacpBpduInfoLacpPacketPdu(6); 
-		rsmThread.handleLacpBpdu(bpduInfo);
-		bpduInfo = LacpBpduInfoLacpPacketPdu(2); 
-		rsmThread.handleLacpBpdu(bpduInfo);
-		bpduInfo = LacpBpduInfoLacpPacketPdu(4); 
-		rsmThread.handleLacpBpdu(bpduInfo);
-		rsmThread.nodeCleanup();
-	}
-	
-	
 	private LacpBpduInfo LacpBpduInfoLacpPacketPdu(int Syspri) {
 		LacpBpduInfo bpduInfo;
         LacpPacketPduBuilder builder = new LacpPacketPduBuilder();

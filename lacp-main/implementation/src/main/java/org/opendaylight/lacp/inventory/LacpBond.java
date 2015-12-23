@@ -27,6 +27,7 @@ import org.opendaylight.lacp.inventory.LacpPort;
 import org.opendaylight.lacp.inventory.LacpLogPort;
 import org.opendaylight.lacp.core.LacpConst;
 import org.opendaylight.lacp.core.LacpBpduInfo;
+import org.opendaylight.lacp.core.LacpSysKeyInfo;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -978,4 +979,17 @@ public class LacpBond {
         this.slaveCnt = 0;
         bondStateMachineUnlock();
    }
+
+     public LacpSysKeyInfo getActiveAggPartnerInfo() {
+        LacpAggregator agg = this.getActiveAgg();
+        if (agg != null) {
+            byte[] sysId = agg.getPartnerSystem();
+            short key = agg.aggGetPartnerOperAggKey();
+            if (key != 0) {
+                LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId, key);
+                return sysKeyInfo;
+            }
+        }
+        return null;
+    }
 }

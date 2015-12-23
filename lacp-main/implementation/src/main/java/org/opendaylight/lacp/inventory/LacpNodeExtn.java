@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
@@ -28,6 +29,7 @@ import org.opendaylight.lacp.inventory.LacpBond;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.lacp.util.LacpPortType;
 import org.opendaylight.lacp.grouptbl.LacpGroupTbl;
+import org.opendaylight.lacp.core.LacpSysKeyInfo;
 import org.opendaylight.lacp.core.RSMManager;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
@@ -62,6 +64,10 @@ public class LacpNodeExtn
     private Group bcastGroup;
     private int nextAggId;
     private Long groupId;
+    //PortId-Bond map
+    private ConcurrentHashMap  <Short, LacpBond> lacpList;
+    //SysKeyInfo-Bond map
+    private ConcurrentHashMap <LacpSysKeyInfo, LacpBond> lacpSysKeyList;
 
     public LacpNodeExtn (InstanceIdentifier nodeId)
     {
@@ -85,6 +91,8 @@ public class LacpNodeExtn
         lacpBuilder.setLacpAggregators(aggList);
         groupTbl = new LacpGroupTbl (LacpUtil.getSalGroupService(), dataService);
         nextAggId =1;
+        lacpList = new ConcurrentHashMap <Short,LacpBond>();
+        lacpSysKeyList = new ConcurrentHashMap <LacpSysKeyInfo,LacpBond>();
     }
 
     public void updateLacpNodeInfo()
@@ -409,4 +417,57 @@ public class LacpNodeExtn
         return aggId;
     }
 
+    public LacpBond findLacpBondByPartnerMacKey(byte[] sysId, short key) {
+        if (lacpList.size() == 0) {
+            return null;
+        }
+
+        for (LacpBond bond: lacpList.values()) {
+            if (bond.isPartnerExist(sysId,key)) {
+                return bond;
+            }
+        }
+        return null;
+    }
+
+    public LacpBond findLacpBondBySystemKey (LacpSysKeyInfo sysKeyInfo) {
+        return lacpSysKeyList.get(sysKeyInfo);
+    }
+
+    public LacpBond findLacpBondByPort (short portId) {
+        return lacpList.get(portId);
+    }
+
+    public LacpBond addLacpBond (short portId, LacpSysKeyInfo sysKeyInfo, LacpBond lacpBond) {
+        LacpBond bond = lacpList.putIfAbsent(portId, lacpBond);
+        if (sysKeyInfo != null) {
+            bond = lacpSysKeyList.putIfAbsent(sysKeyInfo, lacpBond);
+        }
+        return bond;
+    }
+
+    public LacpBond removeLacpBondFromPortList (short portId) {
+        return (lacpList.remove(portId));
+    }
+
+    public LacpBond removeLacpBondFromSysKeyInfo (LacpSysKeyInfo sysKeyInfo) {
+        return (lacpSysKeyList.remove(sysKeyInfo));
+    }
+
+    public void bondInfoCleanup() {
+
+        LOG.debug("bondInfoCleanup Entry");
+        for (LacpBond bond: lacpList.values()) {
+            LacpSysKeyInfo sysKeyInfo = bond.getActiveAggPartnerInfo();
+            if (sysKeyInfo != null) {
+                lacpSysKeyList.remove(sysKeyInfo);
+            }
+            for (LacpPort lacpPort: bond.getSlaveList()) {
+                lacpList.remove(lacpPort.slaveGetPortId());
+                lacpPort.lacpPortCleanup();
+            }
+            bond.lacpBondCleanup();
+        }
+        LOG.debug("bondInfoCleanup Exit");
+    }
 }

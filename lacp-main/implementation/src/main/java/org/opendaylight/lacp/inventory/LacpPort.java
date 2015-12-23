@@ -708,6 +708,7 @@ public class LacpPort implements Comparable<LacpPort> {
                lacpNCBuilder = new LacpNodeConnectorBuilder();
                lacpNCBuilder.setActorPortNumber(this.actorPortNumber);
                lacpNCBuilder.setPeriodicTime(LacpUtil.DEF_PERIODIC_TIME);
+               lacpNCBuilder.setActorPortPriority(this.actorPortPriority);
                lacpNCBuilder.setLacpAggRef(new AggRef(bond.getLacpAggInstId()));
                LacpNodeExtn lacpNode = this.getLacpNode();
                if (lacpNode == null)
@@ -1011,6 +1012,7 @@ public class LacpPort implements Comparable<LacpPort> {
         {
 	    this.partnerOper = new PortParams( system,  systemPriority,  key, portNum,  portPriority,  portState);
             lacpNCBuilder.setPartnerPortNumber(portNum);
+            lacpNCBuilder.setPartnerPortPriority(portPriority);
             /* Partner port infor is not written to md-sal now.
                It will be updated when the LOG.calNCRef for the port is assigned. */
 	}
