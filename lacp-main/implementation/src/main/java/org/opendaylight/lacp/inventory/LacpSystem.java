@@ -119,25 +119,7 @@ public class LacpSystem
     }
     public void readDataStore (DataBroker dataService)
     {
-        InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesBuilder = InstanceIdentifier.<Nodes>builder(Nodes.class);
-        Nodes nodes = null;
-        ReadOnlyTransaction readTx = dataService.newReadOnlyTransaction();
-
-        try {
-            Optional<Nodes> nodesOpt = null;
-            nodesOpt = readTx.read(LogicalDatastoreType.OPERATIONAL, nodesBuilder.build()).get();
-            if(nodesOpt.isPresent())
-            {
-                nodes = (Nodes) nodesOpt.get();
-            }
-        }
-        catch(Exception e)
-        {
-            LOG.error("Failed to read node list from data store.", e.getMessage());
-            readTx.close();
-        }
-        readTx.close();
-
+        Nodes nodes = readNodeInfo(dataService);
         if(nodes == null)
         {
             LOG.debug("No node is connected yet to controller.");
@@ -207,5 +189,56 @@ public class LacpSystem
         lacpTxQueue.deleteLacpQueue(LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE);
         // clear the pdu decoder thread
         PduDecoderProcessor.setLacploaded(false);
+    }
+
+    private Nodes readNodeInfo(DataBroker dataService) {
+        InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesBuilder = InstanceIdentifier.<Nodes>builder(Nodes.class);
+        Nodes nodes = null;
+        ReadOnlyTransaction readTx = dataService.newReadOnlyTransaction();
+
+        try {
+            Optional<Nodes> nodesOpt = null;
+            nodesOpt = readTx.read(LogicalDatastoreType.OPERATIONAL, nodesBuilder.build()).get();
+            if(nodesOpt.isPresent())
+            {
+                nodes = (Nodes) nodesOpt.get();
+            }
+        }
+        catch(Exception e)
+        {
+            LOG.error("Failed to read node list from data store.", e.getMessage());
+            readTx.close();
+        }
+        readTx.close();
+        return nodes;
+    }
+
+    public void populateLacpDataBase (DataBroker dataService) {
+        Nodes nodes = readNodeInfo(dataService);
+        if(nodes == null) {
+            LOG.debug("Nodes are not connected to controller.");
+            return;
+        }
+
+        LOG.debug("Reading the list of nodes connected to the controller.");
+        for (Node node : nodes.getNode()) {
+            InstanceIdentifier<Node> nodeId
+                    = InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey()).build();
+            Long switchId = LacpUtil.getNodeSwitchId(nodeId);
+            if (switchId.equals(INVALID_SWITCHID)) {
+                LOG.warn ("Node obtained {} is not an openflow enabled node. Not adding it part of lacp system", nodeId);
+                continue;
+            }
+            LacpNodeExtn lacpNode = null;
+           // LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId, node);
+            if (lacpNode == null) {
+                LOG.error("cannot add a lacp node for node {}", nodeId);
+                return;
+            }
+            if (addLacpNode(nodeId, lacpNode) == false) {
+                LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
+                continue;
+            }
+        }
     }
 }
