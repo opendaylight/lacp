@@ -198,7 +198,7 @@ public class RSMThread implements Runnable
 		while(iter.hasNext()) {
 			LacpPort lacpPort = iter.next();
 			if (lacpPort.slaveGetPortId() == portId &&
-					lacpPort.getLacpSwId() == switchId) {
+					lacpPort.slaveGetSwId() == switchId) {
 
 				lacpPort.slavePSMLock();
 				try {
@@ -237,7 +237,7 @@ public class RSMThread implements Runnable
 			while(iter.hasNext()) {
 				LacpPort lacpPort = iter.next();
 				if (lacpPort.slaveGetPortId() == portId &&
-						lacpPort.getLacpSwId() == switchId) {
+						lacpPort.slaveGetSwId() == switchId) {
 
 					lacpPort.slavePSMLock();
 					try {

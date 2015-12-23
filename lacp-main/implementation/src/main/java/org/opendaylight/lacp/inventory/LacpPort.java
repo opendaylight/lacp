@@ -36,8 +36,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev150131.LacpNodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev150131.LacpNodeConnectorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev151125.LacpNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev151125.LacpNodeConnectorBuilder;
 
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
@@ -53,7 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 
 import org.opendaylight.lacp.grouptbl.LacpGroupTbl;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev150131.AggRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev151125.AggRef;
 import org.opendaylight.lacp.queue.LacpTxQueue;
 import org.opendaylight.lacp.queue.LacpPortInfo;
 import org.opendaylight.lacp.Utils.*;
@@ -514,11 +514,6 @@ public class LacpPort implements Comparable<LacpPort> {
 		return portAggregator;
 	}
 
-	public void portSetAggregator(LacpAggregator agg) {
-		this.setPortAggregator(agg);
-
-	}
-
 	public void setPortAggregator(LacpAggregator portAggregator) {
 		this.portAggregator = portAggregator;
 	}
@@ -544,13 +539,6 @@ public class LacpPort implements Comparable<LacpPort> {
 
 	public void setActorPortAggregatorIdentifier(short actorPortAggregatorIdentifier) {
 		this.actorPortAggregatorIdentifier = actorPortAggregatorIdentifier;
-	}
-
-	public byte slaveGetduplex() {
-		return getDuplex();
-	}
-	public void slaveSetDuplex(byte duplex) {
-		setDuplex(duplex);
 	}
 
 	public byte getDuplex() {
@@ -620,11 +608,6 @@ public class LacpPort implements Comparable<LacpPort> {
 		return speed;
 	}
 
-
-	public void slaveSetSpeed(int speed) {
-		setSpeed(speed);
-	}
-
 	public void setSpeed(int speed) {
 		this.speed = speed;
 	}
@@ -648,10 +631,6 @@ public class LacpPort implements Comparable<LacpPort> {
 	}
 
 	public long slaveGetSwId() {
-		return swId;
-	}
-
-	public long getLacpSwId(){
 		return swId;
 	}
 
@@ -755,8 +734,8 @@ public class LacpPort implements Comparable<LacpPort> {
         int result = LacpPortProperties.mapSpeedDuplexFromPortFeature(portNC);
         int speed = (result >> LacpConst.DUPLEX_KEY_BITS);
         byte duplex = (byte) (result & LacpConst.DUPLEX_KEY_BITS);
-        this.slaveSetSpeed(speed);
-        this.slaveSetDuplex(duplex);
+        this.setSpeed(speed);
+        this.setDuplex(duplex);
         short key = (short)(result >> LacpConst.DUPLEX_KEY_BITS);
         this.setActorAdminPortKey(key);
 
@@ -1041,13 +1020,13 @@ public class LacpPort implements Comparable<LacpPort> {
 		return new LacpPort(swId, portId, bond, portPri,bpduInfo);
 	}
 
-	public void attachBondToAgg() {
+        public void attachBondToAgg() {
 
-	}
+        }
 
-	public void detachBondFromAgg() {
+        public void detachBondFromAgg() {
 
-	}
+        }
 
 	public void lacpInitPort(int lacpFast)
 	{
@@ -1126,10 +1105,6 @@ public class LacpPort implements Comparable<LacpPort> {
 			LOG.debug("Exiting get_Duplex for port={} link is BOND_LINK_UP",portId);
 			return(this.getDuplex());
 		}
-	}
-
-	void setPortAdminPortKey(short val) {
-		this.setActorAdminPortKey(val);
 	}
 
 	public static short toUnsigned(byte b) {

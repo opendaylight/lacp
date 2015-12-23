@@ -1,188 +1,185 @@
+/*
+Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v1.0 which accompanies this distribution,
+and is available at http://www.eclipse.org/legal/epl-v10.html
+*/
+
 module lacp-packet {
-  yang-version 1;
-  namespace "urn:opendaylight:lacp:packet";
-  prefix lacppdu;
+    yang-version 1;
+    namespace "urn:opendaylight:lacp:packet";
+    prefix lacppdu;
 
-  import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
-  import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
-  import opendaylight-inventory {prefix inv;revision-date "2013-08-19";}
+    import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import opendaylight-inventory {prefix inv;revision-date "2013-08-19";}
 
-  revision 2015-02-10 { description "LACP Packet."; }
+    revision 2015-02-10 { description "LACP Packet."; }
 
-  typedef sub-type-option {
-   type enumeration {
-       enum reserved {
-          value 0;
-       }
-       enum slow-protocol {
-          value 1;
-       }
-    }
-  }
-  typedef version-value {
-    type enumeration {
-         enum reserved {
-           value 0;
-         }
-         enum lacp-version {
-            value 1;
-         }
-    }
-  }
-  typedef tlv-type-option {
-    type enumeration {
-        enum terminator {
-           value 0;
-        }
-           enum actor-info {
-           value 1;
-        }
-           enum partner-info {
-           value 2;
-        }
-           enum collector-info {
-           value 3;
+    typedef sub-type-option {
+        type enumeration {
+            enum reserved {
+                value 0;
+            }
+            enum slow-protocol {
+                value 1;
+            }
         }
     }
-  }
 
-  grouping packet-fields {
-    leaf payload-offset {
-      type int32;
-    }
-    leaf payload-length {
-      type int32;
-    }
-  }
-
-  grouping lacp-information {
-
-    leaf tlv-type {
-       type tlv-type-option;
+    typedef version-value {
+        type enumeration {
+            enum reserved {
+                value 0;
+            }
+            enum lacp-version {
+                value 1;
+            }
+        }
     }
 
-    leaf info-len {
-       type uint8;
+    typedef tlv-type-option {
+        type enumeration {
+            enum terminator {
+                value 0;
+            }
+            enum actor-info {
+                value 1;
+            }
+            enum partner-info {
+                value 2;
+            }
+            enum collector-info {
+                value 3;
+            }
+        }
     }
 
-    leaf system-priority {
-       type uint16;
+    grouping packet-fields {
+        leaf payload-offset {
+            type int32;
+        }
+        leaf payload-length {
+            type int32;
+        }
     }
 
-    leaf system-id {
-       /* type string {
-		length "1..48";
-	} */
-	type yang:mac-address;
+    grouping lacp-information {
+        leaf tlv-type {
+            type tlv-type-option;
+        }
+
+        leaf info-len {
+            type uint8;
+        }
+
+        leaf system-priority {
+            type uint16;
+        }
+
+        leaf system-id {
+            type yang:mac-address;
+        }
+
+        leaf key {
+            type uint16;
+        }
+
+        leaf port-priority {
+            type uint16;
+        }
+
+        leaf port {
+            type uint16;
+        }
+
+        leaf state {
+            type uint8;
+        }
+
+        leaf reserved {
+            type uint16;
+        }
+
+        leaf reserved1 {
+            type uint8;
+        }
     }
 
-    leaf key {
-       type uint16;
+    grouping lacp-packet-field {
+        leaf ingress-port {
+            type inv:node-connector-ref;
+        }
+
+        leaf dest-address {
+            type yang:mac-address;
+        }
+
+        leaf src-address {
+            type yang:mac-address;
+        }
+
+        leaf len-type {
+            type uint16;
+        }
+
+        leaf subtype {
+            type sub-type-option;
+        }
+
+        leaf version {
+            type version-value;
+        }
+
+        container actor-info {
+            uses lacp-information;
+        }
+
+        container partner-info {
+            uses lacp-information;
+        }
+
+        leaf collector-tlv-type {
+            type tlv-type-option;
+        }
+
+        leaf collector-info-len {
+            type uint8;
+        }
+
+        leaf collector-max-delay {
+            type uint16 {
+                range "0..65535";
+            }
+        }
+
+        leaf collector-reserved {
+            type uint64;
+        }
+
+        leaf collector-reserved1 {
+            type uint32;
+        }
+
+        leaf terminator-tlv-type {
+            type tlv-type-option;
+        }
+
+        leaf terminator-info-len {
+            type uint8;
+        }
+
+        leaf terminator-reserved {
+            type string ;
+        }
+
+        leaf FCS {
+            type uint32;
+        }
     }
 
-    leaf port-priority {
-       type uint16;
+    container lacp-packet-pdu {
+        uses lacp-packet-field;
     }
-
-    leaf port {
-       type uint16;
-    }
-
-    leaf state {
-       type uint8;
-    }
-
-    leaf reserved {
-       type uint16;
-    }
-
-    leaf reserved1 {
-       type uint8;
-    } 
-  }
-
-  grouping lacp-packet-field {
-
-    leaf ingress-port {
-	type inv:node-connector-ref;
-    }
-
-    leaf dest-address {
-	type yang:mac-address;
-    }
-
-    leaf src-address {
-	type yang:mac-address;
-    }
-
-    leaf len-type {
-        type uint16;
-    }
-
-    leaf subtype {
-        type sub-type-option;
-    }
-
-    leaf version {
-       type version-value;
-    }
-
-    container actor-info {
-       uses lacp-information;
-    }
-
-
-    container partner-info {
-       uses lacp-information;
-    }
-
-    leaf collector-tlv-type {
-       type tlv-type-option;
-    }
-
-    leaf collector-info-len {
-       type uint8;
-    }
-
-    leaf collector-max-delay {
-       type uint16 {
-          range "0..65535";
-       }  
-    }
-
-    leaf collector-reserved {
-       type uint64;
-    }
-
-    leaf collector-reserved1 {
-       type uint32;
-    }
-
-    leaf terminator-tlv-type {
-       type tlv-type-option;
-    }
-
-    leaf terminator-info-len {
-       type uint8;
-    }
-
-    leaf terminator-reserved {
-       /* type string {
-		length "0..50";
-	} */
-       type string ;
-    }
-
-    leaf FCS {
-       type uint32;
-    }
-
-  }
-
-  container lacp-packet-pdu {
-	uses lacp-packet-field;
-  }
-
 }
-
-

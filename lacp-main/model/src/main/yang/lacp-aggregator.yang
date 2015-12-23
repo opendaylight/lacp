@@ -1,9 +1,11 @@
-/* 
-Copyright (c) 2014 Dell Inc. and others.  All rights reserved. 
+/*
+Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
+
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License v1.0 which accompanies this distribution,
 and is available at http://www.eclipse.org/legal/epl-v10.html
-*/								  	
+*/
+
 module lacp-aggregator {
     namespace "urn:opendaylight:lacp:aggregator";
     yang-version 1;
@@ -11,72 +13,79 @@ module lacp-aggregator {
     import yang-ext {prefix ext; revision-date "2013-07-09";}
     import opendaylight-inventory {prefix inv; revision-date "2013-08-19";}
     import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
-    revision "2015-01-31" {
-	    description "Lacp Aggregator";
+    revision "2015-11-25" {
+        description "Lacp Aggregator updated for additional actor/partner fields";
     }
+
     typedef agg-ref {
-	type instance-identifier;
+        type instance-identifier;
     }
 
-   grouping lag-ports {
-     leaf lag-port-id {
-        type uint32;
-        description "Uniquely identifies the physical ports that part of the lacp aggregator interface";
+    grouping lag-ports {
+        leaf lag-port-id {
+            type uint32;
+            description "Uniquely identifies the physical ports that part of the lacp aggregator interface";
         }
-     leaf lag-port-ref {
-        type inv:node-connector-ref;
-        description "NodeConnector Reference of the physical ports that part of the lag interface";
+
+        leaf lag-port-ref {
+            type inv:node-connector-ref;
+            description "NodeConnector Reference of the physical ports that part of the lag interface";
         }
-    }     
-
-   grouping lacpaggregator {
-	leaf agg-id {
-	    type uint16;
-	    description "Uniquely identify an aggregator within the system ";
-	}
-
-	leaf actor-agg-mac-address {
-	    type yang:mac-address;
-	    description "The Mac address assigned to the aggregator(Assigned by admin/system policy)";
-	}
-
-       	leaf actor-oper-agg-key {
-	    type uint16;
-	    description "The oper key value associated with the aggregator(Assigned by the Actor/Partner)";
-	}
-	
-    list lag-ports {
-        key "lag-port-id";
-        description "The set of ports that belong to this lag.";
-        uses lag-ports;
     }
-	
-    leaf partner-system-id {
-	    type yang:mac-address;
-	    description "The Mac address assigned to the remote system of which this aggregator is connected. If the aggregator has no ports, this variable is set to 0x00-00-00-00-00-00";
-	}
 
-	leaf partner-system-priority {
-	    type uint16;
-	    description "The system priority assigned to the remote system of which this aggregator is connected. If the aggregator has no ports, this variable is set to 0";
-	}
+    grouping lacpaggregator {
+        leaf agg-id {
+            type uint16;
+            description "Uniquely identify an aggregator within the system ";
+        }
 
-	leaf partner-oper-agg-key {
-	    type uint16;
-	    description "The oper key value associated with the aggregator(Assigned by the Actor/Partner)";
-	}
+        leaf actor-agg-mac-address {
+            type yang:mac-address;
+            description "The Mac address assigned to the aggregator(Assigned by admin/system policy)";
+        }
 
-	leaf lag-groupid {
-	    type int64;
-	    description "Group ID";
-	}
+        leaf actor-oper-agg-key {
+            type uint16;
+            description "The oper key value associated with the aggregator";
+            config false;
+        }
 
-	leaf lag-node-ref {
-        	type inv:node-ref;
-            	description "The set of ports that belongs to the link aggregation group ";
-	}
+        list lag-ports {
+            key "lag-port-id";
+            description "The set of ports that belong to this lag.";
+            uses lag-ports;
+        }
+
+        leaf partner-system-id {
+            type yang:mac-address;
+            description "The Mac address assigned to the remote system of which this aggregator is connected.";
+            config false;
+        }
+
+        leaf partner-system-priority {
+            type uint16;
+            description "The system priority assigned to the remote system of which this aggregator is connected.";
+            config false;
+        }
+
+        leaf partner-oper-agg-key {
+            type uint16;
+            description "The oper key value associated with the aggregator in the remote system";
+            config false;
+        }
+
+        leaf lag-groupid {
+            type int64;
+            description "Group ID";
+            config false;
+        }
+
+        leaf lag-node-ref {
+            type inv:node-ref;
+            description "The set of ports that belongs to the link aggregation group ";
+            config false;
+        }
+
     }
 
 }
-
-

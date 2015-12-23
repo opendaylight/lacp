@@ -164,14 +164,11 @@ public class LacpAggregatorTest {
 	public void PartnerTest(){
 		byte[] partner= {0,0,0,0,0,0x02};
 		assertEquals(false,lag.aggHasPartner());
-		assertEquals(false,lag.aggPartnerIsNullMac());
 		lag.setPartnerSystem(partner);
 		assertEquals(true,lag.aggHasPartner());
-		assertEquals(false,lag.aggPartnerIsNullMac());
 		partner[5]=0;
 		lag.setPartnerSystem(partner);
 		assertEquals(false,lag.aggHasPartner());
-		assertEquals(true,lag.aggPartnerIsNullMac());
 	}
 	
 	@Test
@@ -259,18 +256,6 @@ public class LacpAggregatorTest {
 		for(int i=0;i<LacpConst.ETH_ADDR_LEN;i++){
 			assertEquals(address[i],newAgg[i]);
 		}
-	}
-	
-	@Test 
-	public void copyAggfromOriginAggTest(){
-		
-		byte[] partner= {0,0,0,0,0,0x11};
-		lag.setPartnerSystem(partner);
-		LacpAggregator dest = LacpAggregator.newInstance();
-		dest.setLagPortList(new ArrayList<LacpPort>());
-		lag.setLagPortList(Portlist);
-		LacpAggregator.copyAggfromOriginAgg(dest,lag);
-		//GettersMethodTest(dest);
 	}
 	
 	@Test
