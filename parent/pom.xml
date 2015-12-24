@@ -26,8 +26,6 @@
     <config.version>0.4.0-SNAPSHOT</config.version>
     <openflow.plugin.version>0.2.0-SNAPSHOT</openflow.plugin.version>
     <dlux.version>0.3.0-SNAPSHOT</dlux.version>
-    <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
-    <config.lacp.main.configfile>93-lacpmain.xml</config.lacp.main.configfile>
   </properties>
 
   <dependencyManagement>
