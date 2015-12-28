@@ -22,6 +22,30 @@
       "revId": "113c26e946a8c18efbaa99a24b7edacfc3643bae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_945f52e5",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/inventory/LacpSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2015-12-28T05:34:39Z",
+      "side": 1,
+      "message": "This change only contains the set for modifying the read logic. The lacpNode \u003d new LacpNodeExtn(nodeId, node) is part of the new set of constructors added to reconstruct lacpnode, port and bond. This will come is subsequent checkin. As no constructor is now available mentioned above in LacpNodeExtn commented the that line. Will be modified, when the constructor set of changes are added.",
+      "parentUuid": "1aa4ed85_d455cac6",
+      "range": {
+        "startLine": 233,
+        "startChar": 35,
+        "endLine": 233,
+        "endChar": 36
+      },
+      "revId": "113c26e946a8c18efbaa99a24b7edacfc3643bae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
