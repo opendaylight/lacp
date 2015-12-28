@@ -15,12 +15,19 @@ import java.util.Hashtable;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev151125.Lacpaggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev151125.LagPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregators;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev151125.LacpNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev151125.LacpNodeConnectorBuilder;
@@ -69,31 +76,94 @@ public class LacpNodeExtn
     //SysKeyInfo-Bond map
     private ConcurrentHashMap <LacpSysKeyInfo, LacpBond> lacpSysKeyList;
 
+    private void initNode() {
+        lacpBuilder = new LacpNodeBuilder();
+        bcastGroup = null;
+        nonLacpPortList = new ArrayList<InstanceIdentifier<NodeConnector>>();
+        lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
+        lagList = new Hashtable<Integer,LacpBond>();
+        groupTbl = new LacpGroupTbl (LacpUtil.getSalGroupService(), dataService);
+        lacpList = new ConcurrentHashMap <Short,LacpBond>();
+        lacpSysKeyList = new ConcurrentHashMap <LacpSysKeyInfo,LacpBond>();
+        deleteStatus = false;
+    }
     public LacpNodeExtn (InstanceIdentifier nodeId)
     {
+        initNode();
         groupId = LacpUtil.getNextGroupId();
         bcastGroupId = new GroupId (groupId);
         nodeInstId = nodeId;
-        lacpBuilder = new LacpNodeBuilder();
-        bcastGroup = null;
 
         switchId = LacpUtil.getNodeSwitchId(nodeId);
         String sysId = obtainSystemMac();
         lacpBuilder.setSystemId(new MacAddress(sysId));
         lacpBuilder.setSystemPriority(LacpUtil.DEF_LACP_PRIORITY);
-        nonLacpPortList = new ArrayList<InstanceIdentifier<NodeConnector>>();
 	firstGrpAdd = true;
-        lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
-        deleteStatus = false;
         lacpBuilder.setNonLagGroupid(groupId);
-        lagList = new Hashtable<Integer,LacpBond>();
         ArrayList<LacpAggregators> aggList = new ArrayList<LacpAggregators>();
         lacpBuilder.setLacpAggregators(aggList);
-        groupTbl = new LacpGroupTbl (LacpUtil.getSalGroupService(), dataService);
         nextAggId =1;
-        lacpList = new ConcurrentHashMap <Short,LacpBond>();
-        lacpSysKeyList = new ConcurrentHashMap <LacpSysKeyInfo,LacpBond>();
     }
+
+    public LacpNodeExtn (InstanceIdentifier nodeId, Node node) {
+        initNode();
+        LacpNode lNode = node.<LacpNode>getAugmentation(LacpNode.class);   
+        groupId = lNode.getNonLagGroupid();
+        bcastGroupId = new GroupId (groupId);
+        nodeInstId = nodeId;
+        switchId = LacpUtil.getNodeSwitchId(nodeId);
+        lacpBuilder.setSystemId(lNode.getSystemId());
+        lacpBuilder.setSystemPriority(lNode.getSystemPriority());
+
+        lacpBuilder.setNonLagGroupid(groupId);
+        ArrayList<LacpAggregators> aggList = new ArrayList<LacpAggregators>();
+        aggList.addAll(lNode.getLacpAggregators());
+        lacpBuilder.setLacpAggregators(aggList);
+
+        List<NodeConnector> nodeConnectors = node.getNodeConnector();
+        if (nodeConnectors == null) {
+	    firstGrpAdd = true;
+            return;
+        }
+        for(NodeConnector nc : nodeConnectors) {
+            FlowCapableNodeConnector flowConnector = nc.getAugmentation(FlowCapableNodeConnector.class);
+            PortState portState = flowConnector.getState();
+            if ((portState == null) || (portState.isLinkDown())) {
+                continue;
+            }
+            InstanceIdentifier<NodeConnector> ncId = (InstanceIdentifier<NodeConnector>)
+                InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
+                .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nc.getKey()).build();
+            NodeConnectorId nCon = InstanceIdentifier.keyOf(ncId).getId();
+            if (nCon.getValue().contains("LOCAL")) {
+                continue;
+            }
+            LagPort lPort = nc.<LacpNodeConnector>getAugmentation(LacpNodeConnector.class);
+            if(lPort.getPartnerPortNumber() != 0) {
+                LacpPort lacpPort = LacpPort.newInstance(switchId.longValue(), ncId, nc, lPort);
+                lacpPortList.put (ncId, lacpPort);
+            }
+            else {
+                nonLacpPortList.add(ncId);
+            }
+        }
+
+        for (Lacpaggregator lag : lNode.getLacpAggregators()) {
+            LacpBond bond = LacpBond.newInstance(lag, this);
+            lagList.put(bond.getBondInstanceId(), bond); 
+            LacpSysKeyInfo sysKeyInfo = bond.getActiveAggPartnerInfo();
+            if (sysKeyInfo != null) {
+                lacpSysKeyList.putIfAbsent(sysKeyInfo, bond);
+            }
+            if (nextAggId < lag.getAggId()) {
+                nextAggId = lag.getAggId() + 1;
+            }
+        }
+        firstGrpAdd = false;
+//TODO reconstruct the bcast group entry.
+
+    }
+
 
     public void updateLacpNodeInfo()
     {

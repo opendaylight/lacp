@@ -437,7 +437,6 @@ public class LacpBondTest
 		lacpPort.portPartnerOperSetPortNumber(portId);
 		lacpPort.portPartnerOperSetSystem(sysid);
 		sysid = lacpPort.portPartnerOperGetSystem();
-		lacpPort.setLacpPortId(portId);
 		slaveList.add(lacpPort);
 		short pId = lacpPort.slaveGetPortId();
 		short b = lacpBond.findPortIdByPartnerMacPortId(sysid, portId);
@@ -478,7 +477,7 @@ public class LacpBondTest
 	public void bondGetAggIdTest()
 	{
 		long swId = slave.slaveGetSwId();
-		short portId = slave.getLacpPortId();
+		short portId = slave.slaveGetPortId();
 		slave.setPortAggregator(lag);
 		short aggId = (short)101;
 		lag.setAggId(aggId);
@@ -535,7 +534,7 @@ public class LacpBondTest
 	public void bondAddSlaveTest()
 	{
 		swId = slave.slaveGetSwId();
-		portId = slave.getLacpPortId();
+		portId = slave.slaveGetPortId();
 		portPri = slave.getPortPriority();
 		bpduInfo = slave.getLacpBpduInfo();
 		systemIdMap = lacpBond.getSystemIdMap();
