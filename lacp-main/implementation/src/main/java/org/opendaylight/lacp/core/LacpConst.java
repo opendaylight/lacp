@@ -103,6 +103,7 @@ public class LacpConst {
         public static final short PARTNER_INFO_LEN = 20;
         public static final short COLLECTOR_INFO_LEN = 16;
         public static final short TERMINATOR_INFO_LEN = 0;
+        public static final String APP_NAME = "LACP";
 
     /* LACP Bond Parameter */
 

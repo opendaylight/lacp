@@ -1,6 +1,7 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.lacp.main.rev141216;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
@@ -15,6 +16,7 @@ import org.opendaylight.lacp.grouptbl.*;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.opendaylight.lacp.core.LacpConst;
 import org.opendaylight.lacp.inventorylistener.LacpNodeListener;
 import org.opendaylight.lacp.inventorylistener.LacpDataListener;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
@@ -25,6 +27,7 @@ import org.opendaylight.lacp.packethandler.LacpPacketHandler;
 import org.opendaylight.lacp.flow.LacpFlow;
 import org.opendaylight.lacp.queue.LacpRxQueue;
 import org.opendaylight.lacp.queue.LacpTxQueue;
+import org.opendaylight.lacp.role.LacpEntityManager;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +41,10 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
     private Registration portStatusListener = null;
     private LacpFlow lacpFlow;
     private LacpSystem lacpSystem;
+    private LacpEntityManager entManager;
+    private EntityOwnershipService entityOwnershipService;
+    //TODO - set below flag to true for enabling cluster lacp
+    private boolean isClusterAware = false;
 
     private final ExecutorService pduDecoderExecutor = Executors.newCachedThreadPool();
     private final ExecutorService TxThrExecutor = Executors.newFixedThreadPool(10);
@@ -66,6 +73,12 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
         SalFlowService salFlowService = rpcRegistryDependency.getRpcService(SalFlowService.class);
 	SalGroupService salGroupService = rpcRegistryDependency.getRpcService (SalGroupService.class);
+
+        if(isClusterAware){
+            entityOwnershipService = getOwnershipServiceDependency();
+            entManager = new LacpEntityManager(entityOwnershipService);
+            entManager.requestLacpEntityOwnership(LacpConst.APP_NAME);
+        }
 
         lacpSystem = LacpSystem.getLacpSystem();
         LacpNodeExtn.setDataBrokerService(dataService);
@@ -113,6 +126,14 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         final class CloseLacpResources implements AutoCloseable {
         @Override
           public void close() throws Exception {
+            
+            //TODO - for testing the line is added at the start
+            //as clearResources is throwing exception
+            if(isClusterAware){
+                LOG.info("Calling entManager closeListeners");
+                entManager.closeListeners();
+            }
+
             if (packetListener != null)
             {
                 packetListener.close();
