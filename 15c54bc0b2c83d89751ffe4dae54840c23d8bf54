@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1aa4ed85_f4d6c6f0",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/LacpEntityManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-12-28T11:17:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1aa4ed85_b48cce36",
+      "revId": "15c54bc0b2c83d89751ffe4dae54840c23d8bf54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1aa4ed85_94899228",
         "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/LacpEntityManager.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2015-12-28T09:58:34Z",
       "side": 1,
       "message": "The before and after logs can be debug logs. I dont think we require it as info logs. Also for the other logs below, not all should be info. Few can be moved as debug logs.",
+      "revId": "15c54bc0b2c83d89751ffe4dae54840c23d8bf54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_54ff9a67",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/role/LacpEntityManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-12-28T11:17:32Z",
+      "side": 1,
+      "message": "Done. Few other places can be changed after further testing.",
+      "parentUuid": "1aa4ed85_94899228",
       "revId": "15c54bc0b2c83d89751ffe4dae54840c23d8bf54",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
