@@ -23,6 +23,8 @@
     <mdsal.version>1.3.0-SNAPSHOT</mdsal.version>
     <openflow.plugin.version>0.2.0-SNAPSHOT</openflow.plugin.version>
     <restconf.version>1.3.0-SNAPSHOT</restconf.version>
+    <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
+    <config.lacp.main.configfile>93-lacpmain.xml</config.lacp.main.configfile>
   </properties>
   <dependencies>
     <dependency>
@@ -90,7 +92,7 @@
     <resources>
       <resource>
         <filtering>true</filtering>
-        <directory>src/main/resources</directory>
+        <directory>src/main/features</directory>
       </resource>
     </resources>
     <plugins>

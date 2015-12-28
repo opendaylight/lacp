@@ -40,9 +40,9 @@
 
     <required-capabilities>
         <capability>urn:opendaylight:lacp:lacp-main?module=lacp-main&amp;revision=2014-12-16</capability>
-	<capability>urn:opendaylight:lacp:aggregator?module=lacp-aggregator&amp;revision=2015-01-31</capability>
+	<capability>urn:opendaylight:lacp:aggregator?module=lacp-aggregator&amp;revision=2015-11-25</capability>
         <capability>urn:opendaylight:lacp:node?module=lacp-node&amp;revision=2015-01-31</capability>
         <capability>urn:opendaylight:lacp:packet?module=lacp-packet&amp;revision=2015-02-10</capability>
-        <capability>urn:opendaylight:lacp:port?module=lacp-port&amp;revision=2015-01-31</capability>
+        <capability>urn:opendaylight:lacp:port?module=lacp-port&amp;revision=2015-11-25</capability>
     </required-capabilities>
 </snapshot>
