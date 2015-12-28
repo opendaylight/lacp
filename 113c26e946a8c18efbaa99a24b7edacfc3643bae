@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa4ed85_d455cac6",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/inventory/LacpSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-12-28T05:30:10Z",
+      "side": 1,
+      "message": "Does this comment need to be changed as below?\n\nLacpNodeExtn lacpNode \u003d new LacpNodeExtn (nodeId);",
+      "range": {
+        "startLine": 233,
+        "startChar": 35,
+        "endLine": 233,
+        "endChar": 36
+      },
+      "revId": "113c26e946a8c18efbaa99a24b7edacfc3643bae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
