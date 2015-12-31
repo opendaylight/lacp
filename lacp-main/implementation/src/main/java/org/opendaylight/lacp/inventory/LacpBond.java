@@ -32,6 +32,7 @@ import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -43,6 +44,7 @@ import org.opendaylight.lacp.Utils.*;
 import org.opendaylight.lacp.grouptbl.LacpGroupTbl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev151125.Lacpaggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregators;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregatorsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.lag.node.LacpAggregatorsBuilder;
@@ -227,30 +229,91 @@ public class LacpBond {
 	}
 
 	public static LacpBond newInstance(int sysPri,short key, LacpNodeExtn lacpNode) {
-
 		return new LacpBond(sysPri,key, lacpNode);
 	}
 
-	private LacpBond(int sys_priority,short key, LacpNodeExtn lacpNode)
-	{
-		LOG.debug("LacpBond is created with sys priority ={} and key={}",sys_priority,key);
+    public static LacpBond newInstance(Lacpaggregator lag, LacpNodeExtn lacpNode) {
+        LacpBond bond = new LacpBond(0x0000ffff, (short)0, lacpNode, lag.getAggId(),
+                lag.getLagGroupid());
+        // TODO updated port and agg. But partner info no where updated. Where will it get updated.
+        // Updated in the Builder object. if Required retrive from it for further usage
+        bond.updateParams(lag);
+        return bond;
+    }
 
-		this.bondLock = new ReentrantLock();
-		minLinks = 1;
-		slaveCnt = 0;
-		portSlaveMap = new LinkedHashMap<Short, LacpPort>();
+    private void updateParams(Lacpaggregator lag) {
+        try {
+            bondStateMachineLock();
+            setDirty(true);
+            byte[] macAddr = HexEncode.bytesFromHexString(this.lacpNodeRef.getNodeSystemId().getValue());
+            systemIdMap.put(this.lacpNodeRef.getSwitchId(), (short)1);
+            /* Set Virtual MAC address for Bond */
+            this.virtualSysMacAddr = Arrays.copyOf(macAddr, LacpConst.ETH_ADDR_LEN);
+            this.virtualSysMacAddr[5] += bondInstanceId;
+            int portCount = 0;
+            for (LagPorts port : lag.getLagPorts()) {
+                LacpPort lacpPort = lacpNodeRef.getLacpPort((InstanceIdentifier<NodeConnector>)port.getLagPortRef().getValue());
+                lacpPort.updateBondForPort(this);
+                if (lacpPort.getLogicalNCRef() != null) {
+                    portCount++;
+                    LOG.debug ("reconstructing lag.adding port {} as active port to bond{} ",
+                            lacpPort.getNodeConnectorId(), aggInstId);
+                    activePortList.add (lacpPort);
+                    if (portCount <=1) {
+                        this.adminKey = lacpPort.getActorAdminPortKey();
+                        this.setLogicalNCRef(lacpPort.getLogicalNCRef());
+                        //TODO for first port construct the lacplagGroupEntry. And update other ports to it.
+                    }
+                }
+                Short portId = Short.valueOf(lacpPort.slaveGetPortId());
+                portSlaveMap.put(portId, lacpPort);
+                slaveList.add(lacpPort);
+                LacpAggregator agg = LacpAggregator.newInstance();
+                aggregatorList.add(agg);
+                agg.setAggBond(this);
+                lacpPort.slaveSetLacpPortEnabled(this.isLacpEnabled);
+                LOG.info("Port[Port ID = {} from SW {} is added to Lacp Bond Key {} with virtual mac {} ",
+                        portId, HexEncode.longToHexString(lacpNodeRef.getSwitchId()), this.adminKey,
+                        HexEncode.bytesToHexString(virtualSysMacAddr));
+            }
+            Collections.sort(slaveList);
+            Collections.sort(aggregatorList);
+        } finally {
+            bondStateMachineUnlock();
+        }
+        lacpAggBuilder.setActorAggMacAddress(lag.getActorAggMacAddress());
+        lacpAggBuilder.setActorOperAggKey(lag.getActorOperAggKey());
+        lacpAggBuilder.setPartnerSystemId(lag.getPartnerSystemId());
+        lacpAggBuilder.setPartnerSystemPriority(lag.getPartnerSystemPriority());
+        lacpAggBuilder.setPartnerOperAggKey(lag.getPartnerOperAggKey());
+    }
 
-		slaveList = new ArrayList<LacpPort>();
-		systemIdMap = new LinkedHashMap<Long,Short>();
-		aggregatorList = new ArrayList<LacpAggregator>();
-		this.virtualSysMacAddr = new byte[6];
+    private LacpBond(int sys_priority,short key, LacpNodeExtn lacpNode) {
+        this(sys_priority, key, lacpNode, Integer.valueOf(0), Long.valueOf(0));
+    }
 
-		this.lacpFast = 0;
-		this.isLacpEnabled = false;
-		this.select = LacpConst.BOND_TYPE.BOND_STABLE;
-		this.sysPriority = sys_priority;
-		this.activeSince = null;
-		this.dirty = true;
+    private LacpBond (int sys_priority, short key, LacpNodeExtn lacpNode, Integer aggIdentifier, Long groupIdentifier) {
+        int aggId = aggIdentifier.intValue();
+        long groupValue = groupIdentifier.longValue();
+        LOG.debug("LacpBond is created with sys priority ={}, key={}, aggId {}, groupId {}",
+                sys_priority, key, aggId, groupValue);
+
+        this.bondLock = new ReentrantLock();
+        minLinks = 1;
+        slaveCnt = 0;
+        portSlaveMap = new LinkedHashMap<Short, LacpPort>();
+
+        slaveList = new ArrayList<LacpPort>();
+        systemIdMap = new LinkedHashMap<Long,Short>();
+        aggregatorList = new ArrayList<LacpAggregator>();
+        this.virtualSysMacAddr = new byte[6];
+
+        this.lacpFast = 0;
+        this.isLacpEnabled = false;
+        this.select = LacpConst.BOND_TYPE.BOND_STABLE;
+        this.sysPriority = sys_priority;
+        this.activeSince = null;
+        this.dirty = true;
 
         lacpNodeRef = lacpNode;
         lacpAggBuilder = new LacpAggregatorsBuilder();
@@ -259,20 +322,29 @@ public class LacpBond {
         logNodeConnRef = null;
         InstanceIdentifier<Node> nodeId = lacpNode.getNodeId();
         NodeId nId = nodeId.firstKeyOf(Node.class, NodeKey.class).getId();
-        bondInstanceId = lacpNode.getAndIncrementNextAggId();
+        if (aggId != 0) {
+            bondInstanceId = aggId;
+        } else {
+            bondInstanceId = lacpNode.getAndIncrementNextAggId();
+        }
         aggInstId = InstanceIdentifier.builder(Nodes.class)
                 .child (Node.class, new NodeKey (nId))
                 .augmentation(LacpNode.class)
                 .child (LacpAggregators.class, new LacpAggregatorsKey(bondInstanceId)).toInstance();
+        Long groupId;
+        if (groupValue != 0) {
+            groupId = groupIdentifier;
+        } else {
+            groupId = LacpUtil.getNextGroupId();
+        }
         lacpGroupTbl = new LacpGroupTbl(LacpUtil.getSalGroupService(), LacpUtil.getDataBrokerService());
-        Long groupId = LacpUtil.getNextGroupId();
         aggGrpId = new GroupId(groupId);
         activePortList = new ArrayList<LacpPort>();
         lacpAggBuilder.setLagGroupid(groupId);
         lacpAggBuilder.setAggId(bondInstanceId);
         lacpAggBuilder.setKey(new LacpAggregatorsKey(bondInstanceId));
         lagGroup = null;
-	}
+    }
 
 	public int bondGetSysPriority() {
 		return sysPriority;

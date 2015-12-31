@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.SubTypeOption;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.VersionValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.TlvTypeOption;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev151125.LagPort;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import java.math.BigInteger;
@@ -77,7 +78,6 @@ public class LacpPort implements Comparable<LacpPort> {
 	private boolean isLacpEnabled;
 
 	private static int id = 1;
-	private short lacpPortId;
 	private long swId;
 	private short portId;
 	private byte duplex;
@@ -408,15 +408,6 @@ public class LacpPort implements Comparable<LacpPort> {
 	}
 	//partner oper
 
-
-    public short getLacpPortId() {
-		return lacpPortId;
-	}
-
-	public void setLacpPortId(short id) {
-		this.lacpPortId = id;
-	}
-
 	public short getActorPortNumber() {
 		return actorPortNumber;
 	}
@@ -651,61 +642,21 @@ public class LacpPort implements Comparable<LacpPort> {
 	}
 
 	private LacpPort(long swId, short portId, LacpBond bond, int portPriority, LacpBpduInfo bpduInfo) {
-
 		LOG.debug("Entering LacpPort constructor for switchid={} port={}",portId, swId);
-
-		this.lacpPortId = (short)(id);
-		if (++id > LacpConst.PORT_ID_MAX){
-			id = 1;
-		}
 
 		this.swId = swId;
 		this.bond = bond;
 		this.portId = portId;
 		this.setInstanceId((short)(bond.getSlaveCnt()+1));
-		this.setLink(LacpConst.BOND_LINK_DOWN);
-		this.setDuplex((byte)0);
-		this.activeSince = null;
+                initLacpPort();
 
 		bond.setSlaveCnt(getInstanceId());
-		setPortLock(new ReentrantLock(true));
 
 		this.portPriority = portPriority;
-		this.setActorSystem(new byte[LacpConst.ETH_ADDR_LEN]);
-		this.partnerAdmin = new PortParams();
-		this.partnerOper = new PortParams();
-		this.setNtt(false);
 		portTxLacpdu = bpduInfo;
-
-		rxContext = new RxContext();
-		muxContext = new MuxContext();
-		periodicTxContext = new PeriodicTxContext();
-
-		currentWhileTimer = new PortCurrentWhileTimerRegister(portId,swId);
-		waitWhileTimer = new PortWaitWhileTimerRegister(portId,swId);
-		periodicTimer = new PortPeriodicTimerRegister(portId,swId);
-
-
-	        rxCurrentState = new RxCurrentState();
-	        rxDefaultedState = new RxDefaultedState();
-	        rxExpiredState = new RxExpiredState();
-	        rxInitializeState = new RxInitializeState();
-	        rxLacpDisabledState = new RxLacpDisabledState();
-	        rxPortDisabledState = new RxPortDisabledState();
-
-	        periodicTxFastState = new PeriodicTxFastState();
-	        periodicTxNoPeriodicState = new PeriodicTxNoPeriodicState();
-	        periodicTxPeriodicState = new PeriodicTxPeriodicState();
-	        periodicTxSlowState = new PeriodicTxSlowState();
-
-	        muxDetachedState = new MuxDetachedState();
-	        muxWaitingState = new MuxWaitingState();
-	        muxAttachedState = new MuxAttachedState();
-	        muxCollectingDistributingState =  new MuxCollectingDistributingState();
 
 	       portAssignSlave(bond.getBondSystemId(), bond.getLacpFast(), bond.bondGetSysPriority(), this.portPriority, bond.getAdminKey());
                ncId = bpduInfo.getNCRef().getValue();
-               lacpNCBuilder = new LacpNodeConnectorBuilder();
                lacpNCBuilder.setActorPortNumber(this.actorPortNumber);
                lacpNCBuilder.setPeriodicTime(LacpUtil.DEF_PERIODIC_TIME);
                lacpNCBuilder.setActorPortPriority(this.actorPortPriority);
@@ -724,7 +675,6 @@ public class LacpPort implements Comparable<LacpPort> {
                     }
                }
         operUpStatus = true;
-        resetStatus = true;
         DataBroker ds = LacpUtil.getDataBrokerService();
         NodeConnector portNC = LacpPortProperties.getNodeConnector(ds, ncId);
         if (portNC == null)
@@ -743,7 +693,7 @@ public class LacpPort implements Comparable<LacpPort> {
         FlowCapableNodeConnector flowCapNodeConn = portNC.getAugmentation(FlowCapableNodeConnector.class);
         ncMac = flowCapNodeConn.getHardwareAddress();
         LOG.debug("Exiting LacpPort constructor for switchid={} port={}",portId, swId);
-	}
+    }
 
         public LacpConst.RX_STATES getRxStateFlag(){
             return rxContext.getState().getStateFlag();
@@ -1021,6 +971,99 @@ public class LacpPort implements Comparable<LacpPort> {
 		LOG.debug("Entering/Exiting LacpPort newInstance() method for sw={} port={} priority={}",swId,portId,portPri);
 		return new LacpPort(swId, portId, bond, portPri,bpduInfo);
 	}
+
+    public static LacpPort newInstance(long swId, InstanceIdentifier<NodeConnector> ncId, NodeConnector nc, LagPort lPort) {
+        LacpPort lacpPort = new LacpPort(swId, ncId, nc, lPort);
+        return lacpPort;
+    }
+
+    public void updateBondForPort (LacpBond lacpBond) {
+        this.bond = lacpBond;
+        this.setInstanceId((short)(bond.getSlaveCnt()+1));
+        bond.setSlaveCnt(getInstanceId());
+        //TODO will this reset the updated values in constructor
+        portAssignSlave(bond.getBondSystemId(), bond.getLacpFast(), bond.bondGetSysPriority(), this.portPriority, bond.getAdminKey());
+    }
+
+    private void initLacpPort() {
+        this.setLink(LacpConst.BOND_LINK_DOWN);
+        this.setDuplex((byte)0);
+        this.activeSince = null;
+        setPortLock(new ReentrantLock(true));
+
+        this.setActorSystem(new byte[LacpConst.ETH_ADDR_LEN]);
+        this.partnerAdmin = new PortParams();
+        this.partnerOper = new PortParams();
+        this.setNtt(false);
+
+        rxContext = new RxContext();
+        muxContext = new MuxContext();
+        periodicTxContext = new PeriodicTxContext();
+
+        rxCurrentState = new RxCurrentState();
+        rxDefaultedState = new RxDefaultedState();
+        rxExpiredState = new RxExpiredState();
+        rxInitializeState = new RxInitializeState();
+        rxLacpDisabledState = new RxLacpDisabledState();
+        rxPortDisabledState = new RxPortDisabledState();
+
+        periodicTxFastState = new PeriodicTxFastState();
+        periodicTxNoPeriodicState = new PeriodicTxNoPeriodicState();
+        periodicTxPeriodicState = new PeriodicTxPeriodicState();
+        periodicTxSlowState = new PeriodicTxSlowState();
+
+        muxDetachedState = new MuxDetachedState();
+        muxWaitingState = new MuxWaitingState();
+        muxAttachedState = new MuxAttachedState();
+        muxCollectingDistributingState =  new MuxCollectingDistributingState();
+
+        currentWhileTimer = new PortCurrentWhileTimerRegister(this.portId, this.swId);
+        waitWhileTimer = new PortWaitWhileTimerRegister(this.portId, this.swId);
+        periodicTimer = new PortPeriodicTimerRegister(this.portId, this.swId);
+        resetStatus = true;
+        lacpNCBuilder = new LacpNodeConnectorBuilder();
+    }
+
+    private LacpPort(long switchId, InstanceIdentifier<NodeConnector> ncIdentifier, NodeConnector nc, LagPort lagPort) {
+        LOG.debug("Entering LacpPort constructor for switchid={} port={}",portId, swId);
+
+        this.swId = switchId;
+        FlowCapableNodeConnector flowNC = nc.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
+        this.portId = Short.valueOf((flowNC.getPortNumber().getUint32()).toString());
+        this.bond = null;
+        initLacpPort();
+
+        this.portPriority = lagPort.getActorPortPriority();
+        ncId = ncIdentifier;
+        this.setActorPortNumber(lagPort.getActorPortNumber());
+        this.setActorPortPriority(lagPort.getActorPortPriority());
+
+        lacpNCBuilder.setActorPortNumber(this.actorPortNumber);
+        lacpNCBuilder.setPeriodicTime(LacpUtil.DEF_PERIODIC_TIME);
+        lacpNCBuilder.setActorPortPriority(this.actorPortPriority);
+        lacpNCBuilder.setLacpAggRef(lagPort.getLacpAggRef());
+        lacpNCBuilder.setLogicalNodeconnectorRef(lagPort.getLogicalNodeconnectorRef());
+        LacpNodeExtn lacpNode = this.getLacpNode();
+        partnerAdmin.intializePortParams();
+        partnerOper.intializePortParams();
+        portPartnerAdminSetPortNumber(lagPort.getPartnerPortNumber());
+	portPartnerOperSetPortNumber(lagPort.getPartnerPortNumber());
+        portPartnerAdminSetPortPriority(lagPort.getPartnerPortPriority());
+	portPartnerOperSetPortPriority(lagPort.getPartnerPortPriority());
+
+        operUpStatus = true;
+        ncMac = flowNC.getHardwareAddress();
+        int result = LacpPortProperties.mapSpeedDuplexFromPortFeature(nc);
+        int speed = (result >> LacpConst.DUPLEX_KEY_BITS);
+        byte duplex = (byte) (result & LacpConst.DUPLEX_KEY_BITS);
+        this.setSpeed(speed);
+        this.setDuplex(duplex);
+        short key = (short)(result >> LacpConst.DUPLEX_KEY_BITS);
+        this.setActorAdminPortKey(key);
+        this.portTxLacpdu = new LacpBpduInfo();
+
+        LOG.debug("Exiting LacpPort constructor for switchid={} port={}",portId, swId);
+    }
 
         public void attachBondToAgg() {
 
@@ -1988,6 +2031,11 @@ public class LacpPort implements Comparable<LacpPort> {
         lacpNCBuilder.setLogicalNodeconnectorRef(ref);
         updateNCLacpInfo();
     }
+
+    public NodeConnectorRef getLogicalNCRef () {
+        return lacpNCBuilder.getLogicalNodeconnectorRef();
+    }
+
     public void resetLacpParams()
     {
         LOG.debug ("in resetLacpParams for port {}", portId);

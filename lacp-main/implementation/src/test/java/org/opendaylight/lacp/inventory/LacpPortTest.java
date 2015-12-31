@@ -701,13 +701,7 @@ public class LacpPortTest {
 
 		//data Service/ Data broker
 		LacpPort.setDataBrokerService(dataBroker);
-
-		
-		//LacpPortId
-		lacpPort.setLacpPortId((short)0x56);
-		assertEquals(0x56,lacpPort.getLacpPortId());
-
-		//ActorPortAggregatorIdentifier
+        	//ActorPortAggregatorIdentifier
 		short id = 0x98;
 		lacpPort.setActorPortAggregatorIdentifier(id);
 		assertEquals(id,lacpPort.getactorPortAggregatorIdentifier());

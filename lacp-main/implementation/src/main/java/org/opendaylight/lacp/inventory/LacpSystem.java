@@ -229,8 +229,7 @@ public class LacpSystem
                 LOG.warn ("Node obtained {} is not an openflow enabled node. Not adding it part of lacp system", nodeId);
                 continue;
             }
-            LacpNodeExtn lacpNode = null;
-           // LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId, node);
+            LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId, node);
             if (lacpNode == null) {
                 LOG.error("cannot add a lacp node for node {}", nodeId);
                 return;
