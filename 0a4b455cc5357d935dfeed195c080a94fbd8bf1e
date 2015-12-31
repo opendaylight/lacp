@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa4ed85_25f98a80",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/inventory/LacpBond.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 3366
+      },
+      "writtenOn": "2015-12-31T07:41:48Z",
+      "side": 1,
+      "message": "Do we need to set these values for aggregator only on the first port addition in the aggregator?",
+      "revId": "0a4b455cc5357d935dfeed195c080a94fbd8bf1e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
