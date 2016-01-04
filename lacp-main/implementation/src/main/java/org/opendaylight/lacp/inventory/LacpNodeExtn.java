@@ -106,6 +106,7 @@ public class LacpNodeExtn
     }
 
     public LacpNodeExtn (InstanceIdentifier nodeId, Node node) {
+        LOG.debug ("creating lacpNode for {}", nodeId);
         initNode();
         LacpNode lNode = node.<LacpNode>getAugmentation(LacpNode.class);   
         groupId = lNode.getNonLagGroupid();
@@ -123,6 +124,7 @@ public class LacpNodeExtn
         List<NodeConnector> nodeConnectors = node.getNodeConnector();
         if (nodeConnectors == null) {
 	    firstGrpAdd = true;
+            LOG.debug ("No nodeConnectors are available for the node. Not creating lags");
             return;
         }
         for(NodeConnector nc : nodeConnectors) {
@@ -142,15 +144,16 @@ public class LacpNodeExtn
             if(lPort.getPartnerPortNumber() != 0) {
                 LacpPort lacpPort = LacpPort.newInstance(switchId.longValue(), ncId, nc, lPort);
                 lacpPortList.put (ncId, lacpPort);
-            }
-            else {
+            } else {
                 nonLacpPortList.add(ncId);
             }
         }
+        LOG.debug ("added non-lacp ports {}", nonLacpPortList);
 
         for (Lacpaggregator lag : lNode.getLacpAggregators()) {
             LacpBond bond = LacpBond.newInstance(lag, this);
             lagList.put(bond.getBondInstanceId(), bond); 
+            LOG.debug ("creating lag for bondId {}", bond.getBondInstanceId());
             LacpSysKeyInfo sysKeyInfo = bond.getActiveAggPartnerInfo();
             if (sysKeyInfo != null) {
                 lacpSysKeyList.putIfAbsent(sysKeyInfo, bond);
@@ -160,8 +163,8 @@ public class LacpNodeExtn
             }
         }
         firstGrpAdd = false;
-//TODO reconstruct the bcast group entry.
-
+        bcastGroup = groupTbl.lacpAddGroup (false, bcastGroupId, nodeInstId,
+                                            nonLacpPortList);
     }
 
 

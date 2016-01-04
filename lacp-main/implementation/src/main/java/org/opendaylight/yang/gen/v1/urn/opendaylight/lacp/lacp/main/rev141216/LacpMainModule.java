@@ -74,12 +74,6 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         SalFlowService salFlowService = rpcRegistryDependency.getRpcService(SalFlowService.class);
 	SalGroupService salGroupService = rpcRegistryDependency.getRpcService (SalGroupService.class);
 
-        if(isClusterAware){
-            entityOwnershipService = getOwnershipServiceDependency();
-            entManager = new LacpEntityManager(entityOwnershipService);
-            entManager.requestLacpEntityOwnership(LacpConst.APP_NAME);
-        }
-
         lacpSystem = LacpSystem.getLacpSystem();
         LacpNodeExtn.setDataBrokerService(dataService);
         lacpFlow = new LacpFlow();
@@ -120,8 +114,14 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 		TxThrExecutor.submit(new TxProcessor(queueId,packetProcessingService));
 	}
 
-        LOG.debug("starting to read from data store");
-        lacpSystem.readDataStore(dataService);
+        if(isClusterAware) {
+            entityOwnershipService = getOwnershipServiceDependency();
+            entManager = new LacpEntityManager(entityOwnershipService);
+            entManager.requestLacpEntityOwnership(LacpConst.APP_NAME);
+        } else {
+            LOG.debug("starting to read from data store");
+            lacpSystem.readDataStore(dataService);
+        }
 
         final class CloseLacpResources implements AutoCloseable {
         @Override

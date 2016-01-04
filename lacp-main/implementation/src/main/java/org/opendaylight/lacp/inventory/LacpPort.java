@@ -982,7 +982,10 @@ public class LacpPort implements Comparable<LacpPort> {
         this.setInstanceId((short)(bond.getSlaveCnt()+1));
         bond.setSlaveCnt(getInstanceId());
         //TODO will this reset the updated values in constructor
-        portAssignSlave(bond.getBondSystemId(), bond.getLacpFast(), bond.bondGetSysPriority(), this.portPriority, bond.getAdminKey());
+        portAssignSlave(bond.getBondSystemId(), bond.getLacpFast(),
+            bond.bondGetSysPriority(), this.portPriority, bond.getAdminKey());
+        LOG.debug ("assigned sw {} port {} as member of the bond {}",
+            this.swId, this.portId, bond.getBondInstanceId());
     }
 
     private void initLacpPort() {
