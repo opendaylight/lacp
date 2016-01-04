@@ -10,6 +10,8 @@
 package org.opendaylight.lacp.role;
 
 import com.google.common.base.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.Entity;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -17,7 +19,8 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipCandidateRegistration;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipChange;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipListenerRegistration;
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.opendaylight.lacp.inventory.LacpSystem;
+import org.opendaylight.lacp.util.LacpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +80,9 @@ public class LacpEntityManager {
             if (ownershipChange.isOwner())
             {
                 LOG.info("onRoleChanged: BECAME MASTER - {} " , entity);
+                DataBroker dataBroker = LacpUtil.getDataBrokerService();
+                LacpSystem lacpSystem = LacpSystem.getLacpSystem();
+                lacpSystem.populateLacpDataBase(dataBroker);
             }
             else
             {

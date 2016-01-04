@@ -44,7 +44,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
     private LacpEntityManager entManager;
     private EntityOwnershipService entityOwnershipService;
     //TODO - set below flag to true for enabling cluster lacp
-    private boolean isClusterAware = false;
+    private boolean isClusterAware = true;
 
     private final ExecutorService pduDecoderExecutor = Executors.newCachedThreadPool();
     private final ExecutorService TxThrExecutor = Executors.newFixedThreadPool(10);
@@ -73,12 +73,6 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
         SalFlowService salFlowService = rpcRegistryDependency.getRpcService(SalFlowService.class);
 	SalGroupService salGroupService = rpcRegistryDependency.getRpcService (SalGroupService.class);
-
-        if(isClusterAware){
-            entityOwnershipService = getOwnershipServiceDependency();
-            entManager = new LacpEntityManager(entityOwnershipService);
-            entManager.requestLacpEntityOwnership(LacpConst.APP_NAME);
-        }
 
         lacpSystem = LacpSystem.getLacpSystem();
         LacpNodeExtn.setDataBrokerService(dataService);
@@ -120,8 +114,14 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 		TxThrExecutor.submit(new TxProcessor(queueId,packetProcessingService));
 	}
 
-        LOG.debug("starting to read from data store");
-        lacpSystem.readDataStore(dataService);
+        if(isClusterAware) {
+            entityOwnershipService = getOwnershipServiceDependency();
+            entManager = new LacpEntityManager(entityOwnershipService);
+            entManager.requestLacpEntityOwnership(LacpConst.APP_NAME);
+        } else {
+            LOG.debug("starting to read from data store");
+            lacpSystem.readDataStore(dataService);
+        }
 
         final class CloseLacpResources implements AutoCloseable {
         @Override

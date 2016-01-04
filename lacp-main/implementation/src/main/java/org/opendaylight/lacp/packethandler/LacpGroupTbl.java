@@ -91,7 +91,59 @@ public class LacpGroupTbl
                 return "RSM-" + txNum.getAndIncrement();
     }
 
-    //public void lacpAddGroup(Boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef,
+    public Group lacpAddGroup (boolean isUnicastGrp, GroupId groupId,
+                               InstanceIdentifier<Node> nodeInstId,
+                               List<InstanceIdentifier<NodeConnector>> portList) {
+        LOG.debug("entering lacpAddGroup for reconstructing the group.");
+        NodeId nodeId = InstanceIdentifier.keyOf(nodeInstId).getId();
+
+        GroupBuilder groupBuilder = new GroupBuilder();
+        if (isUnicastGrp) {
+            groupBuilder.setGroupType(GroupTypes.GroupSelect);
+        } else {
+            groupBuilder.setGroupType(GroupTypes.GroupAll);
+        }
+
+        GroupKey groupKey = new GroupKey(groupId);
+        InstanceIdentifier<Group> lacpGId = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId))
+                                .augmentation(FlowCapableNode.class).child(Group.class, groupKey).toInstance();
+        LOG.debug("lacpAddGroup: lacpGId {} in node {} isUnicast {}" , lacpGId, nodeInstId, isUnicastGrp);
+        groupBuilder.setGroupId(groupId);
+        groupBuilder.setGroupName("LACP"+groupId);
+        groupBuilder.setBarrier(false);
+
+        BucketsBuilder bucketBuilder = new BucketsBuilder();
+        List<Bucket> bucketList = Lists.newArrayList();
+        long portCount = 1;
+
+        for (InstanceIdentifier<NodeConnector> port : portList) {
+            /* Create the bucket */
+            BucketBuilder bucket = new BucketBuilder();
+            BucketId bucketId = new BucketId(portCount);
+            bucket.setBucketId(bucketId);
+            bucket.setKey(new BucketKey(bucketId));
+
+            /* update the output action */
+            NodeConnectorId ncId = InstanceIdentifier.keyOf(port).getId();
+            OutputActionBuilder oab = new OutputActionBuilder();
+            oab.setOutputNodeConnector(ncId);
+            ActionBuilder ab = new ActionBuilder();
+            ab.setAction(new OutputActionCaseBuilder().setOutputAction(oab.build()).build());
+
+            List<Action> bucketActionList = Lists.newArrayList();
+            bucketActionList.add(ab.build());
+            ab.setOrder(bucketActionList.size());
+            ab.setKey(new ActionKey(bucketActionList.size()));
+
+            bucket.setAction(bucketActionList);
+            bucketList.add(bucket.build());
+        }
+        bucketBuilder.setBucket(bucketList);
+        groupBuilder.setBuckets(bucketBuilder.build());
+        LOG.debug ("reconstructed the group entry for {}", lacpGId);
+        return (groupBuilder.build());
+    }
+
     public Group lacpAddGroup(Boolean isUnicastGrp, NodeConnectorRef nodeConnectorRef,
 			     GroupId groupId )
     {
@@ -371,7 +423,6 @@ public class LacpGroupTbl
         bucketBuilder.setBucket(bucketList);
         groupBuilder.setBuckets(bucketBuilder.build());
 	return(groupBuilder.build());
-
    }
 
    public Group getGroup(GroupKey groupkey, NodeKey nodeKey ) {

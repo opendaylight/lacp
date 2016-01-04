@@ -262,8 +262,10 @@ public class LacpBond {
                     if (portCount <=1) {
                         this.adminKey = lacpPort.getActorAdminPortKey();
                         this.setLogicalNCRef(lacpPort.getLogicalNCRef());
-                        //TODO for first port construct the lacplagGroupEntry. And update other ports to it.
                     }
+                } else {
+                    LOG.debug ("adding port {} as non-active port to the bond {}",
+                        lacpPort.getNodeConnectorId(), aggInstId);
                 }
                 Short portId = Short.valueOf(lacpPort.slaveGetPortId());
                 portSlaveMap.put(portId, lacpPort);
@@ -276,11 +278,19 @@ public class LacpBond {
                         portId, HexEncode.longToHexString(lacpNodeRef.getSwitchId()), this.adminKey,
                         HexEncode.bytesToHexString(virtualSysMacAddr));
             }
+            if (activePortList.size() > 0) {
+                List<InstanceIdentifier<NodeConnector>> portList =
+                    new ArrayList<InstanceIdentifier<NodeConnector>>(activePortList.size());
+                for (LacpPort port : activePortList) {
+                    portList.add(port.getNodeConnectorId());
+                }
+                lagGroup = lacpGroupTbl.lacpAddGroup(true, aggGrpId, lacpNodeRef.getNodeId(), portList);
+            }
             Collections.sort(slaveList);
             Collections.sort(aggregatorList);
-        } finally {
-            bondStateMachineUnlock();
-        }
+            } finally {
+                bondStateMachineUnlock();
+            }
         lacpAggBuilder.setActorAggMacAddress(lag.getActorAggMacAddress());
         lacpAggBuilder.setActorOperAggKey(lag.getActorOperAggKey());
         lacpAggBuilder.setPartnerSystemId(lag.getPartnerSystemId());
