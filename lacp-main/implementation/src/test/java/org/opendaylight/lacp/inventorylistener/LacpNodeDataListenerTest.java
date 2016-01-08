@@ -66,7 +66,6 @@ import com.google.common.util.concurrent.CheckedFuture;
 
 public class LacpNodeDataListenerTest {
 
-/*
 	private LacpDataListener dataListener;
 	private LacpNodeListener nodeListener;
     @MockitoAnnotations.Mock
@@ -226,5 +225,4 @@ public class LacpNodeDataListenerTest {
 		nodeListener.onNodeUpdated(null);
 	}
 
-*/
 }
