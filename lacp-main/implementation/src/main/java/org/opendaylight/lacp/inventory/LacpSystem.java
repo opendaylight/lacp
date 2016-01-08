@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.node.rev150131.LacpNode;
 import org.opendaylight.lacp.packethandler.TxProcessor;
 import org.opendaylight.lacp.queue.LacpTxQueue;
 import org.opendaylight.lacp.packethandler.PduDecoderProcessor;
@@ -127,8 +128,7 @@ public class LacpSystem
         }
 
         LOG.debug("Reading the list of nodes connected to the controller.");
-        for (Node node : nodes.getNode())
-        {
+        for (Node node : nodes.getNode()) {
             InstanceIdentifier<Node> nodeId
                     = InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey()).build();
 
@@ -138,37 +138,53 @@ public class LacpSystem
                 LOG.warn ("Node obtained {} is not an openflow enabled node. Not adding it part of lacp system", nodeId);
                 continue;
             }
-            LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId);
-            if (lacpNode == null)
-            {
-                LOG.error("cannot add a lacp node for node {}", nodeId);
-                return;
-            }
-            if (addLacpNode(nodeId, lacpNode) == false)
-            {
-                LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
-                continue;
-            }
-            lacpNode.updateLacpNodeInfo();
-
-            List<NodeConnector> nodeConnectors = node.getNodeConnector();
-            if (nodeConnectors == null)
-            {
-                LOG.debug("NodeConnectors are not available with the node {}", node);
-                continue;
-            }
-            for(NodeConnector nc : nodeConnectors)
-            {
-                FlowCapableNodeConnector flowConnector = nc.getAugmentation(FlowCapableNodeConnector.class);
-                PortState portState = flowConnector.getState();
-                if ((portState == null) || (portState.isLinkDown()))
-                {
+            LacpNode lNode = node.<LacpNode>getAugmentation(LacpNode.class);   
+            if (lNode != null) {
+                /* LacpNode updated by previous master is available.
+                 * Reconstruct the lacpNodeExtn and the bond information from it */
+                LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId, node);
+                if (lacpNode == null) {
+                    LOG.error("cannot add a lacp node for node {}", nodeId);
+                    return;
+                }
+                if (addLacpNode(nodeId, lacpNode) == false) {
+                    LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
                     continue;
                 }
-                InstanceIdentifier<NodeConnector> ncId = (InstanceIdentifier<NodeConnector>)
-                                InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
-                                 .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nc.getKey()).build();
-                lacpNode.addNonLacpPort (ncId);
+            } else {
+                /* Node is freshly learnt by lacp feature */
+                LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId);
+                if (lacpNode == null)
+                {
+                    LOG.error("cannot add a lacp node for node {}", nodeId);
+                    return;
+                }
+                if (addLacpNode(nodeId, lacpNode) == false)
+                {
+                    LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
+                    continue;
+                }
+                lacpNode.updateLacpNodeInfo();
+
+                List<NodeConnector> nodeConnectors = node.getNodeConnector();
+                if (nodeConnectors == null)
+                {
+                    LOG.debug("NodeConnectors are not available with the node {}", node);
+                    continue;
+                }
+                for(NodeConnector nc : nodeConnectors)
+                {
+                    FlowCapableNodeConnector flowConnector = nc.getAugmentation(FlowCapableNodeConnector.class);
+                    PortState portState = flowConnector.getState();
+                    if ((portState == null) || (portState.isLinkDown()))
+                    {
+                        continue;
+                    }
+                    InstanceIdentifier<NodeConnector> ncId = (InstanceIdentifier<NodeConnector>)
+                        InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
+                        .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nc.getKey()).build();
+                    lacpNode.addNonLacpPort (ncId);
+                }
             }
         }
     }
@@ -211,33 +227,5 @@ public class LacpSystem
         }
         readTx.close();
         return nodes;
-    }
-
-    public void populateLacpDataBase (DataBroker dataService) {
-        Nodes nodes = readNodeInfo(dataService);
-        if(nodes == null) {
-            LOG.debug("Nodes are not connected to controller.");
-            return;
-        }
-
-        LOG.debug("Reading the list of nodes connected to the controller.");
-        for (Node node : nodes.getNode()) {
-            InstanceIdentifier<Node> nodeId
-                    = InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey()).build();
-            Long switchId = LacpUtil.getNodeSwitchId(nodeId);
-            if (switchId.equals(INVALID_SWITCHID)) {
-                LOG.warn ("Node obtained {} is not an openflow enabled node. Not adding it part of lacp system", nodeId);
-                continue;
-            }
-            LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId, node);
-            if (lacpNode == null) {
-                LOG.error("cannot add a lacp node for node {}", nodeId);
-                return;
-            }
-            if (addLacpNode(nodeId, lacpNode) == false) {
-                LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
-                continue;
-            }
-        }
     }
 }

@@ -141,7 +141,7 @@ public class LacpNodeExtn
                 continue;
             }
             LagPort lPort = nc.<LacpNodeConnector>getAugmentation(LacpNodeConnector.class);
-            if(lPort.getPartnerPortNumber() != 0) {
+            if ((lPort != null) && (lPort.getPartnerPortNumber() != 0)) {
                 LacpPort lacpPort = LacpPort.newInstance(switchId.longValue(), ncId, nc, lPort);
                 lacpPortList.put (ncId, lacpPort);
             } else {

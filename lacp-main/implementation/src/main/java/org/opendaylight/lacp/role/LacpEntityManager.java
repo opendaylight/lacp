@@ -82,7 +82,9 @@ public class LacpEntityManager {
                 LOG.info("onRoleChanged: BECAME MASTER - {} " , entity);
                 DataBroker dataBroker = LacpUtil.getDataBrokerService();
                 LacpSystem lacpSystem = LacpSystem.getLacpSystem();
-                lacpSystem.populateLacpDataBase(dataBroker);
+                LOG.debug("starting to read from data store");
+                lacpSystem.readDataStore(dataBroker);
+
             }
             else
             {
