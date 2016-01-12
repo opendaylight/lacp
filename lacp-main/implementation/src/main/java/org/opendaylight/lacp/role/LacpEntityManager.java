@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
  * 
  * This program and the accompanying materials are made available under the
@@ -6,10 +6,10 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-
 package org.opendaylight.lacp.role;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
@@ -21,85 +21,43 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipC
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipListenerRegistration;
 import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.util.LacpUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LacpEntityManager {
-	private static final Logger LOG = LoggerFactory.getLogger(LacpEntityManager.class);
-	private EntityOwnershipService entityOwnershipService;
-	private EntityOwnershipCandidateRegistration entityRegistration;
-        private EntityOwnershipListenerRegistration entityOwnershipListenerRegistration;
-	private final LacpOwnershipListener ownershipListener;
-	private final AtomicBoolean isListenerRegistered = new AtomicBoolean();
+    private static final Logger LOG = LoggerFactory.getLogger(LacpEntityManager.class);
+    private EntityOwnershipService entityOwnershipService;
+    private EntityOwnershipListenerRegistration entityOwnershipListenerRegistration;
+    private final LacpOwnershipListener ownershipListener;
+    private static final String APP_NAME = "openflow";
 
-	public LacpEntityManager( EntityOwnershipService entityOwnershipService ) {
-		this.entityOwnershipService = entityOwnershipService;
-		ownershipListener = new LacpOwnershipListener(this);
-	}
+    public LacpEntityManager( EntityOwnershipService entityOwnershipService ) {
+        this.entityOwnershipService = Preconditions.checkNotNull(entityOwnershipService,
+            "EntityOwnershipService should not be null.");
+        ownershipListener = new LacpOwnershipListener(this);
+        LOG.debug("LACP registering listener for {} app", APP_NAME);
+        entityOwnershipListenerRegistration = entityOwnershipService.registerListener(APP_NAME, ownershipListener);
+    }
 
-	public void requestLacpEntityOwnership(String appName) {
-
-		final Entity entity = new Entity(appName, appName);
-                try {
-                        LOG.debug("requestLacpEntityOwnership: Before Calling registerCandidate", entity);
-                        entityRegistration = entityOwnershipService.registerCandidate(entity);
-                        LOG.debug("requestLacpEntityOwnership: After Calling registerCandidate", entity);
-                } catch (CandidateAlreadyRegisteredException e) {
-                        LOG.warn("Candidate - Entity already registered with LACP candidate ", entity, e );
-                }
-
-                try {
-		    if (isListenerRegistered.compareAndSet(false, true)) {
-			entityOwnershipListenerRegistration = entityOwnershipService.registerListener(appName, ownershipListener);
-		    }
-
-		    Optional <EntityOwnershipState> entityOwnershipStateOptional = 
-								entityOwnershipService.getOwnershipState(entity);
-
-		    if (entityOwnershipStateOptional != null && entityOwnershipStateOptional.isPresent()) {
-			final EntityOwnershipState entityOwnershipState = entityOwnershipStateOptional.get();
-			if (entityOwnershipState.hasOwner()) {
-				LOG.info("requestLacpEntityOwnership: An owner exist for entity {} ", 
-						entity);
-				if (entityOwnershipState.isOwner()) {
-					LOG.info("requestLacpEntityOwnership: Becoming Master for entity {} ",
-							entity);
-				} else {
-					LOG.info("requestLacpEntityOwnership: Becoming Slave for entity {} ",
-							entity);
-				}
-                        }
-		    }
-                } catch (Exception e){
-                    LOG.warn("Exception while registering listener with entityOwnershipService ", appName , e );
-                }
+    public void onRoleChanged(EntityOwnershipChange ownershipChange) {
+        final Entity entity = ownershipChange.getEntity();
+        InstanceIdentifier<Node> nodeId = LacpUtil.obtainNodeIdFromEntity(entity);
+        if (ownershipChange.isOwner()) {
+            LOG.info("onRoleChanged: Lacp BECAME MASTER - {} " , entity);
+            LacpSystem lacpSystem = LacpSystem.getLacpSystem();
+            LOG.debug("starting to read from data store");
+            lacpSystem.addMasterNotifiedNode(nodeId);
+        } else {
+            LOG.info("onRoleChanged: BECAME SLAVE - {} ", entity);
         }
+    }
 
-	public void onRoleChanged(EntityOwnershipChange ownershipChange) {
-            final Entity entity = ownershipChange.getEntity();
-            if (ownershipChange.isOwner())
-            {
-                LOG.info("onRoleChanged: BECAME MASTER - {} " , entity);
-                DataBroker dataBroker = LacpUtil.getDataBrokerService();
-                LacpSystem lacpSystem = LacpSystem.getLacpSystem();
-                LOG.debug("starting to read from data store");
-                lacpSystem.readDataStore(dataBroker);
-
-            }
-            else
-            {
-                LOG.info("onRoleChanged: BECAME SLAVE - {} ", entity);
-            }
+    public void closeListeners() {
+        LOG.debug("closeListeners : calling entityRegistration close method");
+        if(entityOwnershipListenerRegistration != null) {
+            entityOwnershipListenerRegistration.close();
         }
-
-        public void closeListeners()
-        {
-            LOG.debug("closeListeners : calling entityRegistration close method");
-            if(entityRegistration != null) {
-                entityRegistration.close();
-            }
-            if(entityOwnershipListenerRegistration != null) {
-                entityOwnershipListenerRegistration.close();
-            }
-        }
+    }
 }

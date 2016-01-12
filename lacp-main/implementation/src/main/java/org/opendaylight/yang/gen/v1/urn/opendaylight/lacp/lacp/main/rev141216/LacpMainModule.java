@@ -42,9 +42,6 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
     private LacpFlow lacpFlow;
     private LacpSystem lacpSystem;
     private LacpEntityManager entManager;
-    private EntityOwnershipService entityOwnershipService;
-    //TODO - set below flag to true for enabling cluster lacp
-    private boolean isClusterAware = false;
 
     private final ExecutorService pduDecoderExecutor = Executors.newCachedThreadPool();
     private final ExecutorService TxThrExecutor = Executors.newFixedThreadPool(10);
@@ -97,6 +94,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         lacpPacketHandler.updateQueueId(LacpRxQueue.getLacpRxQueueId());
         packetListener = notificationService.registerNotificationListener(lacpPacketHandler);
         LOG.debug ("started the packethandler to receive lacp pdus");
+        entManager = new LacpEntityManager(getOwnershipServiceDependency());
 
 
 	PacketProcessingService packetProcessingService =
@@ -114,26 +112,10 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
 		TxThrExecutor.submit(new TxProcessor(queueId,packetProcessingService));
 	}
 
-        if(isClusterAware) {
-            entityOwnershipService = getOwnershipServiceDependency();
-            entManager = new LacpEntityManager(entityOwnershipService);
-            entManager.requestLacpEntityOwnership(LacpConst.APP_NAME);
-        } else {
-            LOG.debug("starting to read from data store");
-            lacpSystem.readDataStore(dataService);
-        }
-
         final class CloseLacpResources implements AutoCloseable {
         @Override
           public void close() throws Exception {
             
-            //TODO - for testing the line is added at the start
-            //as clearResources is throwing exception
-            if(isClusterAware){
-                LOG.info("Calling entManager closeListeners");
-                entManager.closeListeners();
-            }
-
             if (packetListener != null)
             {
                 packetListener.close();
@@ -143,6 +125,8 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
                 portStatusListener.close();
             }
             portDataListener.closeListeners();
+            entManager.closeListeners();
+
             LOG.info("closed the listeners for lacp. Clearing the cached info.");
             /* clean up the nodes and nodeconnectors learnt by lacp */
             lacpSystem.clearResources();

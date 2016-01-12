@@ -10,14 +10,17 @@ package org.opendaylight.lacp.util;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.clustering.Entity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import java.util.Random;
 import java.math.BigInteger;
 
@@ -34,9 +37,8 @@ public class LacpUtil
     private static final long LOG_PORT_NUM = 5000;
     private static final Random RAND_GRP_GEN = new Random();
 
-    private LacpUtil ()
-    {
-    }
+    private LacpUtil () {}
+
     public static void setDataBrokerService (DataBroker dataBroker)
     {
         Preconditions.checkNotNull(dataBroker, "DataBroker should not be null.");
@@ -135,5 +137,14 @@ public class LacpUtil
                         }
                 }
                 return data;
+        }
+        public static InstanceIdentifier<Node> obtainNodeIdFromEntity(Entity entity) {
+            LOG.debug ("in obtainNodeIdFromEntity for entity {}", entity.getId());
+            NodeIdentifierWithPredicates node = (NodeIdentifierWithPredicates)entity.getId().getLastPathArgument();
+            String nodeValue = (String)node.getKeyValues().values().iterator().next();
+            InstanceIdentifier<Node> nodeId = InstanceIdentifier.builder(Nodes.class)
+                                                 .child(Node.class, new NodeKey(new NodeId(nodeValue))).toInstance();
+            LOG.debug("nodeid returned for entity {}", nodeId);
+            return nodeId;
         }
 }
