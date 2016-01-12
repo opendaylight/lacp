@@ -29,7 +29,7 @@
   <dependencies>
     <dependency>
       <groupId>org.opendaylight.openflowplugin</groupId>
-      <artifactId>features-openflowplugin</artifactId>
+      <artifactId>features-openflowplugin-li</artifactId>
       <version>${openflow.plugin.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
