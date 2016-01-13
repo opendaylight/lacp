@@ -11,6 +11,7 @@ package org.opendaylight.lacp.inventory;
 import com.google.common.base.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +41,11 @@ public class LacpSystem
     private static final LacpSystem LACP_SYSTEM = new LacpSystem();
     private static final Logger LOG = LoggerFactory.getLogger(LacpSystem.class);
     private static final Long INVALID_SWITCHID = new Long ("-1");
+    private static final ArrayList MASTER_NODE_MAP = new ArrayList<InstanceIdentifier<Node>>();
+    private static final ArrayList NOTIFIED_NODE_MAP = new ArrayList<InstanceIdentifier<Node>>();
 
-    private LacpSystem ()
-    {
-    }
+    private LacpSystem () {}
+
     public static LacpSystem getLacpSystem ()
     {
         return LACP_SYSTEM;
@@ -118,73 +120,66 @@ public class LacpSystem
         }
         return;
     }
-    public void readDataStore (DataBroker dataService)
+    public void readDataStore (InstanceIdentifier<Node> nodeId)
     {
-        Nodes nodes = readNodeInfo(dataService);
-        if(nodes == null)
-        {
-            LOG.debug("No node is connected yet to controller.");
+        Node node = readNodeInfo(LacpUtil.getDataBrokerService(), nodeId);
+        if(node == null) {
+            LOG.debug("Node {} is not available in the datastore.", nodeId);
             return;
         }
 
-        LOG.debug("Reading the list of nodes connected to the controller.");
-        for (Node node : nodes.getNode()) {
-            InstanceIdentifier<Node> nodeId
-                    = InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey()).build();
-
-            Long switchId = LacpUtil.getNodeSwitchId(nodeId);
-            if (switchId.equals(INVALID_SWITCHID))
-            {
-                LOG.warn ("Node obtained {} is not an openflow enabled node. Not adding it part of lacp system", nodeId);
-                continue;
+        LOG.debug("Reading the node information.");
+        Long switchId = LacpUtil.getNodeSwitchId(nodeId);
+        if (switchId.equals(INVALID_SWITCHID)) {
+            LOG.warn ("Node obtained {} is not an openflow enabled node. Not adding it part of lacp system", nodeId);
+            return;
+        }
+        LacpNode lNode = node.<LacpNode>getAugmentation(LacpNode.class);
+        if (lNode != null) {
+            /* LacpNode updated by previous master is available.
+             * Reconstruct the lacpNodeExtn and the bond information from it */
+            LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId, node);
+            if (lacpNode == null) {
+                LOG.error("cannot add a lacp node for node {}", nodeId);
+                return;
             }
-            LacpNode lNode = node.<LacpNode>getAugmentation(LacpNode.class);   
-            if (lNode != null) {
-                /* LacpNode updated by previous master is available.
-                 * Reconstruct the lacpNodeExtn and the bond information from it */
-                LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId, node);
-                if (lacpNode == null) {
-                    LOG.error("cannot add a lacp node for node {}", nodeId);
-                    return;
-                }
-                if (addLacpNode(nodeId, lacpNode) == false) {
-                    LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
-                    continue;
-                }
-            } else {
-                /* Node is freshly learnt by lacp feature */
-                LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId);
-                if (lacpNode == null)
-                {
-                    LOG.error("cannot add a lacp node for node {}", nodeId);
-                    return;
-                }
-                if (addLacpNode(nodeId, lacpNode) == false)
-                {
-                    LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
-                    continue;
-                }
-                lacpNode.updateLacpNodeInfo();
+            if (addLacpNode(nodeId, lacpNode) == false) {
+                LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
+                return;
+            }
+        } else {
+            /* Node is freshly learnt by lacp feature */
+            LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId);
+            if (lacpNode == null)
+            {
+                LOG.error("cannot add a lacp node for node {}", nodeId);
+                return;
+            }
+            if (addLacpNode(nodeId, lacpNode) == false)
+            {
+                LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
+                return;
+            }
+            lacpNode.updateLacpNodeInfo();
 
-                List<NodeConnector> nodeConnectors = node.getNodeConnector();
-                if (nodeConnectors == null)
+            List<NodeConnector> nodeConnectors = node.getNodeConnector();
+            if (nodeConnectors == null)
+            {
+                LOG.debug("NodeConnectors are not available with the node {}", node);
+                return;
+            }
+            for(NodeConnector nc : nodeConnectors)
+            {
+                FlowCapableNodeConnector flowConnector = nc.getAugmentation(FlowCapableNodeConnector.class);
+                PortState portState = flowConnector.getState();
+                if ((portState == null) || (portState.isLinkDown()))
                 {
-                    LOG.debug("NodeConnectors are not available with the node {}", node);
                     continue;
                 }
-                for(NodeConnector nc : nodeConnectors)
-                {
-                    FlowCapableNodeConnector flowConnector = nc.getAugmentation(FlowCapableNodeConnector.class);
-                    PortState portState = flowConnector.getState();
-                    if ((portState == null) || (portState.isLinkDown()))
-                    {
-                        continue;
-                    }
-                    InstanceIdentifier<NodeConnector> ncId = (InstanceIdentifier<NodeConnector>)
-                        InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
-                        .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nc.getKey()).build();
-                    lacpNode.addNonLacpPort (ncId);
-                }
+                InstanceIdentifier<NodeConnector> ncId = (InstanceIdentifier<NodeConnector>)
+                    InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
+                    .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nc.getKey()).build();
+                lacpNode.addNonLacpPort (ncId);
             }
         }
     }
@@ -207,25 +202,43 @@ public class LacpSystem
         PduDecoderProcessor.setLacploaded(false);
     }
 
-    private Nodes readNodeInfo(DataBroker dataService) {
-        InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesBuilder = InstanceIdentifier.<Nodes>builder(Nodes.class);
-        Nodes nodes = null;
+    private Node readNodeInfo(DataBroker dataService, InstanceIdentifier<Node> id) {
+        Node node = null;
         ReadOnlyTransaction readTx = dataService.newReadOnlyTransaction();
 
         try {
-            Optional<Nodes> nodesOpt = null;
-            nodesOpt = readTx.read(LogicalDatastoreType.OPERATIONAL, nodesBuilder.build()).get();
-            if(nodesOpt.isPresent())
+            Optional<Node> nodeOpt = null;
+            nodeOpt = readTx.read(LogicalDatastoreType.OPERATIONAL, id).get();
+            if(nodeOpt.isPresent())
             {
-                nodes = (Nodes) nodesOpt.get();
+                node = (Node) nodeOpt.get();
             }
         }
         catch(Exception e)
         {
-            LOG.error("Failed to read node list from data store.", e.getMessage());
+            LOG.error("Failed to read node from data store.", e.getMessage());
             readTx.close();
         }
         readTx.close();
-        return nodes;
+        return node;
+    }
+
+    public void addMasterNotifiedNode(InstanceIdentifier<Node> nodeId) {
+        if (NOTIFIED_NODE_MAP.contains(nodeId)) {
+            readDataStore(nodeId);
+            NOTIFIED_NODE_MAP.remove(nodeId);
+        } else {
+            MASTER_NODE_MAP.add(nodeId);
+        }
+    }
+
+    public boolean checkMasterNotificaitonForNode (InstanceIdentifier<Node> id) {
+        if (MASTER_NODE_MAP.contains(id)) {
+            MASTER_NODE_MAP.remove(id);
+            return true;
+        } else {
+            NOTIFIED_NODE_MAP.add(id);
+            return false;
+        }
     }
 }

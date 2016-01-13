@@ -197,6 +197,11 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 LOG.debug ("Node already notified to lacp. Ignoring it {}", nodeId);
                 return;
             }
+            if (!lacpSystem.checkMasterNotificaitonForNode(nodeId)) {
+                LOG.info("Entity Master notification not yet received. Ignoring the node {}", nodeId);
+                return;
+            }
+            LOG.debug("Received entity Master notification for node {}", nodeId);
             lacpNode = new LacpNodeExtn (nodeId);
             if (lacpNode == null)
             {

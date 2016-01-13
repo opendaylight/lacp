@@ -118,6 +118,7 @@ public class LacpSystemTest
         LacpNodeExtn getLacpNode = lacpSystem.getLacpNode(nodeId);
         assertNull(getLacpNode);
     }
+    /*
     @Test
     public void readDSNullNode() throws Exception
     {
@@ -185,6 +186,7 @@ public class LacpSystemTest
         verify(dataBroker, times(1)).newReadOnlyTransaction();
         verify(writeOnlyTransaction, times(2)).submit();
     }
+    */
     @Test
     public void verifyLacpPort() throws Exception
     {
