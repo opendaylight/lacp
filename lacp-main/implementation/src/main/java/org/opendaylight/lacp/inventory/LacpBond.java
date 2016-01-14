@@ -242,6 +242,13 @@ public class LacpBond {
     }
 
     private void updateParams(Lacpaggregator lag) {
+        
+        lacpAggBuilder.setActorAggMacAddress(lag.getActorAggMacAddress());
+        lacpAggBuilder.setActorOperAggKey(lag.getActorOperAggKey());
+        lacpAggBuilder.setPartnerSystemId(lag.getPartnerSystemId());
+        lacpAggBuilder.setPartnerSystemPriority(lag.getPartnerSystemPriority());
+        lacpAggBuilder.setPartnerOperAggKey(lag.getPartnerOperAggKey());
+
         try {
             bondStateMachineLock();
             setDirty(true);
@@ -277,6 +284,9 @@ public class LacpBond {
                 LOG.info("Port[Port ID = {} from SW {} is added to Lacp Bond Key {} with virtual mac {} ",
                         portId, HexEncode.longToHexString(lacpNodeRef.getSwitchId()), this.adminKey,
                         HexEncode.bytesToHexString(virtualSysMacAddr));
+                // move the port state machines to appropriate state
+                // and put lacp PDU onto NTT queue for transmit
+                lacpPort.transitionDataStoreRecoveredLAGPortState(this);
             }
             if (activePortList.size() > 0) {
                 List<InstanceIdentifier<NodeConnector>> portList =
@@ -291,11 +301,6 @@ public class LacpBond {
             } finally {
                 bondStateMachineUnlock();
             }
-        lacpAggBuilder.setActorAggMacAddress(lag.getActorAggMacAddress());
-        lacpAggBuilder.setActorOperAggKey(lag.getActorOperAggKey());
-        lacpAggBuilder.setPartnerSystemId(lag.getPartnerSystemId());
-        lacpAggBuilder.setPartnerSystemPriority(lag.getPartnerSystemPriority());
-        lacpAggBuilder.setPartnerOperAggKey(lag.getPartnerOperAggKey());
     }
 
     private LacpBond(int sys_priority,short key, LacpNodeExtn lacpNode) {
@@ -1074,4 +1079,17 @@ public class LacpBond {
         }
         return null;
     }
+
+    public Integer getAggPartnerSysPriority(){
+        return lacpAggBuilder.getPartnerSystemPriority();
+    }
+
+    public MacAddress getAggPartnerSystemId(){
+        return lacpAggBuilder.getPartnerSystemId();
+    }
+
+    public Integer getAggPartnerKey(){
+        return lacpAggBuilder.getPartnerOperAggKey();
+    }
+
 }

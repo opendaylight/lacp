@@ -993,6 +993,7 @@ public class LacpPort implements Comparable<LacpPort> {
             bond.bondGetSysPriority(), this.portPriority, bond.getAdminKey());
         LOG.debug ("assigned sw {} port {} as member of the bond {}",
             this.swId, this.portId, bond.getBondInstanceId());
+        updatePartnerParams(bond);
     }
 
     private void initLacpPort() {
@@ -1071,6 +1072,7 @@ public class LacpPort implements Comparable<LacpPort> {
         short key = (short)(result >> LacpConst.DUPLEX_KEY_BITS);
         this.setActorAdminPortKey(key);
         this.portTxLacpdu = new LacpBpduInfo();
+        this.portTxLacpdu.setNCRef(new NodeConnectorRef(ncId));
 
         LOG.debug("Exiting LacpPort constructor for switchid={} port={}",portId, swId);
     }
@@ -2129,4 +2131,58 @@ public class LacpPort implements Comparable<LacpPort> {
         LacpNodeExtn lacpNode = lacpSystem.getLacpNode(this.swId);
         return lacpNode;
     }
+
+    public void transitionDataStoreRecoveredLAGPortState(LacpBond lacpbond){
+
+        //Move RxMachine to current state
+        rxContext.setState(rxCurrentState);
+        setStateMachineBitSet((short)(getStateMachineBitSet() & ~LacpConst.PORT_SELECTED));
+        setCurrentWhileTimer((long)LacpConst.LONG_TIMEOUT_TIME);
+        setActorOperPortState((byte)(getActorOperPortState() & ~LacpConst.PORT_STATE_EXPIRED));
+
+        //Move PeriodicMachine to slow state
+        periodicTxContext.setState(periodicTxSlowState);
+        setPeriodicWhileTimer(LacpConst.SLOW_PERIODIC_TIME);
+
+        //Move MuxMachine to collecting-distributing state
+        //TODO - is there a need to check the port in standby state? to be verified.
+        muxContext.setState(muxCollectingDistributingState);
+        setActorOperPortState((byte)(getActorOperPortState() | LacpConst.PORT_STATE_COLLECTING));
+        setActorOperPortState((byte)(getActorOperPortState() | LacpConst.PORT_STATE_DISTRIBUTING));
+        enableCollectingDistributing(slaveGetPortId(),getPortAggregator());
+
+        //start all the timers
+        setCurrentWhileTimer(LacpConst.LONG_TIMEOUT_TIME);
+        setPeriodicWhileTimer(LacpConst.SLOW_PERIODIC_TIME);
+
+        //set ntt to true to send the packet to actor
+        setNtt(true);
+        
+       
+       //set actor port state
+       setActorOperPortState((byte)(~(LacpConst.PORT_STATE_LACP_ACTIVITY)  | ~(LacpConst.PORT_STATE_LACP_TIMEOUT)
+
+                                         | LacpConst.PORT_STATE_AGGREGATION | LacpConst.PORT_STATE_SYNCHRONIZATION
+
+                                         | LacpConst.PORT_STATE_COLLECTING  | LacpConst.PORT_STATE_DISTRIBUTING ));
+       //TODO-set partner port state
+       partnerOper.portState = (byte)(~(LacpConst.PORT_STATE_LACP_ACTIVITY)  | ~(LacpConst.PORT_STATE_LACP_TIMEOUT)
+                                         | LacpConst.PORT_STATE_AGGREGATION | LacpConst.PORT_STATE_SYNCHRONIZATION
+                                         | LacpConst.PORT_STATE_COLLECTING  | LacpConst.PORT_STATE_DISTRIBUTING );
+
+
+       LacpTxQueue.QueueType qType = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
+       if ((this.isNtt()) && ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED)>0)) {
+           LOG.debug("transitionDataStoreRecoveredLAGPortState putting port={}, {} on to tx queue, setting Ntt false ",swId, portId);
+           lacpduSend(qType);
+           this.setNtt(false);
+       }
+    }
+
+    public void updatePartnerParams(LacpBond bond){
+       partnerOper.systemPriority = Integer.valueOf(this.bond.getAggPartnerSysPriority());
+       partnerOper.system = Arrays.copyOf(this.bond.getAggPartnerSystemId().getValue().getBytes(),LacpConst.ETH_ADDR_LEN);
+       partnerOper.key = Integer.valueOf(this.bond.getAggPartnerKey()).shortValue();
+    }
+
 }

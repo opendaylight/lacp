@@ -84,6 +84,11 @@ public class LacpBpduInfo implements LacpPDUPortStatusContainer {
 		return nodeConnRef;
 	}
 
+        public void setNCRef(NodeConnectorRef ncRef){
+                nodeConnRef = ncRef;
+        }
+
+
 	public void setActorInfoFromPkt(ActorInfo actInfo){
 		final byte[] nodeSysAddr;
 		short portNum = actInfo.getPort().shortValue();
