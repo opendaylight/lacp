@@ -214,7 +214,8 @@ public class LacpPortTest {
 		short portNum = 20;
 		int portPriority =1;
 		short portState = 1;
-		lacpPort.setPartnerOper(system, key, systemPriority, portNum, portPriority, portState);
+                lacpPort.setPartnerAdmin(system, key, systemPriority, portNum, portPriority, portState);
+                lacpPort.setPartnerOper(lacpPort.getPartnerAdmin());
 		PortParams partner = lacpPort.getPartnerOper();
 		byte[] Psys = partner.getSystem();
 		for(int i=0; i<system.length;i++ ){

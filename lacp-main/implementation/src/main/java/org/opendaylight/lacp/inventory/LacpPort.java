@@ -958,14 +958,21 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.partnerAdmin = new PortParams( system,  systemPriority,  key, portNum,  portPriority,  portState);
 	}
 
-	public void setPartnerOper(byte[] system, short key, int systemPriority, short portNum, int portPriority, short portState)
-        {
-	    this.partnerOper = new PortParams( system,  systemPriority,  key, portNum,  portPriority,  portState);
-            lacpNCBuilder.setPartnerPortNumber(portNum);
-            lacpNCBuilder.setPartnerPortPriority(portPriority);
+        public void setPartnerOper(PortParams params) {
+            portPartnerOperSetSystem(params.getSystem());
+            portPartnerOperSetSystemPriority(params.getSystemPriority());
+            portPartnerOperSetKey(params.getKey());
+            portPartnerOperSetPortNumber(params.getPortNumber());
+            portPartnerOperSetPortPriority(params.getPortPriority());
+            portPartnerOperSetPortState(params.getPortState());
+
+            lacpNCBuilder.setPartnerPortNumber(params.getPortNumber());
+            lacpNCBuilder.setPartnerPortPriority(params.getPortPriority());
+            LOG.debug("setting partner port and prio for port {}, {} as {}, {}", this.swId, this.portId, params.getPortNumber(), params.getPortPriority());
             /* Partner port infor is not written to md-sal now.
                It will be updated when the LOG.calNCRef for the port is assigned. */
 	}
+        
 
 	public static  LacpPort newInstance(long swId, short portId, LacpBond bond, int portPri,LacpBpduInfo bpduInfo) {
 		LOG.debug("Entering/Exiting LacpPort newInstance() method for sw={} port={} priority={}",swId,portId,portPri);
