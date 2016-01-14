@@ -242,6 +242,14 @@ public class LacpBond {
     }
 
     private void updateParams(Lacpaggregator lag) {
+
+        
+        lacpAggBuilder.setActorAggMacAddress(lag.getActorAggMacAddress());
+        lacpAggBuilder.setActorOperAggKey(lag.getActorOperAggKey());
+        lacpAggBuilder.setPartnerSystemId(lag.getPartnerSystemId());
+        lacpAggBuilder.setPartnerSystemPriority(lag.getPartnerSystemPriority());
+        lacpAggBuilder.setPartnerOperAggKey(lag.getPartnerOperAggKey());
+
         try {
             bondStateMachineLock();
             setDirty(true);
@@ -1074,4 +1082,17 @@ public class LacpBond {
         }
         return null;
     }
+
+    public Integer getAggPartnerSysPriority(){
+        return lacpAggBuilder.getPartnerSystemPriority();
+    }
+
+    public MacAddress getAggPartnerSystemId(){
+        return lacpAggBuilder.getPartnerSystemId();
+    }
+
+    public Integer getAggPartnerKey(){
+        return lacpAggBuilder.getPartnerOperAggKey();
+    }
+
 }
