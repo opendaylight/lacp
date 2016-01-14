@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_a2ca406c",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/inventory/LacpBond.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-01-14T11:04:05Z",
+      "side": 1,
+      "message": "Remove the duplicate lines of code as these are already set above",
+      "revId": "adffcae1b18d0aafcb35c76bf8168784ce770818",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_82829cfe",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/inventory/LacpPort.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2154,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-01-14T11:04:05Z",
+      "side": 1,
+      "message": "rx and periodic timer are started above. why is it repeated here again. Do we need to start the waitwhile timer as the port is already aggregated.",
+      "revId": "adffcae1b18d0aafcb35c76bf8168784ce770818",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
