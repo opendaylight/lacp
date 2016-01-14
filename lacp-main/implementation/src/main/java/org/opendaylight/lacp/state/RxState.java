@@ -38,7 +38,7 @@ public class RxState {
 	}
 
 	public void recordDefault(LacpPort portObjRef){
-		portObjRef.getPartnerOper().setValue(portObjRef.getPartnerAdmin());
+		portObjRef.setPartnerOper(portObjRef.getPartnerAdmin());
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 				| LacpConst.PORT_STATE_DEFAULTED));
 		portObjRef.portSetLagId();
