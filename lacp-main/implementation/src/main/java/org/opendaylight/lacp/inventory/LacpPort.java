@@ -2138,41 +2138,31 @@ public class LacpPort implements Comparable<LacpPort> {
         rxContext.setState(rxCurrentState);
         setStateMachineBitSet((short)(getStateMachineBitSet() & ~LacpConst.PORT_SELECTED));
         setCurrentWhileTimer((long)LacpConst.LONG_TIMEOUT_TIME);
-        setActorOperPortState((byte)(getActorOperPortState() & ~LacpConst.PORT_STATE_EXPIRED));
 
         //Move PeriodicMachine to slow state
         periodicTxContext.setState(periodicTxSlowState);
         setPeriodicWhileTimer(LacpConst.SLOW_PERIODIC_TIME);
+        this.portSelectionLogic();
 
         //Move MuxMachine to collecting-distributing state
         //TODO - is there a need to check the port in standby state? to be verified.
         muxContext.setState(muxCollectingDistributingState);
-        setActorOperPortState((byte)(getActorOperPortState() | LacpConst.PORT_STATE_COLLECTING));
-        setActorOperPortState((byte)(getActorOperPortState() | LacpConst.PORT_STATE_DISTRIBUTING));
         enableCollectingDistributing(slaveGetPortId(),getPortAggregator());
-
-        //start all the timers
-        setCurrentWhileTimer(LacpConst.LONG_TIMEOUT_TIME);
-        setPeriodicWhileTimer(LacpConst.SLOW_PERIODIC_TIME);
 
         //set ntt to true to send the packet to actor
         setNtt(true);
-        
        
        //set actor port state
        setActorOperPortState((byte)(~(LacpConst.PORT_STATE_LACP_ACTIVITY)  | ~(LacpConst.PORT_STATE_LACP_TIMEOUT)
-
                                          | LacpConst.PORT_STATE_AGGREGATION | LacpConst.PORT_STATE_SYNCHRONIZATION
-
                                          | LacpConst.PORT_STATE_COLLECTING  | LacpConst.PORT_STATE_DISTRIBUTING ));
-       //TODO-set partner port state
+       //set partner port state
        partnerOper.portState = (byte)(~(LacpConst.PORT_STATE_LACP_ACTIVITY)  | ~(LacpConst.PORT_STATE_LACP_TIMEOUT)
                                          | LacpConst.PORT_STATE_AGGREGATION | LacpConst.PORT_STATE_SYNCHRONIZATION
                                          | LacpConst.PORT_STATE_COLLECTING  | LacpConst.PORT_STATE_DISTRIBUTING );
 
-
        LacpTxQueue.QueueType qType = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
-       if ((this.isNtt()) && ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED)>0)) {
+       if ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED) > 0) {
            LOG.debug("transitionDataStoreRecoveredLAGPortState putting port={}, {} on to tx queue, setting Ntt false ",swId, portId);
            lacpduSend(qType);
            this.setNtt(false);
