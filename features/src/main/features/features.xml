@@ -5,10 +5,10 @@
 
   <repository>mvn:org.opendaylight.netconf/features-restconf/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.dlux/features-dlux/{{VERSION}}/xml/features</repository>
-  <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin-li/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.openflowplugin/features-openflowplugin/{{VERSION}}/xml/features</repository>
 
   <feature name='odl-lacp-plugin' description="Opendaylight :: LACP :: Plugin" version='${project.version}'>
-    <feature version="${openflow.plugin.version}">odl-openflowplugin-flow-services-li</feature>
+    <feature version="${openflow.plugin.version}">odl-openflowplugin-flow-services</feature>
     <bundle>mvn:com.google.code.gson/gson/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.lacp.main/lacpmain-model/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.lacp.main/lacpmain-common-impl/{{VERSION}}</bundle>
