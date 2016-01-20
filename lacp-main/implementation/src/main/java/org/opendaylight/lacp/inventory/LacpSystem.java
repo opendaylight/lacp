@@ -138,11 +138,13 @@ public class LacpSystem
         if (lNode != null) {
             /* LacpNode updated by previous master is available.
              * Reconstruct the lacpNodeExtn and the bond information from it */
+            LOG.debug ("reconstructing lacp node for node id {}", nodeId);
             LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId, node);
             if (lacpNode == null) {
                 LOG.error("cannot add a lacp node for node {}", nodeId);
                 return;
             }
+            LOG.debug ("adding the node {} to the lacpSystem", nodeId);
             if (addLacpNode(nodeId, lacpNode) == false) {
                 LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
                 return;
@@ -240,5 +242,39 @@ public class LacpSystem
             NOTIFIED_NODE_MAP.add(id);
             return false;
         }
+    }
+    public boolean handleLacpNodeRemoval(InstanceIdentifier<Node> nodeId) {
+        LacpNodeExtn lacpNode = null;
+
+        synchronized (LacpSystem.class) {
+            LOG.debug ("searching the node in the lacpSystem");
+            lacpNode = this.getLacpNode(nodeId);
+        }
+        if (lacpNode == null) {
+            LOG.debug("Node already removed from lacp. Ignoring it {}", nodeId);
+            return true;
+        }
+        Long swId = lacpNode.getSwitchId();
+        lacpNode.setLacpNodeDeleteStatus (true);
+        LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
+        LOG.debug("sending node delete msg");
+        if (pduQueue.isLacpQueuePresent(swId) == true) {
+            LacpNodeNotif nodeNotif = new LacpNodeNotif();
+            if (pduQueue.enqueueAtFront(swId, nodeNotif) == false) {
+                LOG.warn ("Failed to enqueue node deletion message to the pduQ for node {}", nodeId);
+                return false;
+            }
+        } else {
+            LOG.debug ("RSM thread and pduQueue are not yet created for the switch {}, deleteing the node", nodeId);
+            synchronized (LacpSystem.class) {
+                if (this.removeLacpNode (swId) == null) {
+                    LOG.error("Unable to remove the node {} from the lacpSystem in node remove handling.", swId);
+                    return false;
+                } else {
+                    LOG.debug ("Removed the node {} from lacpSystem in node remove handling.", swId);
+                }
+            }
+        }
+        return true;
     }
 }
