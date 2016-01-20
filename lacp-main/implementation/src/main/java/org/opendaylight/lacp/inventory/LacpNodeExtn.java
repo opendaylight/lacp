@@ -148,16 +148,12 @@ public class LacpNodeExtn
                 nonLacpPortList.add(ncId);
             }
         }
-        LOG.debug ("added non-lacp ports {}", nonLacpPortList);
+        LOG.debug ("added ports non-lacp ports {}, lacp-ports {}", nonLacpPortList, lacpPortList);
 
         for (Lacpaggregator lag : lNode.getLacpAggregators()) {
             LacpBond bond = LacpBond.newInstance(lag, this);
             lagList.put(bond.getBondInstanceId(), bond); 
             LOG.debug ("creating lag for bondId {}", bond.getBondInstanceId());
-            LacpSysKeyInfo sysKeyInfo = bond.getActiveAggPartnerInfo();
-            if (sysKeyInfo != null) {
-                lacpSysKeyList.putIfAbsent(sysKeyInfo, bond);
-            }
             if (nextAggId < lag.getAggId()) {
                 nextAggId = lag.getAggId() + 1;
             }
@@ -165,6 +161,7 @@ public class LacpNodeExtn
         firstGrpAdd = false;
         bcastGroup = groupTbl.lacpAddGroup (false, bcastGroupId, nodeInstId,
                                             nonLacpPortList);
+        LOG.debug ("reconstructed bcast group {}", groupId);
     }
 
 
