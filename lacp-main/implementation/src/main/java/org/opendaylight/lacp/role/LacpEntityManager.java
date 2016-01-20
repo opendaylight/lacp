@@ -48,13 +48,14 @@ public class LacpEntityManager {
     public void onRoleChanged(EntityOwnershipChange ownershipChange) {
         final Entity entity = ownershipChange.getEntity();
         InstanceIdentifier<Node> nodeId = obtainNodeIdFromEntity(entity);
+        LacpSystem lacpSystem = LacpSystem.getLacpSystem();
         if (ownershipChange.isOwner()) {
             LOG.info("onRoleChanged: Lacp BECAME MASTER - {} " , entity);
-            LacpSystem lacpSystem = LacpSystem.getLacpSystem();
             LOG.debug("starting to read from data store");
             lacpSystem.addMasterNotifiedNode(nodeId);
         } else {
             LOG.info("onRoleChanged: BECAME SLAVE - {} ", entity);
+            lacpSystem.handleLacpNodeRemoval(nodeId);
         }
     }
 

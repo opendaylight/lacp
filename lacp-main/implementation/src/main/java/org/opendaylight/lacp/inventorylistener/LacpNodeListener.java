@@ -36,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.lacp.queue.LacpPDUQueue;
 import org.opendaylight.lacp.queue.LacpPortStatus;
 import org.opendaylight.lacp.queue.LacpPDUPortStatusContainer;
-import org.opendaylight.lacp.queue.LacpNodeNotif;
 import org.opendaylight.lacp.util.LacpPortType;
 
 
@@ -258,46 +257,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
         {
             LOG.debug ("entering handleNodeDelete");
             InstanceIdentifier <Node> nodeId = lNode;
-            LacpNodeExtn lacpNode = null;
-
-            synchronized (LacpSystem.class)
-            {
-                LOG.debug ("searching the node in the lacpSystem");
-                lacpNode = lacpSystem.getLacpNode(nodeId);
-            }
-            if (lacpNode == null)
-            {
-                LOG.debug("Node already removed from lacp. Ignoring it {}", nodeId);
-                return;
-            }
-            Long swId = lacpNode.getSwitchId();
-            lacpNode.setLacpNodeDeleteStatus (true);
-            LacpNodeNotif nodeNotif = new LacpNodeNotif();
-            LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
-            LOG.debug("sending node delete msg");
-            if (pduQueue.isLacpQueuePresent(swId) == true)
-            {
-                if (pduQueue.enqueueAtFront(swId, nodeNotif) == false)
-                {
-                    LOG.warn ("Failed to enqueue node deletion message to the pduQ for node {}", nodeId);
-                }
-            }
-            else
-            {
-                LOG.debug ("RSM thread and pduQueue are not yet created for the switch {}, deleteing the node", nodeId);
-                LacpSystem lacpSystem = LacpSystem.getLacpSystem();
-                synchronized (LacpSystem.class)
-                {
-                    if (lacpSystem.removeLacpNode (swId) == null)
-                    {
-                        LOG.error("Unable to remove the node {} from the lacpSystem in node remove handling.", swId);
-                    }
-                    else
-                    {
-                        LOG.debug ("Removed the node {} from lacpSystem in node remove handling.", swId);
-                    }
-                }
-            }
+            lacpSystem.handleLacpNodeRemoval(nodeId);
         }
     }
 

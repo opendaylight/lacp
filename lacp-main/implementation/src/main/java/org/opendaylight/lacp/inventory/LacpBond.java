@@ -242,13 +242,14 @@ public class LacpBond {
     }
 
     private void updateParams(Lacpaggregator lag) {
-        
         lacpAggBuilder.setActorAggMacAddress(lag.getActorAggMacAddress());
         lacpAggBuilder.setActorOperAggKey(lag.getActorOperAggKey());
         lacpAggBuilder.setPartnerSystemId(lag.getPartnerSystemId());
         lacpAggBuilder.setPartnerSystemPriority(lag.getPartnerSystemPriority());
         lacpAggBuilder.setPartnerOperAggKey(lag.getPartnerOperAggKey());
 
+        // manually enabling lacpStatus as the bond is getting reconstructed
+        this.isLacpEnabled = true;
         try {
             bondStateMachineLock();
             setDirty(true);
@@ -257,16 +258,18 @@ public class LacpBond {
             /* Set Virtual MAC address for Bond */
             this.virtualSysMacAddr = Arrays.copyOf(macAddr, LacpConst.ETH_ADDR_LEN);
             this.virtualSysMacAddr[5] += bondInstanceId;
+            int activePortCount = 0;
             int portCount = 0;
             for (LagPorts port : lag.getLagPorts()) {
                 LacpPort lacpPort = lacpNodeRef.getLacpPort((InstanceIdentifier<NodeConnector>)port.getLagPortRef().getValue());
                 lacpPort.updateBondForPort(this);
+                portCount++;
                 if (lacpPort.getLogicalNCRef() != null) {
-                    portCount++;
+                    activePortCount++;
                     LOG.debug ("reconstructing lag.adding port {} as active port to bond{} ",
                             lacpPort.getNodeConnectorId(), aggInstId);
                     activePortList.add (lacpPort);
-                    if (portCount <=1) {
+                    if (activePortCount <=1) {
                         this.adminKey = lacpPort.getActorAdminPortKey();
                         this.setLogicalNCRef(lacpPort.getLogicalNCRef());
                     }
@@ -281,9 +284,16 @@ public class LacpBond {
                 aggregatorList.add(agg);
                 agg.setAggBond(this);
                 lacpPort.slaveSetLacpPortEnabled(this.isLacpEnabled);
-                LOG.info("Port[Port ID = {} from SW {} is added to Lacp Bond Key {} with virtual mac {} ",
+                LOG.info("Port[Port ID = {} from SW {} is added to Lacp Bond Key {} with virtual mac {} lacpEnable status {}",
                         portId, HexEncode.longToHexString(lacpNodeRef.getSwitchId()), this.adminKey,
-                        HexEncode.bytesToHexString(virtualSysMacAddr));
+                        HexEncode.bytesToHexString(virtualSysMacAddr), this.isLacpEnabled);
+
+                LacpSysKeyInfo sysKeyInfo = this.getActiveAggPartnerInfo();
+                if ((sysKeyInfo != null) && (portCount <= 1)) {
+                   lacpNodeRef.addLacpBond(portId, sysKeyInfo, this);
+                } else {
+                   lacpNodeRef.addLacpBond(portId, null, this);
+                }
                 // move the port state machines to appropriate state
                 // and put lacp PDU onto NTT queue for transmit
                 lacpPort.transitionDataStoreRecoveredLAGPortState(this);
