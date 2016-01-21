@@ -540,4 +540,14 @@ public class LacpNodeExtn
         }
         LOG.debug("bondInfoCleanup Exit");
     }
+
+    public LacpPort getLacpPortForPortId (short portId) {
+        LacpPort port = null;
+        LacpBond bond = this.findLacpBondByPort(portId);
+        if (bond != null)
+        {
+            port = bond.getSlavePortObject(portId);
+        }
+        return port;
+    }
 }
