@@ -991,6 +991,7 @@ public class LacpPort implements Comparable<LacpPort> {
         //TODO will this reset the updated values in constructor
         portAssignSlave(bond.getBondSystemId(), bond.getLacpFast(),
             bond.bondGetSysPriority(), this.portPriority, bond.getAdminKey());
+        this.slaveHandleLinkChange(LacpConst.BOND_LINK_UP);
         LOG.debug ("assigned sw {} port {} as member of the bond {}",
             this.swId, this.portId, bond.getBondInstanceId());
         updatePartnerParams(bond);
@@ -1036,12 +1037,12 @@ public class LacpPort implements Comparable<LacpPort> {
     }
 
     private LacpPort(long switchId, InstanceIdentifier<NodeConnector> ncIdentifier, NodeConnector nc, LagPort lagPort) {
-        LOG.debug("Entering LacpPort constructor for switchid={} port={}",portId, swId);
 
         this.swId = switchId;
         FlowCapableNodeConnector flowNC = nc.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
         this.portId = Short.valueOf((flowNC.getPortNumber().getUint32()).toString());
         this.bond = null;
+        LOG.debug("Entering LacpPort constructor for switchid={} port={}",portId, swId);
         initLacpPort();
 
         this.portPriority = lagPort.getActorPortPriority();
@@ -1386,7 +1387,7 @@ public class LacpPort implements Comparable<LacpPort> {
 
 	public void slaveHandleLinkChange(byte link)
 	{
-		LOG.debug("Entering slaveHandleLinkChange for port={}",portId);
+		LOG.debug("Entering slaveHandleLinkChange for port={},{}, link {} curr {}",swId, portId, link, this.getLink());
 		if (this.getLink()!= link) {
 			this.setLink(link);
 			portHandleLinkChange(link);
@@ -2135,8 +2136,9 @@ public class LacpPort implements Comparable<LacpPort> {
     public void transitionDataStoreRecoveredLAGPortState(LacpBond lacpbond){
 
         //Move RxMachine to current state
+        LOG.debug("in transitionDataStoreRecoveredLAGPortState for port {},{}", swId, portId);
         rxContext.setState(rxCurrentState);
-        setStateMachineBitSet((short)(getStateMachineBitSet() & ~LacpConst.PORT_SELECTED));
+        setStateMachineBitSet((short)(getStateMachineBitSet() & ~(LacpConst.PORT_SELECTED | LacpConst.PORT_BEGIN)));
         setCurrentWhileTimer((long)LacpConst.LONG_TIMEOUT_TIME);
 
         //Move PeriodicMachine to slow state
@@ -2152,21 +2154,21 @@ public class LacpPort implements Comparable<LacpPort> {
         //set ntt to true to send the packet to actor
         setNtt(true);
        
-       //set actor port state
-       setActorOperPortState((byte)(~(LacpConst.PORT_STATE_LACP_ACTIVITY)  | ~(LacpConst.PORT_STATE_LACP_TIMEOUT)
+        //set actor port state
+        setActorOperPortState((byte)(~(LacpConst.PORT_STATE_LACP_ACTIVITY)  | ~(LacpConst.PORT_STATE_LACP_TIMEOUT)
                                          | LacpConst.PORT_STATE_AGGREGATION | LacpConst.PORT_STATE_SYNCHRONIZATION
                                          | LacpConst.PORT_STATE_COLLECTING  | LacpConst.PORT_STATE_DISTRIBUTING ));
-       //set partner port state
-       partnerOper.portState = (byte)(~(LacpConst.PORT_STATE_LACP_ACTIVITY)  | ~(LacpConst.PORT_STATE_LACP_TIMEOUT)
+        //set partner port state
+        partnerOper.portState = (byte)(~(LacpConst.PORT_STATE_LACP_ACTIVITY)  | ~(LacpConst.PORT_STATE_LACP_TIMEOUT)
                                          | LacpConst.PORT_STATE_AGGREGATION | LacpConst.PORT_STATE_SYNCHRONIZATION
                                          | LacpConst.PORT_STATE_COLLECTING  | LacpConst.PORT_STATE_DISTRIBUTING );
 
-       LacpTxQueue.QueueType qType = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
-       if ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED) > 0) {
-           LOG.debug("transitionDataStoreRecoveredLAGPortState putting port={}, {} on to tx queue, setting Ntt false ",swId, portId);
-           lacpduSend(qType);
-           this.setNtt(false);
-       }
+        LacpTxQueue.QueueType qType = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
+        if ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED) > 0) {
+            LOG.debug("transitionDataStoreRecoveredLAGPortState putting port={}, {} on to tx queue, setting Ntt false ",swId, portId);
+            lacpduSend(qType);
+            this.setNtt(false);
+        }
     }
 
     public void updatePartnerParams(LacpBond bond){
