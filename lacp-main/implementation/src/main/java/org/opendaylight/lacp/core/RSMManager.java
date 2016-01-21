@@ -109,15 +109,4 @@ public class RSMManager
         }
         return true;
     }
-    public LacpPort getLacpPortFromBond (long switchId, short portId)
-    {
-        RSMThread nodeThread = null;
-        LacpPort lacpPort = null;
-        nodeThread = lacpThreadMap.get(switchId);
-        if (nodeThread != null)
-        {
-            return nodeThread.getLacpPortForPortId(portId);
-        }
-        return null;
-    }
 }
