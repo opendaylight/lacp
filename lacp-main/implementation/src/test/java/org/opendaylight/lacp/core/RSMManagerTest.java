@@ -53,9 +53,6 @@ public class RSMManagerTest {
 		assertTrue(rsmManager.createRSM(lacpNode));
 		assertFalse(rsmManager.createRSM(lacpNode));
 		
-		//Matches the switchId. But returns null as the LacpList in RSMThread in empty
-		assertNull(rsmManager.getLacpPortFromBond(lacpNode.getSwitchId(), (short)5));
-		
 		assertFalse(rsmManager.wakeupRSM(Mockito.mock(LacpNodeExtn.class)));
 		assertTrue(rsmManager.wakeupRSM(lacpNode));
 
@@ -63,11 +60,4 @@ public class RSMManagerTest {
 		assertTrue(rsmManager.deleteRSM(lacpNode));
 		assertFalse(rsmManager.deleteRSM(lacpNode));
 	}
-
-	@Test
-	public void testGetLacpPortFromBond() {
-		//No Matches for switchId hence returns null
-		assertNull(rsmManager.getLacpPortFromBond((long)3, (short)5));
-	}
-
 }

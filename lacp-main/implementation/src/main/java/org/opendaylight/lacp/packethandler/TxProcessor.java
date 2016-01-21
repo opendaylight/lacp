@@ -11,7 +11,7 @@ package org.opendaylight.lacp.packethandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.lacp.inventory.LacpPort;
-import org.opendaylight.lacp.core.RSMManager;
+import org.opendaylight.lacp.inventory.LacpSystem;
 import org.opendaylight.lacp.Utils.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.lacp.queue.*;
@@ -32,6 +32,14 @@ public class TxProcessor implements Runnable
     {
         isLacpLoaded = false;
         return;
+    }
+    private LacpPort getLacpPort(long swId, short portId) {
+        LacpPort lacpPort = null;
+        LacpSystem lacpSystem = LacpSystem.getLacpSystem();
+        if (lacpSystem.getLacpNode(swId) != null) {
+            lacpPort = lacpSystem.getLacpNode(swId).getLacpPortForPortId(portId);
+        }
+        return lacpPort;
     }
 
     @Override
@@ -57,8 +65,7 @@ public class TxProcessor implements Runnable
                 if (lacpPortId != null)
                 {
                     LOG.debug("LACP TxProcessor queueId is = {}  and  lacpPort is = {}, {}",queueId, lacpPortId.getSwitchId(), lacpPortId.getPortId());
-                    RSMManager rsmManager = RSMManager.getRSMManagerInstance();
-                    lacpPort = rsmManager.getLacpPortFromBond(lacpPortId.getSwitchId(), (short) lacpPortId.getPortId());
+                    lacpPort = getLacpPort(lacpPortId.getSwitchId(), (short) lacpPortId.getPortId());
                     if (lacpPort == null)
                     {
                         LOG.debug ("Unable to obtain the Lacp port object cannot be retrieved for port {} in node {}", lacpPortId.getPortId(), lacpPortId.getSwitchId());
