@@ -469,6 +469,7 @@ public class LacpBondTest
 		slaveList.add(lacpPort);
 		portSlaveMap.put(portId, lacpPort);
 		systemIdMap.put(swId, (short)1);
+		lacpNode.setLacpNodeDeleteStatus(true);
 		lacpBond.bondDelMembersFrSw(swId);
 		assertTrue(slaveList.isEmpty());
 	}
@@ -560,6 +561,7 @@ public class LacpBondTest
 		portSlaveMap = lacpBond.getPortSlaveMap();
 		systemIdMap.put(swId, (short)1);
 		portSlaveMap.put(portId, lacpPort);
+		lacpNode.setLacpNodeDeleteStatus(true);
 		lacpBond.bondDelSlave(swId,portId);
 		lacpBond.bondDelSlave(swId1, portId1);
 		
@@ -613,7 +615,7 @@ public class LacpBondTest
 		NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
 		bpduInfo = Mockito.mock(LacpBpduInfo.class);
 		when(bpduInfo.getNCRef()).thenReturn(ncRef);
-		
+	
 		//Removing a non existing port
 		assertEquals(false, lacpBond.removeActivePort(lacpPort));
 		activePortList.add(lacpPort);
@@ -623,7 +625,7 @@ public class LacpBondTest
 		activePortList.add(lacpPort);
 		activePortList.add(slave);
 		assertEquals(true, lacpBond.removeActivePort(lacpPort));
-		verify(write, times(6)).submit();
+		verify(write, times(4)).submit();
 		
 	} 
 	

@@ -288,15 +288,7 @@ public class LacpBond {
                         portId, HexEncode.longToHexString(lacpNodeRef.getSwitchId()), this.adminKey,
                         HexEncode.bytesToHexString(virtualSysMacAddr), this.isLacpEnabled);
 
-                LacpSysKeyInfo sysKeyInfo = this.getActiveAggPartnerInfo();
-                if ((sysKeyInfo != null) && (portCount <= 1)) {
-                   lacpNodeRef.addLacpBond(portId, sysKeyInfo, this);
-                } else {
-                   lacpNodeRef.addLacpBond(portId, null, this);
-                }
-                // move the port state machines to appropriate state
-                // and put lacp PDU onto NTT queue for transmit
-                lacpPort.transitionDataStoreRecoveredLAGPortState(this);
+                lacpNodeRef.addLacpBondToPortList(portId, this);
             }
             if (activePortList.size() > 0) {
                 List<InstanceIdentifier<NodeConnector>> portList =
@@ -311,6 +303,18 @@ public class LacpBond {
             } finally {
                 bondStateMachineUnlock();
             }
+    }
+
+    public void transmitLacpPDUsForPorts() {
+        for (LacpPort lacpPort : portSlaveMap.values()) {
+            // move the port state machines to appropriate state
+            // and put lacp PDU onto NTT queue for transmit
+            lacpPort.transitionDataStoreRecoveredLAGPortState(this);
+        }
+        LacpSysKeyInfo sysKeyInfo = this.getActiveAggPartnerInfo();
+        LOG.debug("syskeyInfo {} ", sysKeyInfo);
+        lacpNodeRef.addLacpBondToSysKeyList(sysKeyInfo, this);
+        return;
     }
 
     private LacpBond(int sys_priority,short key, LacpNodeExtn lacpNode) {
@@ -447,47 +451,65 @@ public class LacpBond {
 
 
 	public void bondDelSlave(long swId, short portId) {
+            short systemId = 0;
+            if (!this.systemIdMap.containsKey(swId)){
+                return;
+            }
 
-		short systemId = 0;
-		bondStateMachineLock();
+            bondStateMachineLock();
 
-		try {
-			if (!this.systemIdMap.containsKey(swId)){
-				return;
-			}
+            try {
+                systemId = systemIdMap.get(swId);
+                LacpPort slave = portSlaveMap.get(portId);
+                if (slave == null) {
+                    bondStateMachineUnlock();
+                    return;
+                }
+                setDirty(true);
+                LacpSysKeyInfo sysKeyInfo = this.getActiveAggPartnerInfo();
+                slave.slavePSMLock();
+                try {
+                    slave.lacpDisablePort();
+                    portSlaveMap.remove(portId);
+                    slaveList.remove(slave);
+                    Collections.sort(slaveList);
+                    this.slaveCnt--;
 
-			systemId = systemIdMap.get(swId);
-
-			LacpPort slave = portSlaveMap.get(portId);
-
-			if (slave == null) {
-				return;
-			}
-			setDirty(true);
-			slave.slavePSMLock();
-			try {
-				slave.lacpDisablePort();
-				portSlaveMap.remove(portId);
-				slaveList.remove(slave);
-				Collections.sort(slaveList);
-				this.slaveCnt--;
-			} finally {
-				slave.slavePSMUnlock();
-			}
-			slave = null;
-			LOG.info(
-					"Port[Port ID = {} ] from SW={} is removed from LACP Bond Key={} with Virutal Mac={} at {}",
-					new Object[] { HexEncode.longToHexString((long)portId),
-							HexEncode.longToHexString(swId),
-							HexEncode.longToHexString((long)this.adminKey), HexEncode.bytesToHexString(virtualSysMacAddr),
-							new Date()
-					});
-		} finally {
-			bondStateMachineUnlock();
-		}
+                } finally {
+                    slave.slavePSMUnlock();
+                }
+                if (lacpNodeRef.removeLacpBondFromPortList(Short.valueOf(slave.slaveGetPortId())) == null) {
+                    LOG.warn("LACP unable to remove bond form nodePortList for port {},{}",
+                            lacpNodeRef.getSwitchId(), Short.valueOf(slave.slaveGetPortId()));
+                }
+                if ((portSlaveMap.size() == 0) && (sysKeyInfo != null)) {
+                    if(lacpNodeRef.removeLacpBondFromSysKeyInfo(sysKeyInfo) == null) {
+                        LOG.warn("LACP unable to remove bond from sysKeyInfo list in switch {}",
+                            lacpNodeRef.getSwitchId());
+                    }
+                }
+                LOG.info("Port[Port ID = {} ] from SW={} is removed from LACP Bond Key={} with Virutal Mac={} at {}",
+                    HexEncode.longToHexString((long)portId), HexEncode.longToHexString(swId),
+                    HexEncode.longToHexString((long)this.adminKey), HexEncode.bytesToHexString(virtualSysMacAddr),
+                    new Date());
+                LOG.debug("before sync of lacpnodeRef for bond {}", aggInstId);
+                synchronized (lacpNodeRef) {
+                    lacpNodeRef.removeLacpPort(slave.getNodeConnectorId(), false);
+                    if (slave.getPortOperStatus() == true) {
+                        LOG.debug("removing the port as lacp port and adding as non-lacp port for port {}",
+                            slave.getNodeConnectorId());
+                        lacpNodeRef.addNonLacpPort(slave.getNodeConnectorId());
+                    } else {
+                        LOG.debug("removing the port as lacp port and not adding as non-lacp port for port {}",
+                            slave.getNodeConnectorId());
+                    }
+                }
+                LOG.debug("after sync of lacpnodeRef for agg {}", aggInstId);
+                slave = null;
+            } finally {
+                bondStateMachineUnlock();
+            }
 	}
-
-
 
 	LacpAggregator bondGetFreeAgg() {
 
@@ -993,6 +1015,7 @@ public class LacpBond {
         {
             activePortList.remove (lacpPort);
     	    lagGroup = lacpGroupTbl.lacpRemPort (lagGroup, new NodeConnectorRef(lacpPort.getNodeConnectorId()), true);
+            LOG.debug("removed the port from the group in agg {}", aggInstId);
             InstanceIdentifier<Node> nodeId = lacpNodeRef.getNodeId();
             NodeId nId = nodeId.firstKeyOf(Node.class, NodeKey.class).getId();
             long portId = lacpPort.slaveGetPortId();
@@ -1009,22 +1032,10 @@ public class LacpBond {
                 .child (LacpAggregators.class, new LacpAggregatorsKey(bondInstanceId))
                 .child (LagPorts.class, new LagPortsKey(portId)).toInstance();
 
+            LOG.debug("updating the port removal from bond in ds for agg {}", aggInstId);
             deleteLacpAggregatorDS(instId);
         }
         lacpAggBuilder.setLagPorts(lagPortList);
-        synchronized (lacpNodeRef)
-        {
-            lacpNodeRef.removeLacpPort(lacpPort.getNodeConnectorId(), false);
-            if (lacpPort.getPortOperStatus() == true)
-            {
-                LOG.debug("removing the port as lacp port and adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
-                lacpNodeRef.addNonLacpPort(lacpPort.getNodeConnectorId());
-            }
-            else
-            {
-                LOG.debug("removing the port as lacp port and not adding as non-lacp port for port {}", lacpPort.getNodeConnectorId());
-            }
-        }
         return true;
     }
     public LacpNodeExtn getLacpNode()

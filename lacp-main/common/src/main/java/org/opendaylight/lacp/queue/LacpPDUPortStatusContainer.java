@@ -15,5 +15,5 @@ public interface LacpPDUPortStatusContainer {
         LACP_NODE_DEL_MSG
     }
 
-    public MessageType getMessageType();
+    MessageType getMessageType();
 }

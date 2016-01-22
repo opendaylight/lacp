@@ -334,6 +334,7 @@ public class LacpPortTest {
 		doNothing().when(agg).rmPortFromAgg(lacpPort);
 		lacpPort.setPortAggregator(agg);
 		doNothing().when(Mbond).bondAggSelectionLogic();
+                lacpPort.setResetStatus(false);
 		lacpPort.slaveSetBond(Mbond);
 		lacpPort.lacpDisablePort();
 		assertFalse(lacpPort.isInitialized);

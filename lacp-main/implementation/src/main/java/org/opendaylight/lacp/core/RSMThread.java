@@ -131,7 +131,7 @@ public class RSMThread implements Runnable
 				bond.bondUpdateSystemPriority(((priority >>1) & INT_PRIORITY) );
 			}
 			bond.bondUpdateLinkUpSlave(swId,portId);
-			if (lacpNode.addLacpBond(portId, null, bond) == null) {
+			if (lacpNode.addLacpBondToPortList(portId, bond) == null) {
 				newEntry = true;
 				LOG.debug("handleLacpBpdu - bond={} added for  given port={}",bond,  String.format("0x%04x",portId));
 			}
@@ -156,9 +156,10 @@ public class RSMThread implements Runnable
 					(rsmMgrRef.getGlobalLacpkey()-1), String.format("%04x",priority));
 			bond.setLacpEnabled(true);
 			bond.bondUpdateLinkUpSlave(swId,portId);
+                        lacpNode.addLacpBondToPortList(portId, bond);
 			sysKeyInfo = new LacpSysKeyInfo(sysId,key);
-			LacpBond lacpBond = lacpNode.addLacpBond(portId, sysKeyInfo, bond);
-			if( lacpBond != null) {
+			LacpBond lacpBond = lacpNode.addLacpBondToSysKeyList(sysKeyInfo, bond);
+			if (lacpBond != null) {
 				LOG.debug("handleLacpBpdu - Exception: bond {} with sysKey {} already exist", bond.toString(),
 											sysKeyInfo.toString());
 			}
