@@ -955,8 +955,13 @@ public class LacpPort implements Comparable<LacpPort> {
 	}
 
 	public void setPartnerAdmin(byte[] system, short key, int systemPriority, short portNum, int portPriority, short portState) {
-		this.partnerAdmin = new PortParams( system,  systemPriority,  key, portNum,  portPriority,  portState);
-	}
+            portPartnerAdminSetSystem(system);
+            portPartnerAdminsetSystemPriority(systemPriority);
+            portPartnerAdminSetKey(key);
+            portPartnerAdminSetPortNumber(portNum);
+            portPartnerAdminSetPortPriority(portPriority);
+            portPartnerAdminSetPortState(portState);
+        }
 
         public void setPartnerOper(PortParams params) {
             portPartnerOperSetSystem(params.getSystem());
@@ -1352,6 +1357,12 @@ public class LacpPort implements Comparable<LacpPort> {
 			 }
 
 		 }
+                this.slaveSetBond(null);
+                lacpNCBuilder.setLogicalNodeconnectorRef(null);
+                lacpNCBuilder.setLacpAggRef(null);
+                lacpNCBuilder.setPartnerPortNumber((short)0);
+                LOG.debug ("updated the reset values in the port ds");
+                updateNCLacpInfo();
 		isInitialized = false;
 		LOG.debug("Exiting lacpDisablePort for port={}",portId);
 	}
@@ -2052,11 +2063,7 @@ public class LacpPort implements Comparable<LacpPort> {
     public void resetLacpParams()
     {
         LOG.debug ("in resetLacpParams for port {}", portId);
-        short portNum = 0;
         lacpNCBuilder.setLogicalNodeconnectorRef(null);
-        lacpNCBuilder.setLacpAggRef(null);
-        lacpNCBuilder.setPartnerPortNumber(portNum);
-        LOG.debug ("updated the reset values in the port ds");
         updateNCLacpInfo();
     }
 

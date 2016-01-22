@@ -313,5 +313,9 @@ public class LacpNodeExtnTest
 		lacpNode.getSwitchId();
 		lacpNode.getLacpPort(ncId);
 	}
-	
+
+	@Test
+	public void getLacpPortForPortIdTest() throws Exception {
+		assertNull(lacpNode.getLacpPortForPortId((short)5));
+	}
 }
