@@ -149,6 +149,8 @@ public class LacpSystem
                 LOG.warn ("Unable to add the node {} to the lacp system", nodeId);
                 return;
             }
+            LOG.debug("send out LACP PDUs for all lags in this node");
+            lacpNode.sendLacpPDUs();
         } else {
             /* Node is freshly learnt by lacp feature */
             LacpNodeExtn lacpNode = new LacpNodeExtn (nodeId);
@@ -230,6 +232,7 @@ public class LacpSystem
             readDataStore(nodeId);
             NOTIFIED_NODE_MAP.remove(nodeId);
         } else {
+            LOG.debug("notification is not yet received for node {}", nodeId);
             MASTER_NODE_MAP.add(nodeId);
         }
     }
@@ -237,12 +240,22 @@ public class LacpSystem
     public boolean checkMasterNotificaitonForNode (InstanceIdentifier<Node> id) {
         if (MASTER_NODE_MAP.contains(id)) {
             MASTER_NODE_MAP.remove(id);
+            LOG.debug("master notification received for node {}. processing it", id);
             return true;
         } else {
+            LOG.debug("master notification is not received for node {}", id);
             NOTIFIED_NODE_MAP.add(id);
             return false;
         }
     }
+
+    public void removeNodeNotificationOnNodeRemoval(InstanceIdentifier<Node> id) {
+        if (NOTIFIED_NODE_MAP.remove(id) == true) {
+            LOG.debug("on node removal, removing node {} from notified node map as master notification was not received for it", id);
+        }
+        return;
+    }
+
     public boolean handleLacpNodeRemoval(InstanceIdentifier<Node> nodeId) {
         LacpNodeExtn lacpNode = null;
 
