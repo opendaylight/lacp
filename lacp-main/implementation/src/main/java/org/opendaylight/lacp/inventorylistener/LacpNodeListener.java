@@ -257,6 +257,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
         {
             LOG.debug ("entering handleNodeDelete");
             InstanceIdentifier <Node> nodeId = lNode;
+            lacpSystem.removeNodeNotificationOnNodeRemoval(nodeId);
             lacpSystem.handleLacpNodeRemoval(nodeId);
         }
     }

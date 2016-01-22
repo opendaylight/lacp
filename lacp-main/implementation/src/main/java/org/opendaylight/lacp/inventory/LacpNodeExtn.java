@@ -508,8 +508,14 @@ public class LacpNodeExtn
         return lacpList.get(portId);
     }
 
-    public LacpBond addLacpBond (short portId, LacpSysKeyInfo sysKeyInfo, LacpBond lacpBond) {
+    public LacpBond addLacpBondToPortList (short portId, LacpBond lacpBond) {
+        LOG.debug("in addLacpBondToPortList for port {},{}", switchId, portId);
         LacpBond bond = lacpList.putIfAbsent(portId, lacpBond);
+        return bond;
+    }
+
+    public LacpBond addLacpBondToSysKeyList (LacpSysKeyInfo sysKeyInfo, LacpBond lacpBond) {
+        LacpBond bond = null;
         if (sysKeyInfo != null) {
             bond = lacpSysKeyList.putIfAbsent(sysKeyInfo, lacpBond);
         }
@@ -517,6 +523,7 @@ public class LacpNodeExtn
     }
 
     public LacpBond removeLacpBondFromPortList (short portId) {
+        LOG.debug("in removeLacpBondFromPortList for port {}, {}", switchId, portId);
         return (lacpList.remove(portId));
     }
 
@@ -525,7 +532,6 @@ public class LacpNodeExtn
     }
 
     public void bondInfoCleanup() {
-
         LOG.debug("bondInfoCleanup Entry");
         for (LacpBond bond: lacpList.values()) {
             LacpSysKeyInfo sysKeyInfo = bond.getActiveAggPartnerInfo();
@@ -546,8 +552,16 @@ public class LacpNodeExtn
         LacpBond bond = this.findLacpBondByPort(portId);
         if (bond != null)
         {
+            LOG.debug("in getLacpPortForPortId bond is available");
             port = bond.getSlavePortObject(portId);
-        }
+        } else
+            LOG.debug("in getLacpPortForPortId bond not available");
         return port;
+    }
+
+    public void sendLacpPDUs() {
+        for (LacpBond bond : lagList.values()) {
+            bond.transmitLacpPDUsForPorts();
+        }
     }
 }
