@@ -564,4 +564,7 @@ public class LacpNodeExtn
             bond.transmitLacpPDUsForPorts();
         }
     }
+    public int getLacpSystemPriority() {
+        return lacpBuilder.getSystemPriority();
+    }
 }

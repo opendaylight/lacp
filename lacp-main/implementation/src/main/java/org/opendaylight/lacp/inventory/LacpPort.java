@@ -692,7 +692,7 @@ public class LacpPort implements Comparable<LacpPort> {
 
         FlowCapableNodeConnector flowCapNodeConn = portNC.getAugmentation(FlowCapableNodeConnector.class);
         ncMac = flowCapNodeConn.getHardwareAddress();
-        LOG.debug("Exiting LacpPort constructor for switchid={} port={}",portId, swId);
+        LOG.debug("Exiting LacpPort constructor for switchid={} port={} with actorAdminKey {}",swId, portId, getActorAdminPortKey());
     }
 
         public LacpConst.RX_STATES getRxStateFlag(){
@@ -1080,7 +1080,7 @@ public class LacpPort implements Comparable<LacpPort> {
         this.portTxLacpdu = new LacpBpduInfo();
         this.portTxLacpdu.setNCRef(new NodeConnectorRef(ncId));
 
-        LOG.debug("Exiting LacpPort constructor for switchid={} port={}",portId, swId);
+        LOG.debug("Exiting LacpPort constructor for switchid={} port={} adminKey {}",swId, portId, getActorAdminPortKey());
     }
 
         public void attachBondToAgg() {
@@ -1100,7 +1100,6 @@ public class LacpPort implements Comparable<LacpPort> {
 		this.setActorSystemPriority((int) LacpConst.SYSTEM_PRIORITY);
 		this.setActorPortAggregatorIdentifier((short)0);
 		this.setNtt(false);
-		this.setActorAdminPortKey((short)1);
 		this.actorOperPortKey = 1;
 		this.setLacpEnabled(false);
 
@@ -1196,9 +1195,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			ActorInfoBuilder actorInfoBuilder = new ActorInfoBuilder();
 
 			actorInfoBuilder.setSystemPriority(Integer.valueOf(this.getActorSystemPriority()));
-			LOG.debug("actor system id before bytesToHex conversion is :", (this.getActorSystem()));
 			actorInfoBuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(this.getActorSystem())));
-			LOG.debug("actor system id after bytesToHex conversion is :", HexEncode.bytesToHexString(this.getActorSystem()));
 			actorInfoBuilder.setKey(Integer.valueOf(this.actorOperPortKey));
 			actorInfoBuilder.setPortPriority(Integer.valueOf((this.getActorPortPriority())));
 			actorInfoBuilder.setPort(Integer.valueOf(this.getActorPortNumber()));
@@ -1216,9 +1213,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			PartnerInfoBuilder partnerInfoBuilder = new PartnerInfoBuilder();
 
 			partnerInfoBuilder.setSystemPriority(Integer.valueOf(partner.systemPriority));
-			LOG.debug("partner system id before bytesToHex conversion is :", (partner.system));
 			partnerInfoBuilder.setSystemId(new MacAddress(HexEncode.bytesToHexStringFormat(partner.system)));
-			LOG.debug("partner system id after bytesToHex conversion is :", HexEncode.bytesToHexStringFormat(partner.system));
 			partnerInfoBuilder.setKey(Integer.valueOf(partner.key));
 			partnerInfoBuilder.setPortPriority(Integer.valueOf(partner.portPriority));
 			partnerInfoBuilder.setPort(Integer.valueOf(partner.portNumber));
@@ -1244,8 +1239,8 @@ public class LacpPort implements Comparable<LacpPort> {
 			obj.setTerminatorReserved(new String("0"));
 			obj.setFCS(0L);
 
-			LOG.debug("The PDU object to be enqued onto Tx queue ActorInfo: ",  obj.getActorInfo());
-			LOG.debug("The PDU object to be enqued onto Tx queue PartnerInfo: ",  obj.getPartnerInfo());
+			LOG.debug("The PDU object to be enqued onto Tx queue ActorInfo: {}",  obj.getActorInfo());
+			LOG.debug("The PDU object to be enqued onto Tx queue PartnerInfo: {}",  obj.getPartnerInfo());
 			LOG.debug("Exiting updateLacpFromPortToLacpPacketPdu for port={}, {}",swId, portId);
 		}finally{
 			this.slavePSMUnlock();
@@ -1985,7 +1980,7 @@ public class LacpPort implements Comparable<LacpPort> {
 
 		setActorSystem(Arrays.copyOf(sysMacAddr, LacpConst.ETH_ADDR_LEN));
 		portSetLagId();
-		LOG.debug("Exiting portAssignSlave for port={}",portId);
+		LOG.debug("Exiting portAssignSlave for port={}, actorOperKey {}",portId, actorOperPortKey);
 	}
 
 	public byte portGetPortStatus() {

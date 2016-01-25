@@ -242,6 +242,7 @@ public class LacpPortTest {
 		port.setInstanceId(lacpPort.getInstanceId());
 		port.setActorAdminPortKey(lacpPort.getActorAdminPortKey());
 		assertTrue(lacpPort.equals(port));
+		port.setActorAdminPortKey((short)10);
 		lacpPort.lacpInitPort(1);
 		assertFalse(lacpPort.equals(port));
 	}

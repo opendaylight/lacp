@@ -14,13 +14,13 @@ import org.opendaylight.lacp.inventory.LacpNodeExtn;
 
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.lacp.inventory.LacpPort;
+import org.opendaylight.lacp.util.LacpUtil;
 
 
 public class RSMManager
 {
     private static final Logger LOG = LoggerFactory.getLogger(RSMManager.class);
     private static final ConcurrentHashMap<Long, RSMThread> lacpThreadMap = new ConcurrentHashMap<Long, RSMThread>();
-    final private static int midSysPriority = 0x8000;
     private static int globalLacpkey = 1;
     private static RSMManager rsmMgrInstance;
 
@@ -53,7 +53,7 @@ public class RSMManager
     }
 
    public synchronized int getMidSysPriority(){
-	return midSysPriority;
+	return LacpUtil.DEF_LACP_PRIORITY;
    }
 
     public boolean createRSM(LacpNodeExtn lacpNode)
