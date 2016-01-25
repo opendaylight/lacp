@@ -105,8 +105,6 @@ public class RSMThread implements Runnable
 
 		byte[] sysId = lacpBpdu.getActorSystemInfo().getNodeSysAddr();
 		short key = lacpBpdu.getActorSystemInfo().getNodeKey();
-		int priority = (lacpBpdu.getActorSystemInfo().getNodeSysPri()) & INT_PRIORITY;
-		LOG.debug("handleLacpBpdu - entry - priority value is = {}", priority);
 		sysKeyInfo = new LacpSysKeyInfo(sysId,key);
 		bond = findLacpBondByPartnerMacKey(sysId, key);
 		if (bond == null) {
@@ -117,43 +115,25 @@ public class RSMThread implements Runnable
 		}
 
 		if (bond!= null ) {
-			int bondPriority = (bond.bondGetSysPriority() & INT_PRIORITY);
-			LOG.debug("handleLacpBpdu - LACP Bond is found sysId={}, key={}, priority={} ", LacpConst.toHex(sysId),
-			String.format("0x%04x",key), String.format("0x%04x",priority));
+			LOG.debug("handleLacpBpdu - LACP Bond is found sysId={}, key={}", LacpConst.toHex(sysId),
+                            String.format("0x%04x",key));
 			bond.bondAddSlave(swId, portId, 0x000000ff,lacpBpdu);
-			if (bondPriority >= priority) {
-				LOG.debug("handleLacpBpdu - Bond [Key={}] Priority is changed from {} to {} because of Pri={} over Port={} and SW={} at {}",
-				String.format("0x%04x",bond.getAdminKey()),
-				String.format("0x%04x",bondPriority),
-				String.format("0x%04x",(priority >>1) & INT_PRIORITY),
-				String.format("0x%04x",priority), String.format("0x%04x",portId), HexEncode.longToHexString(swId));
-
-				bond.bondUpdateSystemPriority(((priority >>1) & INT_PRIORITY) );
-			}
 			bond.bondUpdateLinkUpSlave(swId,portId);
 			if (lacpNode.addLacpBondToPortList(portId, bond) == null) {
 				newEntry = true;
 				LOG.debug("handleLacpBpdu - bond={} added for  given port={}",bond,  String.format("0x%04x",portId));
 			}
 		}else{
-			LOG.debug("handleLacpBpdu - LACP Bond is not found sysId={}, key={}, priority={} ", LacpConst.toHex(sysId),
-				String.format("0x%04x",key), String.format("0x%04x",priority));
+			LOG.debug("handleLacpBpdu - LACP Bond is not found sysId={}, key={}", LacpConst.toHex(sysId),
+				String.format("0x%04x",key));
 			LOG.debug("LACP Bond is not found for portId={} ", portId);
 			int bondPriority = (rsmMgrRef.getMidSysPriority() & INT_PRIORITY);
-			LOG.debug("in else - bondPriority value is = {}", bondPriority);
-			bond = LacpBond.newInstance((short)rsmMgrRef.getGlobalLacpkey(), lacpNode);
+			bond = LacpBond.newInstance(bondPriority, (short)rsmMgrRef.getGlobalLacpkey(), lacpNode);
 			rsmMgrRef.incGlobalLacpKey();
 			newEntry = true;
-			if (priority <  bondPriority) {
-				priority = ((priority >>1) & INT_PRIORITY);
-			} else {
-				priority = ((rsmMgrRef.getMidSysPriority()>>1) & INT_PRIORITY);
-			}
-			LOG.debug("in else - priority value is = {}", priority);
-			bond.bondSetSysPriority(priority);
 			bond.bondAddSlave(swId,portId,0x000000ff,lacpBpdu);
 			LOG.debug("LacpBond with key={} is created with system priority={} ",
-					(rsmMgrRef.getGlobalLacpkey()-1), String.format("%04x",priority));
+					(rsmMgrRef.getGlobalLacpkey()-1), String.format("%04x",bondPriority));
 			bond.setLacpEnabled(true);
 			bond.bondUpdateLinkUpSlave(swId,portId);
                         lacpNode.addLacpBondToPortList(portId, bond);

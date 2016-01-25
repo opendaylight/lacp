@@ -233,7 +233,7 @@ public class LacpBond {
 	}
 
     public static LacpBond newInstance(Lacpaggregator lag, LacpNodeExtn lacpNode) {
-        LacpBond bond = new LacpBond(0x0000ffff, (short)0, lacpNode, lag.getAggId(),
+        LacpBond bond = new LacpBond(lacpNode.getLacpSystemPriority(), (short)0, lacpNode, lag.getAggId(),
                 lag.getLagGroupid());
         // TODO updated port and agg. But partner info no where updated. Where will it get updated.
         // Updated in the Builder object. if Required retrive from it for further usage
