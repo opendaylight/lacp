@@ -52,10 +52,6 @@ public class RSMManager
 	return globalLacpkey;
     }
 
-   public synchronized int getMidSysPriority(){
-	return LacpUtil.DEF_LACP_PRIORITY;
-   }
-
     public boolean createRSM(LacpNodeExtn lacpNode)
     {
         //hash for lacpNode. currently one thread per node.
