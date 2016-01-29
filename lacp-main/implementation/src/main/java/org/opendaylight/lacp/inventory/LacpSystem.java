@@ -203,8 +203,8 @@ public class LacpSystem
         TxProcessor.resetLacpLoaded();
         // clear the Tx queues
         LacpTxQueue lacpTxQueue = LacpTxQueue.getLacpTxQueueInstance();
-        lacpTxQueue.deleteLacpQueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE);
         lacpTxQueue.deleteLacpQueue(LacpTxQueue.QueueType.LACP_TX_PERIODIC_QUEUE);
+        lacpTxQueue.deleteLacpQueue(LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE);
         // clear the pdu decoder thread
         PduDecoderProcessor.setLacploaded(false);
     }

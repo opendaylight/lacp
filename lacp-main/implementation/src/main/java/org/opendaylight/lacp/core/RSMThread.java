@@ -127,7 +127,7 @@ public class RSMThread implements Runnable
 			LOG.debug("handleLacpBpdu - LACP Bond is not found sysId={}, key={}", LacpConst.toHex(sysId),
 				String.format("0x%04x",key));
 			LOG.debug("LACP Bond is not found for portId={} ", portId);
-			int bondPriority = (rsmMgrRef.getMidSysPriority() & INT_PRIORITY);
+			int bondPriority = (lacpNode.getLacpSystemPriority() & INT_PRIORITY);
 			bond = LacpBond.newInstance(bondPriority, (short)rsmMgrRef.getGlobalLacpkey(), lacpNode);
 			rsmMgrRef.incGlobalLacpKey();
 			newEntry = true;
