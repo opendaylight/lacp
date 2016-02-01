@@ -482,12 +482,6 @@ public class LacpBond {
                     LOG.warn("LACP unable to remove bond form nodePortList for port {},{}",
                             lacpNodeRef.getSwitchId(), Short.valueOf(slave.slaveGetPortId()));
                 }
-                if ((portSlaveMap.size() == 0) && (sysKeyInfo != null)) {
-                    if(lacpNodeRef.removeLacpBondFromSysKeyInfo(sysKeyInfo) == null) {
-                        LOG.warn("LACP unable to remove bond from sysKeyInfo list in switch {}",
-                            lacpNodeRef.getSwitchId());
-                    }
-                }
                 LOG.info("Port[Port ID = {} ] from SW={} is removed from LACP Bond Key={} with Virutal Mac={} at {}",
                     HexEncode.longToHexString((long)portId), HexEncode.longToHexString(swId),
                     HexEncode.longToHexString((long)this.adminKey), HexEncode.bytesToHexString(virtualSysMacAddr),
@@ -519,7 +513,7 @@ public class LacpBond {
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.getNumOfPorts() == 0){
-			LOG.debug("bondGetFreeAgg found free aggregator");
+			LOG.debug("bondGetFreeAgg found free aggregator {}", agg.getAggId());
     			return agg;
 		}
     	}
@@ -534,7 +528,7 @@ public class LacpBond {
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.getIsActive() > 0){
-			LOG.debug("getActiveAgg - Found active agg");
+			LOG.debug("getActiveAgg - Found active agg {}", agg.getAggId());
     			return agg;
 		}
 
@@ -551,7 +545,7 @@ public class LacpBond {
 
     	for (LacpAggregator agg : aggregatorList) {
     		if (agg.isPortFitToAgg(port)) {
-			LOG.debug("findLacpAggByFitPort - found aggregator for port={}", port.slaveGetPortId());
+			LOG.debug("findLacpAggByFitPort - found aggregator {} for port={}", agg.getAggId(), port.slaveGetPortId());
 			 return agg;
 		}
 	}
@@ -1094,6 +1088,7 @@ public class LacpBond {
             byte[] sysId = agg.getPartnerSystem();
             short key = agg.aggGetPartnerOperAggKey();
             if (key != 0) {
+                LOG.debug ("getting aggPartnerInfo sysId {}, key{}", sysId, key);
                 LacpSysKeyInfo sysKeyInfo = new LacpSysKeyInfo(sysId, key);
                 return sysKeyInfo;
             }

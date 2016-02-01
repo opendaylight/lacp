@@ -179,7 +179,6 @@ public class RSMThread implements Runnable
 	LOG.debug("doRxPktProcess - Exit...");
     }
 
-
     public void handlePortTimeout(TimerExpiryMessage tmExpiryMsg){
 	LOG.debug("handlePortTimeout - Entry... ");
 
@@ -192,9 +191,9 @@ public class RSMThread implements Runnable
 	LacpBond bond = lacpNode.findLacpBondByPort(portId);
 
 	if(bond != null){
-
 		bond.bondStateMachineLock();
 		try {
+                    LacpSysKeyInfo sysKeyInfo = bond.getActiveAggPartnerInfo();
 			Iterator<LacpPort> iter = bond.getSlaveList().iterator();
 			while(iter.hasNext()) {
 				LacpPort lacpPort = iter.next();
@@ -218,10 +217,21 @@ public class RSMThread implements Runnable
 					}
 				}
 			}
-                        if(isPortToBeCleanedInDefaultedState){
-                            portCleanupInDefaultedState(switchId,portId);
+                    if(isPortToBeCleanedInDefaultedState){
+                        //remove the port from the bond
+                        LOG.info("handlePortTimeout() - Removing port {} from the bond for switch {} as the port has timed out", portId, switchId);
+                        bond.bondDelSlave(switchId, portId);
+
+                        if(!bond.bondHasMember()) {
+                            if (sysKeyInfo != null) {
+                                LOG.info("handlePortTimeout - No members in the bond {} for switch {}, hence cleaning up the internal data structures",
+                                        bond.getBondInstanceId(), switchId);
+                                lacpNode.removeLacpBondFromSysKeyInfo(sysKeyInfo);
+                            }
+                            bond.lacpBondCleanup();
                         }
-		}
+                    }
+                }
 		finally {
 			bond.bondStateMachineUnlock();
 		}
@@ -230,7 +240,6 @@ public class RSMThread implements Runnable
 	}
 	LOG.debug("handlePortTimeout - Exit... ");
     }
-
 
     public void handleLacpPortState(LacpPortStatus portState){
 
@@ -259,6 +268,7 @@ public class RSMThread implements Runnable
                         lacpPort.setResetStatus(resetStatus);
                         LOG.debug("in handleLacpPortState - setting timeout to true");
                     }
+                    LacpSysKeyInfo sysKeyInfo = bond.getActiveAggPartnerInfo();
 		    bond.bondUpdateLinkDownSlave(swId,portId);
                     if( lacpPort != null){
                         lacpPort.lacpPortCleanup();
@@ -274,9 +284,9 @@ public class RSMThread implements Runnable
                         } finally {
                                 bond.bondStateMachineUnlock();
                         }
-                        lacpNode.removeLacpBondFromPortList(portId);
-                        if (bond.bondHasMember()) {
-                            LacpSysKeyInfo sysKeyInfo = bond.getActiveAggPartnerInfo();
+                        if (!bond.bondHasMember()) {
+                            LOG.debug("handleLacpPortState - No members in the bond {} for switch {}",
+                                        bond.getBondInstanceId(), swId);
                             if (sysKeyInfo != null) {
                                 lacpNode.removeLacpBondFromSysKeyInfo(sysKeyInfo);
                             }
@@ -298,32 +308,6 @@ public class RSMThread implements Runnable
     }
     LOG.debug("handleLacpPortState - Exit");
   }
-    
-    public void portCleanupInDefaultedState(long switchId, short portId)
-    {   
-        LOG.debug("portCleanupInDefaultedState Entry");
-        LacpBond myBond = lacpNode.findLacpBondByPort(portId);
-
-        if(myBond != null){
-            //remove the port from the bond
-            myBond.bondDelSlave(switchId, portId);
-            //remove the portId/bond mapping
-            lacpNode.removeLacpBondFromPortList(portId);
-            //the timers are already cleaned as part of recordDefault fn in RxDefaultState executeAction method
-            LOG.info("portCleanupInDefaultedState() - Removing port {} from the bond for switch {} as the port has timed out", portId, switchId);
-
-            if(!myBond.bondHasMember()) {
-                LacpSysKeyInfo sysKeyInfo = myBond.getActiveAggPartnerInfo();
-                if (sysKeyInfo != null) {
-                    LOG.info("portCleanupInDefaultedState() - No members in the bond {} for switch {}, hence cleaning up the internal data structures",
-                        myBond.getBondInstanceId(), switchId);
-                    lacpNode.removeLacpBondFromSysKeyInfo(sysKeyInfo);
-                }
-                myBond.lacpBondCleanup();
-            }
-        }
-        LOG.debug("portCleanupInDefaultedState Exit");
-    }
 
     public void handleLacpNodeDeletion ()
     {
