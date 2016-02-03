@@ -133,6 +133,11 @@ public class LacpNodeExtn
             if ((portState == null) || (portState.isLinkDown())) {
                 continue;
             }
+            long portNum = flowConnector.getPortNumber().getUint32();
+            if (portNum > LacpUtil.getLogPortNum()) {
+                continue;
+            }
+
             InstanceIdentifier<NodeConnector> ncId = (InstanceIdentifier<NodeConnector>)
                 InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
                 .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nc.getKey()).build();
@@ -140,8 +145,9 @@ public class LacpNodeExtn
             if (nCon.getValue().contains("LOCAL")) {
                 continue;
             }
+            LOG.debug("for nodeconnector nc {}", nc);
             LagPort lPort = nc.<LacpNodeConnector>getAugmentation(LacpNodeConnector.class);
-            if ((lPort != null) && (lPort.getPartnerPortNumber() != 0)) {
+            if ((lPort != null) && (lPort.getActorPortNumber() != 0)) {
                 LacpPort lacpPort = LacpPort.newInstance(switchId.longValue(), ncId, nc, lPort);
                 lacpPortList.put (ncId, lacpPort);
             } else {
@@ -151,6 +157,7 @@ public class LacpNodeExtn
         LOG.debug ("added ports non-lacp ports {}, lacp-ports {}", nonLacpPortList, lacpPortList);
 
         for (Lacpaggregator lag : lNode.getLacpAggregators()) {
+            LOG.debug("re-creating lag {}", lag);
             LacpBond bond = LacpBond.newInstance(lag, this);
             lagList.put(bond.getBondInstanceId(), bond); 
             LOG.debug ("creating lag for bondId {}", bond.getBondInstanceId());
@@ -279,6 +286,7 @@ public class LacpNodeExtn
     }
     public long getFlowId ()
     {
+        LOG.debug("Flow id {} for the node {}", flowId, nodeInstId);
         return this.flowId;
     }
     public LacpPort getLacpPort (InstanceIdentifier<NodeConnector> portId)
@@ -342,6 +350,7 @@ public class LacpNodeExtn
         if (this.deleteStatus == false)
         {
             /* clean up in switch */
+            LOG.debug("removing flow for id {} in node {}", flowId, nodeInstId);
             LACPFLOW.removeLacpFlow(this.nodeInstId, this);
             updateLacpNodeDS(nodeInstId);
             if (ncId != null)
@@ -517,6 +526,7 @@ public class LacpNodeExtn
     public LacpBond addLacpBondToSysKeyList (LacpSysKeyInfo sysKeyInfo, LacpBond lacpBond) {
         LacpBond bond = null;
         if (sysKeyInfo != null) {
+        LOG.debug("in addLacpBondToSysKeyList for {},{}", sysKeyInfo, lacpBond.getBondInstanceId());
             bond = lacpSysKeyList.putIfAbsent(sysKeyInfo, lacpBond);
         }
         return bond;
@@ -528,6 +538,7 @@ public class LacpNodeExtn
     }
 
     public LacpBond removeLacpBondFromSysKeyInfo (LacpSysKeyInfo sysKeyInfo) {
+        LOG.debug("in removeLacpBondFromSysKeyInfo for {}", sysKeyInfo);
         return (lacpSysKeyList.remove(sysKeyInfo));
     }
 

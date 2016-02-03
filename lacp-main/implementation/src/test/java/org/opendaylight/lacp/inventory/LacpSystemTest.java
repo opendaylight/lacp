@@ -226,8 +226,9 @@ public class LacpSystemTest
     }
     @Test
     public void readDSWithLacpNode() throws Exception {
-        FlowCapableNodeConnector flowCap1 = new FlowCapableNodeConnectorBuilder().setState(new StateBuilder()
-                            .setLinkDown(false).build()).build();
+        FlowCapableNodeConnector flowCap1 = new FlowCapableNodeConnectorBuilder()
+                .setPortNumber(new PortNumberUni(Long.valueOf(1)))
+                .setState(new StateBuilder().setLinkDown(false).build()).build();
 
         NodeConnector nc1 = new NodeConnectorBuilder()
               .setKey(new NodeConnectorKey(new NodeConnectorId("1")))

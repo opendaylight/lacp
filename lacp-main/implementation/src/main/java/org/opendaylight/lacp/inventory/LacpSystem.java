@@ -15,12 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.opendaylight.controller.md.sal.common.api.clustering.Entity;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipState;
 import org.opendaylight.lacp.inventory.LacpNodeExtn;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
@@ -43,6 +47,7 @@ public class LacpSystem
     private static final Long INVALID_SWITCHID = new Long ("-1");
     private static final ArrayList MASTER_NODE_MAP = new ArrayList<InstanceIdentifier<Node>>();
     private static final ArrayList NOTIFIED_NODE_MAP = new ArrayList<InstanceIdentifier<Node>>();
+    private EntityOwnershipService entityOwnershipService;
 
     private LacpSystem () {}
 
@@ -103,8 +108,21 @@ public class LacpSystem
     {
         Collection<LacpNodeExtn> nodeList = LACPNODE_MAP.values();
         LacpPDUQueue pduQueue = LacpPDUQueue.getLacpPDUQueueInstance();
-        for (LacpNodeExtn lacpNode : nodeList)
-        {
+        for (LacpNodeExtn lacpNode : nodeList) {
+            NodeId nId = ((InstanceIdentifier<Node>)lacpNode.getNodeId()).firstKeyOf(Node.class, NodeKey.class).getId();
+            LOG.debug ("in clearLacpNodes for node {}", nId.getValue());
+            Entity entity = new Entity("openflow", nId.getValue());
+
+            Optional <EntityOwnershipState> entityOptional =
+                entityOwnershipService.getOwnershipState(entity);
+            if (entityOptional.isPresent()) {
+                EntityOwnershipState entityState = entityOptional.get();
+                if(entityState.hasOwner()) {
+                    LOG.debug ("Owner is available for the entity {}", nId.getValue());
+                    lacpNode.setLacpNodeDeleteStatus (true);
+                }
+            }
+
             Long swId = lacpNode.getSwitchId();
             LacpNodeNotif nodeNotif = new LacpNodeNotif();
             LOG.debug("sending node delete msg in clear LacpNodes");
@@ -198,6 +216,8 @@ public class LacpSystem
     {
         /* clear the node and nodeConnectors learnt */
         this.clearLacpNodes();
+        MASTER_NODE_MAP.clear();
+        NOTIFIED_NODE_MAP.clear();
 
         // clear the Tx Processor threads
         TxProcessor.resetLacpLoaded();
@@ -292,5 +312,9 @@ public class LacpSystem
             }
         }
         return true;
+    }
+
+    public void setEntityOwnershipService(EntityOwnershipService entityOwnershipService ) {
+        this.entityOwnershipService = entityOwnershipService;
     }
 }
