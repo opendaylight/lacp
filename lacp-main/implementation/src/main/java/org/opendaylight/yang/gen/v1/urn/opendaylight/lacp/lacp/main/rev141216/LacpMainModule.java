@@ -95,6 +95,7 @@ public class LacpMainModule extends org.opendaylight.yang.gen.v1.urn.opendayligh
         packetListener = notificationService.registerNotificationListener(lacpPacketHandler);
         LOG.debug ("started the packethandler to receive lacp pdus");
         entManager = new LacpEntityManager(getOwnershipServiceDependency());
+        lacpSystem.setEntityOwnershipService(getOwnershipServiceDependency());
 
 
         PacketProcessingService packetProcessingService =

@@ -262,6 +262,11 @@ public class LacpBond {
             int portCount = 0;
             for (LagPorts port : lag.getLagPorts()) {
                 LacpPort lacpPort = lacpNodeRef.getLacpPort((InstanceIdentifier<NodeConnector>)port.getLagPortRef().getValue());
+                if (lacpPort == null) {
+                    LOG.warn("In LAG re-creation, Unable to fetch the lacpPort for {}",
+                        (InstanceIdentifier<NodeConnector>)port.getLagPortRef().getValue());
+                    continue;
+                }
                 lacpPort.updateBondForPort(this);
                 portCount++;
                 if (lacpPort.getLogicalNCRef() != null) {
