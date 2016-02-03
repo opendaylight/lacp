@@ -35,10 +35,12 @@ import org.opendaylight.lacp.timer.Utils;
 import org.opendaylight.lacp.util.LacpUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.PortFeatures;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.packet.rev150210.LacpPacketPdu;
@@ -76,12 +78,15 @@ public class LacpPortTest {
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
         
         bpduInfo = mock(LacpBpduInfo.class);
+        NodeId nId = new NodeId("openflow:1");
         InstanceIdentifier<NodeConnector> iNc = InstanceIdentifier.builder(Nodes.class)
-        		.child(Node.class).child(NodeConnector.class).build();
+                                .child(Node.class, new NodeKey (nId))
+                                .child (NodeConnector.class, new NodeConnectorKey (new NodeConnectorId("1")))
+                                .toInstance();
+
         when(bpduInfo.getNCRef()).thenReturn(new NodeConnectorRef(iNc));
         //-----
-        NodeId nId = new NodeId("openflow:1");
-		InstanceIdentifier<Node> nodeId = InstanceIdentifier.builder(Nodes.class)
+        InstanceIdentifier<Node> nodeId = InstanceIdentifier.builder(Nodes.class)
         		.child (Node.class, new NodeKey (nId)).build();
         LacpNodeExtn lacpNode = new LacpNodeExtn(nodeId);
         Long swid = LacpUtil.getNodeSwitchId(nodeId);
@@ -237,6 +242,7 @@ public class LacpPortTest {
 		port.setInstanceId(lacpPort.getInstanceId());
 		port.setActorAdminPortKey(lacpPort.getActorAdminPortKey());
 		assertTrue(lacpPort.equals(port));
+		port.setActorAdminPortKey((short)10);
 		lacpPort.lacpInitPort(1);
 		assertFalse(lacpPort.equals(port));
 	}
@@ -329,6 +335,7 @@ public class LacpPortTest {
 		doNothing().when(agg).rmPortFromAgg(lacpPort);
 		lacpPort.setPortAggregator(agg);
 		doNothing().when(Mbond).bondAggSelectionLogic();
+                lacpPort.setResetStatus(false);
 		lacpPort.slaveSetBond(Mbond);
 		lacpPort.lacpDisablePort();
 		assertFalse(lacpPort.isInitialized);
