@@ -58,6 +58,7 @@ public class LacpNodeExtn
     private Hashtable<Integer, LacpBond> lagList;
     private Hashtable<InstanceIdentifier<NodeConnector>, LacpPort> lacpPortList;
     private List<InstanceIdentifier<NodeConnector>> nonLacpPortList;
+    private List<InstanceIdentifier<NodeConnector>> downPortList;
     private boolean firstGrpAdd;
     private Long flowId;
     private InstanceIdentifier<Node> nodeInstId;
@@ -80,6 +81,7 @@ public class LacpNodeExtn
         lacpBuilder = new LacpNodeBuilder();
         bcastGroup = null;
         nonLacpPortList = new ArrayList<InstanceIdentifier<NodeConnector>>();
+        downPortList = new ArrayList<InstanceIdentifier<NodeConnector>>();
         lacpPortList = new Hashtable<InstanceIdentifier<NodeConnector>, LacpPort>();
         lagList = new Hashtable<Integer,LacpBond>();
         groupTbl = new LacpGroupTbl (LacpUtil.getSalGroupService(), dataService);
@@ -130,9 +132,7 @@ public class LacpNodeExtn
         for(NodeConnector nc : nodeConnectors) {
             FlowCapableNodeConnector flowConnector = nc.getAugmentation(FlowCapableNodeConnector.class);
             PortState portState = flowConnector.getState();
-            if ((portState == null) || (portState.isLinkDown())) {
-                continue;
-            }
+
             long portNum = flowConnector.getPortNumber().getUint32();
             if (portNum > LacpUtil.getLogPortNum()) {
                 continue;
@@ -143,6 +143,10 @@ public class LacpNodeExtn
                 .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nc.getKey()).build();
             NodeConnectorId nCon = InstanceIdentifier.keyOf(ncId).getId();
             if (nCon.getValue().contains("LOCAL")) {
+                continue;
+            }
+            if ((portState == null) || (portState.isLinkDown())) {
+                downPortList.add(ncId);
                 continue;
             }
             LOG.debug("for nodeconnector nc {}", nc);
@@ -208,11 +212,16 @@ public class LacpNodeExtn
         LacpPortType pType = this.containsPort(port);
         if (pType != LacpPortType.NONE)
         {
-            if (pType == LacpPortType.LACP_PORT)
-            {
+            if (pType == LacpPortType.LACP_PORT) {
                 LOG.warn ("getting add non-lacp port for an lacp port without removing from lacp port list");
+                return false;
+            } else if (pType == LacpPortType.PORT_DOWN) {
+                this.downPortList.remove(port);
+                LOG.debug("removed the port {} from downPortList", port);
+            } else {
+                LOG.debug ("port already available as non-lacp port. ignoring it");
+                return false;
             }
-            return false;
         }
         this.nonLacpPortList.add(port);
         LOG.debug("adding non lacp port {} ", port);
@@ -254,8 +263,13 @@ public class LacpNodeExtn
             LOG.debug ("getting a remove port indication for LOCAL port. ignoring it");
             return false;
         }
-        boolean result = nonLacpPortList.remove(port);
-
+        boolean result = false;
+        LacpPortType pType = this.containsPort(port);
+        if (pType == LacpPortType.NON_LACPPORT) {
+            result = nonLacpPortList.remove(port);
+        } else if (pType == LacpPortType.PORT_DOWN) {
+            downPortList.remove(port);
+        }
         LOG.debug("removing non lacp port {} result {}", port, result);
         if (result == true)
         {
@@ -280,6 +294,18 @@ public class LacpNodeExtn
         }
         return lacpPort;
     }
+    public boolean addDownPort (InstanceIdentifier<NodeConnector> port) {
+        NodeConnectorId ncId = InstanceIdentifier.keyOf(port).getId();
+        if (ncId.getValue().contains("LOCAL"))
+        {
+            /* Ignoring port updates for LOCAL port connected to the controller */
+            LOG.debug ("getting a add port indication for LOCAL port. ignoring it");
+            return false;
+        }
+        this.downPortList.add(port);
+        LOG.debug ("added port {} in downPortList", port);
+        return true;
+    }
     public void setFlowId (Long flowId)
     {
         this.flowId = flowId;
@@ -296,16 +322,13 @@ public class LacpNodeExtn
     }
     public LacpPortType containsPort (InstanceIdentifier<NodeConnector> port)
     {
-        if (this.nonLacpPortList.contains(port) == true)
-        {
+        if (this.nonLacpPortList.contains(port) == true) {
             return LacpPortType.NON_LACPPORT;
-        }
-        else if (this.lacpPortList.containsKey(port) == true)
-        {
+        } else if (this.lacpPortList.containsKey(port) == true) {
             return LacpPortType.LACP_PORT;
-        }
-        else
-        {
+        } else if (this.downPortList.contains(port) == true) {
+            return LacpPortType.PORT_DOWN;
+        } else {
             return LacpPortType.NONE;
         }
     }

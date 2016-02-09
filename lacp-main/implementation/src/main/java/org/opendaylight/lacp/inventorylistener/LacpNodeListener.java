@@ -346,19 +346,12 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                     return;
                 }
                 PortState portState = flowConnector.getState();
-                if ((portState == null) || (portState.isLinkDown()))
-                {
-                    // port is in linkdown state, remove the port from the node.
-                    if (portType != LacpPortType.NONE)
-                    {
+                if (portType != LacpPortType.NONE) {
+                    if ((portState == null) || (portState.isLinkDown())) {
+                        // port is in linkdown state, remove the port from the node.
                         handlePortDelete(lNodeCon, true);
-                    }
-                }
-                else
-                {
-                    // port is in linkup state, add the port to the node.
-                    if (portType == LacpPortType.NONE)
-                    {
+                    } else {
+                        // port is in linkup state, add the port to the node.
                         handlePortUpdate(lNodeCon);
                     }
                 }
@@ -366,7 +359,7 @@ public class LacpNodeListener implements OpendaylightInventoryListener
         }
 
 
-	private boolean enqueuePortStatus (InstanceIdentifier<NodeConnector> ncId, int upDown, boolean hardReset)
+    private boolean enqueuePortStatus (InstanceIdentifier<NodeConnector> ncId, int upDown, boolean hardReset)
     {
                 boolean result = false;
                 if (ncId != null){
@@ -454,8 +447,13 @@ public class LacpNodeListener implements OpendaylightInventoryListener
                 else
                 {
                     LOG.debug ("giving port delete to the node directly");
-                    if (lacpNode.removeNonLacpPort(ncId) == false)
+                    if (lacpNode.removeNonLacpPort(ncId) == true)
                     {
+                        if (hardReset == true) {
+                            //Port is down
+                            lacpNode.addDownPort(ncId);
+                        }
+                    } else {
                         LOG.debug ("port is not available with the node {}", ncId);
                     }
                 }
