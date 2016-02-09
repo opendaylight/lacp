@@ -306,6 +306,11 @@ public class RSMThread implements Runnable
             LOG.debug("handleLacpPortState - couldn't find port={} in switch {}, no action to be taken", portId, swId);
         }
     }
+    if (resetStatus == true) {
+        synchronized (lacpNode) {
+            lacpNode.addDownPort(ncId);
+        }
+    }
     LOG.debug("handleLacpPortState - Exit");
   }
 

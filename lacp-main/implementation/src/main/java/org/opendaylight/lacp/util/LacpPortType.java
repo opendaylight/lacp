@@ -12,5 +12,6 @@ public enum LacpPortType
 {
     NONE,
     LACP_PORT,
-    NON_LACPPORT;
+    NON_LACPPORT,
+    PORT_DOWN;
 }
