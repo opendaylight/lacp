@@ -131,12 +131,6 @@ public class LacpNodeExtn
         }
         for(NodeConnector nc : nodeConnectors) {
             FlowCapableNodeConnector flowConnector = nc.getAugmentation(FlowCapableNodeConnector.class);
-            PortState portState = flowConnector.getState();
-
-            long portNum = flowConnector.getPortNumber().getUint32();
-            if (portNum > LacpUtil.getLogPortNum()) {
-                continue;
-            }
 
             InstanceIdentifier<NodeConnector> ncId = (InstanceIdentifier<NodeConnector>)
                 InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
@@ -145,6 +139,13 @@ public class LacpNodeExtn
             if (nCon.getValue().contains("LOCAL")) {
                 continue;
             }
+
+            long portNum = flowConnector.getPortNumber().getUint32();
+            if (portNum > LacpUtil.getLogPortNum()) {
+                continue;
+            }
+
+            PortState portState = flowConnector.getState();
             if ((portState == null) || (portState.isLinkDown())) {
                 downPortList.add(ncId);
                 continue;
