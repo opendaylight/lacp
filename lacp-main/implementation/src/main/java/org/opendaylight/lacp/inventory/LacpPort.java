@@ -153,6 +153,10 @@ public class LacpPort implements Comparable<LacpPort> {
 		public int getPortEnumState(){
 			return state;
 		}
+                public static portStateEnum getStateEnum(int st) {
+                    portStateEnum[] values = portStateEnum.values();
+                    return values[st - 1];
+                }
 	}
 	public enum stmStateEnum  {
 		BEG(0),ENA(1),ACTC(2),PARC(3),RDY(4),RDYN(5),MAT(6),STA(7),SEL(8),MOV(9);
@@ -859,6 +863,7 @@ public class LacpPort implements Comparable<LacpPort> {
     			result = result+" "+token;
     		}
     		i++;
+                seq = portStateEnum.getStateEnum(i);
     		val = (byte) ((val >> 1) & value);
     	}
     	return result;
@@ -1242,7 +1247,10 @@ public class LacpPort implements Comparable<LacpPort> {
 			LOG.debug("The PDU object to be enqued onto Tx queue ActorInfo: {}",  obj.getActorInfo());
 			LOG.debug("The PDU object to be enqued onto Tx queue PartnerInfo: {}",  obj.getPartnerInfo());
 			LOG.debug("Exiting updateLacpFromPortToLacpPacketPdu for port={}, {}",swId, portId);
-		}finally{
+		} catch (Exception e) {
+                    LOG.debug("Exception caught in updateLacpFromPortToLacpPacketPdu ", e.toString());
+                }
+                finally{
 			this.slavePSMUnlock();
 		}
 		return obj.build();
@@ -2155,19 +2163,21 @@ public class LacpPort implements Comparable<LacpPort> {
 
         //set ntt to true to send the packet to actor
         setNtt(true);
-       
         //set actor port state
-        setActorOperPortState((byte)(~(LacpConst.PORT_STATE_LACP_ACTIVITY)  | ~(LacpConst.PORT_STATE_LACP_TIMEOUT)
-                                         | LacpConst.PORT_STATE_AGGREGATION | LacpConst.PORT_STATE_SYNCHRONIZATION
-                                         | LacpConst.PORT_STATE_COLLECTING  | LacpConst.PORT_STATE_DISTRIBUTING ));
+        setActorOperPortState((byte)(LacpConst.PORT_STATE_LACP_ACTIVITY 
+                | LacpConst.PORT_STATE_AGGREGATION | LacpConst.PORT_STATE_SYNCHRONIZATION
+                | LacpConst.PORT_STATE_COLLECTING  | LacpConst.PORT_STATE_DISTRIBUTING));
         //set partner port state
-        partnerOper.portState = (byte)(~(LacpConst.PORT_STATE_LACP_ACTIVITY)  | ~(LacpConst.PORT_STATE_LACP_TIMEOUT)
-                                         | LacpConst.PORT_STATE_AGGREGATION | LacpConst.PORT_STATE_SYNCHRONIZATION
-                                         | LacpConst.PORT_STATE_COLLECTING  | LacpConst.PORT_STATE_DISTRIBUTING );
+        partnerOper.portState = (byte)(LacpConst.PORT_STATE_LACP_ACTIVITY
+                | LacpConst.PORT_STATE_AGGREGATION | LacpConst.PORT_STATE_SYNCHRONIZATION
+                | LacpConst.PORT_STATE_COLLECTING  | LacpConst.PORT_STATE_DISTRIBUTING);
 
         LacpTxQueue.QueueType qType = LacpTxQueue.QueueType.LACP_TX_NTT_QUEUE;
         if ((this.getStateMachineBitSet() & LacpConst.PORT_LACP_ENABLED) > 0) {
             LOG.debug("transitionDataStoreRecoveredLAGPortState putting port={}, {} on to tx queue, setting Ntt false ",swId, portId);
+            LOG.debug("in transitionDataStoreRecoveredLAGPortState with actor state {} {}, partner state {} {}",
+                getActorOperPortState(), getPortStateString((byte)getActorOperPortState()),
+                partnerOper.portState, getPortStateString((byte)partnerOper.portState));
             lacpduSend(qType);
             this.setNtt(false);
         }
