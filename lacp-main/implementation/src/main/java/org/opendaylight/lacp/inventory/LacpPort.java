@@ -2184,9 +2184,9 @@ public class LacpPort implements Comparable<LacpPort> {
     }
 
     public void updatePartnerParams(LacpBond bond){
-       partnerOper.systemPriority = Integer.valueOf(this.bond.getAggPartnerSysPriority());
-       partnerOper.system = Arrays.copyOf(this.bond.getAggPartnerSystemId().getValue().getBytes(),LacpConst.ETH_ADDR_LEN);
-       partnerOper.key = Integer.valueOf(this.bond.getAggPartnerKey()).shortValue();
+        partnerOper.systemPriority = Integer.valueOf(this.bond.getAggPartnerSysPriority());
+        partnerOper.system = Arrays.copyOf(HexEncode.bytesFromHexString(bond.getAggPartnerSystemId().getValue()),
+                                LacpConst.ETH_ADDR_LEN);
+        partnerOper.key = Integer.valueOf(this.bond.getAggPartnerKey()).shortValue();
     }
-
 }
