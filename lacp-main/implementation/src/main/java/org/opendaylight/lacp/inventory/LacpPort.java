@@ -991,6 +991,7 @@ public class LacpPort implements Comparable<LacpPort> {
         //TODO will this reset the updated values in constructor
         portAssignSlave(bond.getBondSystemId(), bond.getLacpFast(),
             bond.bondGetSysPriority(), this.portPriority, bond.getAdminKey());
+        this.slaveHandleLinkChange(LacpConst.BOND_LINK_UP);
         LOG.debug ("assigned sw {} port {} as member of the bond {}",
             this.swId, this.portId, bond.getBondInstanceId());
         updatePartnerParams(bond);
@@ -1036,12 +1037,12 @@ public class LacpPort implements Comparable<LacpPort> {
     }
 
     private LacpPort(long switchId, InstanceIdentifier<NodeConnector> ncIdentifier, NodeConnector nc, LagPort lagPort) {
-        LOG.debug("Entering LacpPort constructor for switchid={} port={}",portId, swId);
 
         this.swId = switchId;
         FlowCapableNodeConnector flowNC = nc.<FlowCapableNodeConnector>getAugmentation(FlowCapableNodeConnector.class);
         this.portId = Short.valueOf((flowNC.getPortNumber().getUint32()).toString());
         this.bond = null;
+        LOG.debug("Entering LacpPort constructor for switchid={} port={}",portId, swId);
         initLacpPort();
 
         this.portPriority = lagPort.getActorPortPriority();
@@ -1386,7 +1387,7 @@ public class LacpPort implements Comparable<LacpPort> {
 
 	public void slaveHandleLinkChange(byte link)
 	{
-		LOG.debug("Entering slaveHandleLinkChange for port={}",portId);
+		LOG.debug("Entering slaveHandleLinkChange for port={},{}, link {} curr {}",swId, portId, link, this.getLink());
 		if (this.getLink()!= link) {
 			this.setLink(link);
 			portHandleLinkChange(link);
@@ -2135,8 +2136,9 @@ public class LacpPort implements Comparable<LacpPort> {
     public void transitionDataStoreRecoveredLAGPortState(LacpBond lacpbond){
 
         //Move RxMachine to current state
+        LOG.debug("in transitionDataStoreRecoveredLAGPortState for port {},{}", swId, portId);
         rxContext.setState(rxCurrentState);
-        setStateMachineBitSet((short)(getStateMachineBitSet() & ~LacpConst.PORT_SELECTED));
+        setStateMachineBitSet((short)(getStateMachineBitSet() & ~(LacpConst.PORT_SELECTED | LacpConst.PORT_BEGIN)));
         setCurrentWhileTimer((long)LacpConst.LONG_TIMEOUT_TIME);
 
         //Move PeriodicMachine to slow state
