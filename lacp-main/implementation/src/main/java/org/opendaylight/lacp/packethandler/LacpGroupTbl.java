@@ -640,26 +640,13 @@ public class LacpGroupTbl
 
 
     private boolean remGroup(boolean isUnicastGrp, NodeRef nodeRef, NodeId nodeId,
-			     NodeConnectorId ncId, GroupId  groupId ) {
-
-
-        boolean isGroupRemoved = true;
-
-         /* Create output action for this ncId*/
-         OutputActionBuilder oab = new OutputActionBuilder();
-         oab.setOutputNodeConnector(ncId);
-         ActionBuilder ab = new ActionBuilder();
-         ab.setAction(new OutputActionCaseBuilder().setOutputAction(oab.build()).build());
-         LOG.debug("lacpRemGroup:", ab.build());
-
-         RemoveGroupInputBuilder groupBuilder = new RemoveGroupInputBuilder();
-
-         if (isUnicastGrp == true)
-         {
-                 groupBuilder.setGroupType(GroupTypes.GroupSelect);
-         } else {
-                 groupBuilder.setGroupType(GroupTypes.GroupAll);
-         }
+                             NodeConnectorId ncId, GroupId  groupId ) {
+        RemoveGroupInputBuilder groupBuilder = new RemoveGroupInputBuilder();
+        if (isUnicastGrp == true) {
+            groupBuilder.setGroupType(GroupTypes.GroupSelect);
+        } else {
+            groupBuilder.setGroupType(GroupTypes.GroupAll);
+        }
 
         GroupKey groupkey = new GroupKey(groupId);
         groupBuilder.setGroupId(groupId);
@@ -668,45 +655,20 @@ public class LacpGroupTbl
         groupBuilder.setBarrier(false);
         groupBuilder.setTransactionUri(new Uri (getNewTransactionId()) );
 
-        BucketsBuilder bucketBuilder = new BucketsBuilder();
-        List<Bucket> bucketList = Lists.newArrayList();
-        BucketBuilder bucket = new BucketBuilder();
-        bucket.setBucketId(new BucketId((long) 1));
-        bucket.setKey(new BucketKey(new BucketId((long) 1)));
-
-        /* put output action to the bucket */
-        List<Action> bucketActionList = Lists.newArrayList();
-        /* set order for new action and add to action list */
-        ab.setOrder(bucketActionList.size());
-        ab.setKey(new ActionKey(bucketActionList.size()));
-        bucketActionList.add(ab.build());
-
-        bucket.setAction(bucketActionList);
-        bucketList.add(bucket.build());
-        bucketBuilder.setBucket(bucketList);
-        groupBuilder.setBuckets(bucketBuilder.build());
-
-
+        boolean isGroupRemoved = false;
         try {
-              	Future<RpcResult<RemoveGroupOutput>>  result = salGroupService.removeGroup(groupBuilder.build());
-               	if (result.get (5, TimeUnit.SECONDS).isSuccessful () == true)
-               	{
-                 	LOG.info ("LACP: Group Deletion Succeeded.");
-                   	isGroupRemoved = true;
-               	}
-               	else {
-                   	LOG.warn("LACP: Group Deletion Failed.");
-                    	isGroupRemoved = false;
-               	}
-         }
-         catch (InterruptedException | ExecutionException | TimeoutException e)
-         {
+            Future<RpcResult<RemoveGroupOutput>>  result = salGroupService.removeGroup(groupBuilder.build());
+            if (result.get (5, TimeUnit.SECONDS).isSuccessful () == true) {
+                LOG.info ("LACP: Group Deletion Succeeded.");
+                isGroupRemoved = true;
+            } else {
+                LOG.warn("LACP: Group Deletion Failed.");
+                isGroupRemoved = false;
+            }
+         } catch (InterruptedException | ExecutionException | TimeoutException e) {
              	LOG.error("received interrupt {}" + e.toString());
          }
 
          return(isGroupRemoved);
-
     }
-
-
 }
