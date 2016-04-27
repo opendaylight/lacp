@@ -8,6 +8,7 @@
 
 package org.opendaylight.lacp.flow;
 
+import org.opendaylight.openflowplugin.api.OFConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -156,7 +157,7 @@ public class LacpFlow
 
         lFlow.setMatch(match).setInstructions(new InstructionsBuilder()
                         .setInstruction(ImmutableList.of(applyActionsInstruction)).build())
-                .setPriority(flowPriority).setBufferId(0L)
+                .setPriority(flowPriority).setBufferId(OFConstants.OFP_NO_BUFFER)
                 .setHardTimeout(0).setIdleTimeout(0)
                 .setCookie(new FlowCookie(BigInteger.valueOf(lacpCookie.getAndIncrement())))
                 .setFlags(new FlowModFlags(false, false, false, false, false));
