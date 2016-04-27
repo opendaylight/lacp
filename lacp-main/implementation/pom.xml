@@ -57,7 +57,12 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
     </dependency>
-   </dependencies>
+<dependency>
+      <groupId>org.opendaylight.openflowplugin</groupId>
+      <artifactId>openflowplugin-api</artifactId>
+      <version>${openflow.plugin.version}</version>
+    </dependency>
+    </dependencies>
    <properties>
       <maven.test.skip>${skipTests}</maven.test.skip>
    </properties>
