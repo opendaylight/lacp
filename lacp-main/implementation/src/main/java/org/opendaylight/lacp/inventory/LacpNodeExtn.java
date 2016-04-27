@@ -91,11 +91,12 @@ public class LacpNodeExtn
     }
     public LacpNodeExtn (InstanceIdentifier nodeId)
     {
+	LOG.debug ("start of LacpNodeExtn constructor");
         initNode();
-        groupId = LacpUtil.getNextGroupId();
+	groupId = LacpUtil.getNextGroupId();
         bcastGroupId = new GroupId (groupId);
         nodeInstId = nodeId;
-
+	
         switchId = LacpUtil.getNodeSwitchId(nodeId);
         String sysId = obtainSystemMac();
         lacpBuilder.setSystemId(new MacAddress(sysId));
@@ -103,8 +104,9 @@ public class LacpNodeExtn
 	firstGrpAdd = true;
         lacpBuilder.setNonLagGroupid(groupId);
         ArrayList<LacpAggregators> aggList = new ArrayList<LacpAggregators>();
-        lacpBuilder.setLacpAggregators(aggList);
+	lacpBuilder.setLacpAggregators(aggList);
         nextAggId =1;
+	LOG.debug ("end of LacpNodeExtn constructor");
     }
 
     public LacpNodeExtn (InstanceIdentifier nodeId, Node node) {
@@ -191,7 +193,7 @@ public class LacpNodeExtn
     {
         long id = this.switchId;
         String sysId = String.format("%02x:%02x:%02x:%02x:%02x:%02x", 0,
-                  ((id & 0xff000000) >> 24), ((id & 0xff0000) >> 16),
+                  ((id & 0x00000000ff000000) >> 24), ((id & 0xff0000) >> 16),
                   ((id & 0xff00) >> 8), (id & 0xff), 1);
 
         return sysId;
