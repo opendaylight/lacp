@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_19026e3e",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/inventory/LacpNodeExtn.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-04-27T09:07:30Z",
+      "side": 1,
+      "message": "avoid tabs instead uses 4 spaces.\navoid spaces in blank lines",
+      "revId": "4337099cc40db31b125e2052c0fcd0782b25dbc3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_f9fe9a37",
+        "filename": "lacp-main/implementation/src/main/java/org/opendaylight/lacp/inventory/LacpNodeExtn.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 3374
+      },
+      "writtenOn": "2016-04-27T09:07:30Z",
+      "side": 1,
+      "message": "add the appending zeros in all the fields of the mac component. Issue can arise in any field.",
+      "revId": "4337099cc40db31b125e2052c0fcd0782b25dbc3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
