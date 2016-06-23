@@ -26,9 +26,8 @@ public class PeriodicTxFastState extends PeriodicTxState {
 		//Start periodic_timer (fast_periodic_time)
 
 		stateFlag = LacpConst.PERIODIC_STATES.FAST_PERIODIC;
-		//portObjRef.setPeriodicWhileTimer(LacpConst.FAST_PERIODIC_TIME);
-		//overriding as we currently support only slow timeout
-		portObjRef.setPeriodicWhileTimer(LacpConst.SLOW_PERIODIC_TIME);
+		portObjRef.setPeriodicWhileTimer(LacpConst.FAST_PERIODIC_TIME);
+		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState() | LacpConst.PORT_STATE_LACP_TIMEOUT));
 		obj.setState(this);
 		LOG.debug("Exiting PeriodicTxFastState executeStateAction");
 	}

@@ -136,4 +136,8 @@ public class LacpUtil
                 }
                 return data;
         }
+
+        public static boolean isFast(short portState) {
+            return isState(portState, LacpConst.PORT_STATE_LACP_TIMEOUT);
+        }
 }

@@ -85,7 +85,7 @@ public class TxProcessor implements Runnable
                     isQueueRdy=false;
                     try
                     {
-                        Thread.sleep(200);
+                        Thread.sleep(100);
                     }
                     catch (InterruptedException e)
                     {

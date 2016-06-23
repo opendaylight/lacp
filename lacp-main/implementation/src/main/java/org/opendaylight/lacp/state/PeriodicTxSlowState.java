@@ -26,6 +26,7 @@ public class PeriodicTxSlowState extends PeriodicTxState {
 		//Start periodic_timer (slow_periodic_time)
 		stateFlag = LacpConst.PERIODIC_STATES.SLOW_PERIODIC;
 		portObjRef.setPeriodicWhileTimer(LacpConst.SLOW_PERIODIC_TIME);
+		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState() & ~LacpConst.PORT_STATE_LACP_TIMEOUT));
 		obj.setState(this);
 		LOG.debug("Exiting PeriodicTxSlowState executeStateAction");
 	}

@@ -1581,7 +1581,9 @@ public class LacpPort implements Comparable<LacpPort> {
 			if(!currWhileTimeout.isExpired()){
 				currWhileTimeout.cancel();
 			}
-			setCurrentWhileTimer(LacpConst.LONG_TIMEOUT_TIME);
+
+	                boolean isFast = LacpUtil.isFast(lacpdu.getActorSystemInfo().getNodePortState());
+	                setCurrentWhileTimer(isFast ? LacpConst.SHORT_TIMEOUT_TIME : LacpConst.LONG_TIMEOUT_TIME);
 
                         if (rxContext.getState().getStateFlag() == LacpConst.RX_STATES.RX_DEFAULTED)
                         {
@@ -1663,7 +1665,7 @@ public class LacpPort implements Comparable<LacpPort> {
 			periodicTxContext.setState(periodicTxNoPeriodicState);
 			LOG.debug("portPeriodicStateMachine setting port={} to periodicTxNoPeriodicState",portId);
 		}else if((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.FAST_PERIODIC) &&
-						(this.partnerOper.getPortState() & LacpConst.LONG_TIMEOUT)==0){
+		        !LacpUtil.isFast(this.partnerOper.getPortState())){
 			periodicTxContext.setState(periodicTxSlowState);
 			LOG.debug("portPeriodicStateMachine setting port={} to periodicTxSlowState",portId);
 		}else if((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.FAST_PERIODIC) &&
@@ -1672,16 +1674,16 @@ public class LacpPort implements Comparable<LacpPort> {
 			LOG.debug("1. portPeriodicStateMachine setting port={} to periodicTxPeriodicState",portId);
 		}
 		else if ((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.SLOW_PERIODIC) &&
-						((this.partnerOper.getPortState() & LacpConst.SHORT_TIMEOUT)==0) ||
+						LacpUtil.isFast(this.partnerOper.getPortState()) ||
 								(((timerExpired != null) && (timerExpired.getTimerWheelType() == Utils.timerWheeltype.PERIODIC_TIMER)))){
 			periodicTxContext.setState(periodicTxPeriodicState);
 			LOG.debug("2. portPeriodicStateMachine setting port={} to periodicTxPeriodicState",portId);
 		}else if((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.PERIODIC_TX) &&
-				((this.partnerOper.getPortState() & LacpConst.SHORT_TIMEOUT)==0)){
+				LacpUtil.isFast(this.partnerOper.getPortState())){
 			periodicTxContext.setState(periodicTxFastState);
 			LOG.debug("portPeriodicStateMachine setting port={} to periodicTxFastState",portId);
 		}else if((periodicTxContext.getState().getStateFlag() == LacpConst.PERIODIC_STATES.PERIODIC_TX) &&
-				((this.partnerOper.getPortState() & LacpConst.LONG_TIMEOUT)==0)){
+				!LacpUtil.isFast(this.partnerOper.getPortState())){
 			periodicTxContext.setState(periodicTxSlowState);
 			LOG.debug("portPeriodicStateMachine setting port={} to periodicTxSlowState",portId);
 		}
