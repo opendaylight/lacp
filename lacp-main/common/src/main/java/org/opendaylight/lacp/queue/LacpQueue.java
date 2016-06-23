@@ -8,12 +8,13 @@
 
 package org.opendaylight.lacp.queue;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class LacpQueue<E> {
 
-    private ConcurrentLinkedQueue<E> list = new ConcurrentLinkedQueue<E>();
+    private BlockingQueue<E> list = new LinkedBlockingQueue<E>();
 
     public boolean isQueuePresent(){
             if(list != null){
@@ -29,6 +30,10 @@ public class LacpQueue<E> {
 
     public E dequeue() {
             return list.poll();
+    }
+
+    public E dequeue(long timeoutMillis) throws InterruptedException {
+        return list.poll(timeoutMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean hasItems() {

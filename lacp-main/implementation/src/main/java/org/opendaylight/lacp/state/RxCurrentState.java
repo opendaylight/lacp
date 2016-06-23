@@ -14,6 +14,7 @@ import org.opendaylight.lacp.core.LacpConst;
 import org.opendaylight.lacp.inventory.LacpPort;
 import org.opendaylight.lacp.inventory.LacpPort.PortParams;
 import org.opendaylight.lacp.core.LacpBpduInfo;
+import org.opendaylight.lacp.util.LacpUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +41,8 @@ public class RxCurrentState extends RxState {
 		updateSelected(portObjRef,pdu);
 		updateNTT(portObjRef,pdu);
 		recordPDU(portObjRef,pdu);
-		//CHECK_LATER TIMEOUT VALUE - SHOULD BE Actor_Oper_Port_State.LACP_Timeout
-		portObjRef.setCurrentWhileTimer((long)LacpConst.LONG_TIMEOUT_TIME);
+		boolean isFast = LacpUtil.isFast(portObjRef.getActorOperPortState());
+	        portObjRef.setCurrentWhileTimer(isFast ? LacpConst.SHORT_TIMEOUT_TIME : LacpConst.LONG_TIMEOUT_TIME);
 		portObjRef.setActorOperPortState((byte)(portObjRef.getActorOperPortState()
 				& ~LacpConst.PORT_STATE_EXPIRED));
 		obj.setState(this);

@@ -18,6 +18,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.lacp.core.LacpConst;
 import java.util.Random;
 import java.math.BigInteger;
 
@@ -135,5 +136,13 @@ public class LacpUtil
                         }
                 }
                 return data;
+        }
+
+        public static boolean isState(short portState, byte expectedState) {
+            return (portState & expectedState) == expectedState;
+        }
+
+        public static boolean isFast(short portState) {
+            return isState(portState, LacpConst.PORT_STATE_LACP_TIMEOUT);
         }
 }
