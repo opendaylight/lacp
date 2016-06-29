@@ -11,8 +11,8 @@ module lacp-packet {
     namespace "urn:opendaylight:lacp:packet";
     prefix lacppdu;
 
-    import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-yang-types {prefix yang; revision-date "2013-07-15";}
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import opendaylight-inventory {prefix inv;revision-date "2013-08-19";}
 
     revision 2015-02-10 { description "LACP Packet."; }

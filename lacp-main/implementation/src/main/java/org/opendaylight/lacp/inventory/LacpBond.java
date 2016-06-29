@@ -29,7 +29,7 @@ import org.opendaylight.lacp.core.LacpConst;
 import org.opendaylight.lacp.core.LacpBpduInfo;
 import org.opendaylight.lacp.core.LacpSysKeyInfo;
 import org.opendaylight.lacp.util.LacpUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;

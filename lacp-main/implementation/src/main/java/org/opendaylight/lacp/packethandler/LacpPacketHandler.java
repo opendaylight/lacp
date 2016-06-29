@@ -10,7 +10,7 @@ package org.opendaylight.lacp.packethandler;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.lacp.Utils.HexEncode;
 import org.opendaylight.lacp.Utils.BitBufferHelper;
 import org.opendaylight.lacp.util.LacpUtil;

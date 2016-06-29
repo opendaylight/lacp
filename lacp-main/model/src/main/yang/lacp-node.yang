@@ -13,7 +13,7 @@ module lacp-node {
 
     import yang-ext {prefix ext; revision-date "2013-07-09";}
     import opendaylight-inventory {prefix inv; revision-date "2013-08-19";}
-    import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
+    import ietf-yang-types {prefix yang; revision-date "2013-07-15";}
     import lacp-aggregator {prefix lacpagg; revision-date "2015-11-25";}
     revision "2015-01-31" {
         description "Lacp Node data";

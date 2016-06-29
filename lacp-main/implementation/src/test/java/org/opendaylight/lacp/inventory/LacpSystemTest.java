@@ -45,7 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev151125.l
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.aggregator.rev151125.lacpaggregator.LagPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev151125.LacpNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.lacp.port.rev151125.LacpNodeConnectorBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import java.util.List;
