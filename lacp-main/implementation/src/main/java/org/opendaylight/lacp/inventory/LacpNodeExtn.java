@@ -191,10 +191,8 @@ public class LacpNodeExtn
     private String obtainSystemMac()
     {
         long id = this.switchId;
-        String sysId = String.format("%02x:%02x:%02x:%02x:%02x:%02x", 0,
-                  ((id & 0x00000000ff000000) >> 24), ((id & 0x00000000ff0000) >> 16),
-                  ((id & 0x00000000ff00) >> 8), (id & 0x00000000ff), 1);
-
+        String sysId = String.format("%02x:%02x:%02x:%02x:%02x:%02x", 0, ((id >> 24) & 0xff),
+                    ((id >> 16) & 0xff),((id >> 8) & 0xff), (id & 0xff), 1);
         return sysId;
     }
     public static void setDataBrokerService (DataBroker dataBroker)
