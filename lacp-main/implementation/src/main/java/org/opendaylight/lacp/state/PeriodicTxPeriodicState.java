@@ -11,6 +11,7 @@ package org.opendaylight.lacp.state;
 import org.opendaylight.lacp.core.LacpBpduInfo;
 import org.opendaylight.lacp.core.LacpConst;
 import org.opendaylight.lacp.inventory.LacpPort;
+import org.opendaylight.lacp.util.LacpUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class PeriodicTxPeriodicState extends PeriodicTxState {
 			portObjRef.getPeriodicWhileTimer().cancel();
 		}
 		portObjRef.setNtt(true);
-        if ((portObjRef.portPartnerOperGetPortState() & LacpConst.LONG_TIMEOUT) == LacpConst.LONG_TIMEOUT)
+	if (!LacpUtil.isFast(portObjRef.portPartnerOperGetPortState()))
         {
             flag = LacpConst.PERIODIC_STATES.SLOW_PERIODIC;
         }

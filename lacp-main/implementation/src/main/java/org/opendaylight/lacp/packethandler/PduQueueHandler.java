@@ -29,7 +29,7 @@ import org.opendaylight.lacp.inventory.*;
 public class PduQueueHandler {
 
 	private final static Logger LOG = LoggerFactory.getLogger(PduQueueHandler.class);
-	private final int SLEEP_TIME = 100;
+	private final int SLEEP_TIME = 5000;
 
     public void checkQueue()
     {
@@ -46,13 +46,12 @@ public class PduQueueHandler {
         // Dequeue LACP Packet from RAW Packet Queue.
         while (!hasPktArrvd)
         {
-            packetReceived = lacpRxQ.dequeue();
-            if (packetReceived != null)  {
-                hasPktArrvd = true;
-                break;
-            }
             try {
-                Thread.sleep(SLEEP_TIME);
+                packetReceived = lacpRxQ.dequeue(SLEEP_TIME);
+                if (packetReceived != null)  {
+                    hasPktArrvd = true;
+                    break;
+                }
             }catch( InterruptedException e ) {
                 LOG.error("PduQueueHandler: Interrupted Exception ", e.toString());
             }
