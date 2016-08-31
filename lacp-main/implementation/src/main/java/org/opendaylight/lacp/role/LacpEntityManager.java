@@ -35,7 +35,7 @@ public class LacpEntityManager {
     private EntityOwnershipService entityOwnershipService;
     private EntityOwnershipListenerRegistration entityOwnershipListenerRegistration;
     private final LacpOwnershipListener ownershipListener;
-    private static final String APP_NAME = "openflow";
+    private static final String APP_NAME = "org.opendaylight.mdsal.ServiceEntityType";
 
     public LacpEntityManager( EntityOwnershipService entityOwnershipService ) {
         this.entityOwnershipService = Preconditions.checkNotNull(entityOwnershipService,
