@@ -7,13 +7,13 @@
   <parent>
     <groupId>org.opendaylight.lacp</groupId>
     <artifactId>lacp-parent</artifactId>
-    <version>1.2.3-SNAPSHOT</version>
+    <version>1.2.3-Boron-SR3</version>
     <relativePath>../parent</relativePath>
   </parent>
 
   <groupId>org.opendaylight.lacp.main</groupId>
   <artifactId>lacp.main</artifactId>
-  <version>1.2.3-SNAPSHOT</version>
+  <version>1.2.3-Boron-SR3</version>
   <packaging>pom</packaging>
 
   <modules>
