@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.opendaylight.odlparent</groupId>
+        <artifactId>single-feature-parent</artifactId>
+        <version>1.8.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>org.opendaylight.lacp</groupId>
+    <artifactId>odl-lacp-ui</artifactId>
+    <version>0.4.0-SNAPSHOT</version>
+    <packaging>feature</packaging>
+
+ <properties>
+    <features.file>features.xml</features.file>
+    <maven.test.skip>${skipTests}</maven.test.skip>
+    <dluxapps.version>0.5.0-SNAPSHOT</dluxapps.version>
+    <mdsal.version>1.5.0-SNAPSHOT</mdsal.version>
+    <openflow.plugin.version>0.4.0-SNAPSHOT</openflow.plugin.version>
+    <restconf.version>1.5.0-SNAPSHOT</restconf.version>
+    <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
+    <config.lacp.main.configfile>93-lacpmain.xml</config.lacp.main.configfile>
+  </properties>
+
+    <name>OpenDaylight :: lacp :: ui</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-lacp-rest</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+         </dependency>
+	    <dependency>
+      		<groupId>org.opendaylight.dluxapps</groupId>
+      		<artifactId>features-dluxapps</artifactId>
+      		<version>${dluxapps.version}</version>
+      		<classifier>features</classifier>
+      		<type>xml</type>
+	    </dependency>
+
+    </dependencies>
+    
+</project>
