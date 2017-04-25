@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_cbaf1293",
+        "filename": "features/features4-lacp/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "This should be 1.4.0-SNAPSHOT to match the versions used in the rest of LACP, shouldn\u0027t it?",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6b77063b",
+        "filename": "features/odl-lacp-plugin/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "This should be 1.4.0-SNAPSHOT.",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_eb9ad661",
+        "filename": "features/odl-lacp-plugin/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "For Nitrogen this should be 0.5.0-SNAPSHOT. The other version properties are unused and should be removed.",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_8b8cea36",
+        "filename": "features/odl-lacp-plugin/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "This should be odl-openflowplugin-flow-services",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_eb83f601",
+        "filename": "features/odl-lacp-plugin/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "This should be 1.4.0-SNAPSHOT (or fix this POM’s version and use ${project.version}).",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_cb86f212",
+        "filename": "features/odl-lacp-plugin/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2b7dfe1c",
+        "filename": "features/odl-lacp-plugin/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2ba4dea4",
+        "filename": "features/odl-lacp-rest/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "This should be 1.4.0-SNAPSHOT.",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_cb9d525b",
+        "filename": "features/odl-lacp-rest/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "For Nitrogen this should be 1.6.0-SNAPSHOT.",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0b9f5a51",
+        "filename": "features/odl-lacp-ui/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "This should be 1.4.0-SNAPSHOT.",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2bcb3e54",
+        "filename": "features/odl-lacp-ui/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "For Nitrogen this should be 0.6.0-SNAPSHOT (I think).",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0bc63a49",
+        "filename": "features/odl-lacp-ui/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-04-25T13:25:14Z",
+      "side": 1,
+      "message": "This should be odl-dluxapps-topology.",
+      "revId": "0e8b3438460679bf57b71667156ad69d77931ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
