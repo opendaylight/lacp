@@ -37,14 +37,13 @@
             <type>xml</type>
             <classifier>features</classifier>
          </dependency>
-	    <dependency>
-      		<groupId>org.opendaylight.dluxapps</groupId>
-      		<artifactId>features-dluxapps</artifactId>
-      		<version>${dluxapps.version}</version>
-      		<classifier>features</classifier>
-      		<type>xml</type>
-	    </dependency>
-
+        <dependency>
+            <groupId>org.opendaylight.dluxapps</groupId>
+            <artifactId>odl-dluxapps-topology</artifactId>
+            <version>0.6.0-SNAPSHOT</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
     </dependencies>
     
 </project>
