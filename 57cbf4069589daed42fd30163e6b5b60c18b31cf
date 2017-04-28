@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_235cf0ec",
+        "filename": "features/features-lacp/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2017-04-28T12:20:24Z",
+      "side": 1,
+      "message": "I recommend to remove everything from here on, and see if it works. features-parent should have set correct defaults already.",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 5
+      },
+      "revId": "57cbf4069589daed42fd30163e6b5b60c18b31cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6371d875",
+        "filename": "features/odl-lacp-rest/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2017-04-28T12:20:24Z",
+      "side": 1,
+      "message": "Spaces please.",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 32,
+        "endChar": 5
+      },
+      "revId": "57cbf4069589daed42fd30163e6b5b60c18b31cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_c36a4480",
+        "filename": "features/odl-lacp-rest/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2017-04-28T12:20:24Z",
+      "side": 1,
+      "message": "No trailing whitespace please.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 4
+      },
+      "revId": "57cbf4069589daed42fd30163e6b5b60c18b31cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
