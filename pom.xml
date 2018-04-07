@@ -11,8 +11,20 @@
     <module>parent</module>
     <module>lacp-main</module>
     <module>features</module>
-    <module>distribution/karaf</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>karaf</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <modules>
+        <module>distribution/karaf</module>
+      </modules>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>
