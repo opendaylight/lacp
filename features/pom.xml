@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>features-parent</artifactId>
-    <version>1.8.4-SNAPSHOT</version>
+    <version>1.8.4-Carbon</version>
     <relativePath/>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -14,15 +14,15 @@
   <artifactId>features-lacp</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
-  <version>1.3.4-SNAPSHOT</version>
+  <version>1.3.4-Carbon</version>
   <description>Opendaylight Link Aggregation</description>
   <properties>
     <features.file>features.xml</features.file>
     <maven.test.skip>${skipTests}</maven.test.skip>
-    <dluxapps.version>0.5.4-SNAPSHOT</dluxapps.version>
-    <mdsal.version>1.5.4-SNAPSHOT</mdsal.version>
-    <openflow.plugin.version>0.4.4-SNAPSHOT</openflow.plugin.version>
-    <restconf.version>1.5.4-SNAPSHOT</restconf.version>
+    <dluxapps.version>0.5.4-Carbon</dluxapps.version>
+    <mdsal.version>1.5.4-Carbon</mdsal.version>
+    <openflow.plugin.version>0.4.4-Carbon</openflow.plugin.version>
+    <restconf.version>1.5.4-Carbon</restconf.version>
     <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
     <config.lacp.main.configfile>93-lacpmain.xml</config.lacp.main.configfile>
   </properties>
@@ -78,13 +78,13 @@
     <dependency>
       <groupId>org.opendaylight.odlparent</groupId>
       <artifactId>features-test</artifactId>
-      <version>1.8.4-SNAPSHOT</version>
+      <version>1.8.4-Carbon</version>
     </dependency>
     <!-- dependency for opendaylight-karaf-empty for use by testing -->
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>opendaylight-karaf-empty</artifactId>
-      <version>1.8.4-SNAPSHOT</version>
+      <version>1.8.4-Carbon</version>
       <type>zip</type>
     </dependency>
   </dependencies>
@@ -139,7 +139,7 @@
           <systemPropertyVariables>
             <karaf.distro.groupId>org.opendaylight.controller</karaf.distro.groupId>
             <karaf.distro.artifactId>opendaylight-karaf-empty</karaf.distro.artifactId>
-            <karaf.distro.version>1.8.4-SNAPSHOT</karaf.distro.version>
+            <karaf.distro.version>1.8.4-Carbon</karaf.distro.version>
           </systemPropertyVariables>
           <dependenciesToScan>
            <dependency>org.opendaylight.odlparent:features-test</dependency>
